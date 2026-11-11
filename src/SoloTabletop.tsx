@@ -1,6 +1,11 @@
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import {ArrowDownToLine,BookOpen,CheckCircle2,Compass,Dices,FileUp,Map,Plus,ScrollText,Shield,Trash2,Users,X} from 'lucide-react';
 import {freshId,rollPercentile} from './engine.ts';
+import {deriveAttributes,derivedSkill,sheetSupplies} from './characterSheetModel.ts';
+import {enteredLethalWp,readTbeSheet} from './tbeSheetData.ts';
+import {previewSoloSkillAction,commitSoloSkillAction,persistSoloSkillAction} from './soloSkillAction.ts';
+import type {PendingSoloSkillAction} from './soloSkillAction.ts';
+import {SoloRuleDrawer} from './SoloRuleDrawer.tsx';
 import type {Character} from './types.ts';
 import {MechanicsPanel} from './MechanicsPanel.tsx';
 import {SoloWorksheets} from './SoloWorksheets.tsx';
@@ -14,11 +19,17 @@ type SceneRoll='expected'|'altered'|'interrupted';
 const LABELS:Record<OracleOutcome,string>={'extreme-yes':'Extreme yes',yes:'Yes',no:'No','extreme-no':'Extreme no'};
 const trim=(s:string,n=800)=>s.trim().slice(0,n);
 const outcomeLabel=(n:SceneRoll)=>n==='expected'?'As expected':n==='altered'?'Altered expectation':'Unexpected interruption';
-export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenSheet,requestedMode}:{
+export function SoloTabletop({
+  characters,activeCharacterId,onOpenRule,onOpenSheet,onCommitCharacter,
+  sourceFile,onSourceFileChange,requestedMode
+}:{
   characters:Character[];
   activeCharacterId:string;
   onOpenRule:(pdfPage:number)=>void;
   onOpenSheet:()=>void;
+  onCommitCharacter:(updated:Character)=>void;
+  sourceFile:File|null;
+  onSourceFileChange:(file:File|null)=>void;
   requestedMode?:import('./MechanicsPanel.tsx').Mode;
 }){
   const [campaigns,setCampaigns]=useState<SoloCampaign[]>(()=>{
@@ -57,10 +68,21 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
   const [boardUrl,setBoardUrl]=useState('');
   const [journalText,setJournalText]=useState('');
   const [journalFilter,setJournalFilter]=useState<'all'|SoloLogKind>('all');
+  const [skillId,setSkillId]=useState('');
+  const [skillFavor,setSkillFavor]=useState(0);
+  const [pendingSkill,setPendingSkill]=useState<PendingSoloSkillAction|null>(null);
+  const [sourcePage,setSourcePage]=useState<number|null>(null);
+  const confirmedSkillIds=useRef(new Set<string>());
 
   const campaign=campaigns.find(c=>c.id===activeId)||campaigns[0];
   const activeScene=campaign.scenes.find(s=>s.id===campaign.activeSceneId);
   const hero=characters.find(c=>c.id===campaign.characterId);
+  const heroStats=hero?deriveAttributes(hero):null;
+  const heroSupply=hero?sheetSupplies(hero):null;
+  const heroWp=hero?.tbeSheet?enteredLethalWp(readTbeSheet(hero)):null;
+  const skill=hero?.skills.find(s=>s.id===skillId)??hero?.skills[0];
+  const skillPreview=skill?derivedSkill(skill):null;
+  const adjustedTarget=skillPreview?skillPreview.target+10*skillFavor:null;
   const currentTokens=campaign.tokens.filter(t=>t.sceneId===campaign.activeSceneId);
   const visibleLog=campaign.journal.filter(e=>journalFilter==='all'||e.kind===journalFilter).slice(-120).reverse();
 
@@ -73,6 +95,9 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
     return()=>URL.revokeObjectURL(url);
   },[boardFile]);
   useEffect(()=>{setSelectedToken('');setBoardFile(null);},[campaign.activeSceneId,campaign.id]);
+  useEffect(()=>{
+    setSkillId('');setSkillFavor(0);setPendingSkill(null);
+  },[campaign.id,campaign.characterId,campaign.activeSceneId]);
 
   const change=(fn:(c:SoloCampaign)=>SoloCampaign)=>{
     setCampaigns(prev=>prev.map(c=>c.id===campaign.id?fn(c):c));
@@ -192,7 +217,29 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
   const updateNPC=(id:string,changes:Partial<{name:string;role:string;disposition:string;tags:string;details:string}>)=>{
     change(c=>({...c,npcs:c.npcs.map(n=>n.id===id?{...n,...changes}:n)}));
   };
-  const docButton=(page:number,label:string)=><button type="button" className="solo-source-link" onClick={()=>onOpenRule(page)}>
+  const rollSceneSkill=()=>{
+    if(!hero||!skill)return;
+    try{
+      const next=previewSoloSkillAction(hero,campaign,skill.id,skillFavor,rollPercentile());
+      setPendingSkill(next);setNotice('');
+    }catch(e){error(e);}
+  };
+  const confirmSceneSkill=()=>{
+    if(!hero||!pendingSkill||confirmedSkillIds.current.has(pendingSkill.id))return;
+    try{
+      const result=commitSoloSkillAction(hero,campaign,pendingSkill);
+      if(!result.applied){setPendingSkill(null);return;}
+      const nextCharacters=characters.map(c=>c.id===hero.id?result.character:c);
+      const nextCampaigns=campaigns.map(c=>c.id===campaign.id?result.campaign:c);
+      persistSoloSkillAction(localStorage,nextCharacters,nextCampaigns);
+      confirmedSkillIds.current.add(pendingSkill.id);
+      onCommitCharacter(result.character);
+      setCampaigns(nextCampaigns);
+      setPendingSkill(null);setSkillFavor(0);
+      setNotice('Skill check confirmed: Resolve and the scene journal were saved.');
+    }catch(e){error(e);}
+  };
+  const docButton=(page:number,label:string)=><button type="button" className="solo-source-link" onClick={()=>setSourcePage(page)}>
     <BookOpen size={14}/> {label} · PDF {page}</button>;
   return <div className="solo-tabletop">
     <header className="page-heading"><div className="eyebrow"><Compass size={15}/> SOLO CAMPAIGN CONTROL</div>
@@ -293,7 +340,7 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
         </section>
       </div>
       <div className="solo-play-secondary">
-        <MechanicsPanel requestedMode={requestedMode} character={hero} onOpenRule={onOpenRule} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
+        <MechanicsPanel requestedMode={requestedMode} character={hero} onOpenRule={setSourcePage} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
         <section className="panel solo-hero-card"><div className="solo-panel-header"><div className="eyebrow"><Shield size={15}/> ACTIVE CHARACTER</div>
           <button className="solo-source-link" onClick={onOpenSheet}>Edit sheet</button></div>
           <h3>{hero?.name||'Unassigned hero'}</h3>
@@ -342,7 +389,7 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
       </section>
     </div>}
     {tab==='worksheets'&&<SoloWorksheets campaign={campaign} onChange={change}
-      onOpenRule={onOpenRule} onOpenSheet={onOpenSheet}/>}
+      onOpenRule={setSourcePage} onOpenSheet={onOpenSheet}/>}
     {tab==='cast'&&<div className="solo-cast-layout">
       <section className="panel solo-session-card">
         <div className="solo-panel-header"><div className="eyebrow"><Users size={15}/> NPC REGISTRY</div>{docButton(SOLO_SOURCE.npcs,'Solo NPCs')}</div>
@@ -392,6 +439,9 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
         <button className="button button-quiet" onClick={downloadCampaign}><ArrowDownToLine size={15}/> Export full session data</button>
       </aside>
     </div>}
+    {sourcePage!==null&&<SoloRuleDrawer page={sourcePage} file={sourceFile}
+      onFileChange={onSourceFileChange} onClose={()=>setSourcePage(null)}
+      onOpenFull={()=>onOpenRule(sourcePage)}/>}
     <p className="solo-legal-mini">This is a local solo-play companion. The proprietary Ask the Weave odds, event and scene tables are intentionally not reproduced or guessed; consult your owned PDF. The custom oracle is clearly separate from the book procedure. No AI generates narrative automatically.</p>
   </div>;
 }
