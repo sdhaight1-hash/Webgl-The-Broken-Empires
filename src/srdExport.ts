@@ -212,7 +212,7 @@ function renderParagraph(
   return state;
 }
 function renderHeading(
-  pdf:jsPDF,block:Extract<StructuredBlock,{kind:'heading'}>,state:BodyState,records:PageRecord[]
+  pdf:jsPDF,block:Extract<StructuredBlock,{kind:'heading'}>,state:BodyState,records:PageRecord[],spots:LinkSpot[]
 ):BodyState{
   const lines=sourceTextLines(pdf,block.text,BODY_WIDTH,15.5,'bold');
   const needed=lines.length*20+19;
@@ -221,6 +221,7 @@ function renderHeading(
   pdf.setFont('times','bold');pdf.setFontSize(15.5);pdf.setTextColor(45,74,75);
   for(const line of lines){
     pdf.text(line,MARGIN,state.y);
+    drawChapterSpots(pdf,line,MARGIN,state.y,15.5,state.outputPage,spots);
     state.y+=20;
   }
   state.y+=7;
@@ -302,7 +303,7 @@ function renderStructuredSource(
     return 0;
   }
   for(const block of blocks){
-    if(block.kind==='heading')state=renderHeading(pdf,block,state,records);
+    if(block.kind==='heading')state=renderHeading(pdf,block,state,records,spots);
     else if(block.kind==='table')state=renderTable(pdf,block,state,records);
     else state=renderParagraph(pdf,block,state,records,spots);
   }
