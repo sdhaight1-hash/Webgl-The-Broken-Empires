@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import {getDocument,GlobalWorkerOptions} from 'pdfjs-dist/legacy/build/pdf.mjs';
 import {reconstructTextPage} from '../src/pdfText.ts';
-import {buildHyperlinkedSrdPdf,exportPageForSource} from '../src/srdExport.ts';
+import {buildHyperlinkedSrdPdf} from '../src/srdExport.ts';
 import {SOURCE_OUTLINE} from '../src/sourceOutline.ts';
 
 GlobalWorkerOptions.workerSrc=new URL('../node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs',import.meta.url).href;
@@ -39,7 +39,7 @@ for(let i=2;i<2+result.tocPages;i++){
   const links=await page.getAnnotations();
   clickableContents+=links.filter(x=>x.subtype==='Link'&&x.dest).length;
 }
-const sourcePage=await output.getPage(exportPageForSource(490,result.tocPages));
+const sourcePage=await output.getPage(result.sourcePageStarts[489]);
 const pageLinks=(await sourcePage.getAnnotations()).filter(x=>x.subtype==='Link'&&x.dest).length;
 const lastSource=await output.getPage(result.pageCount);
 const lastContents=(await lastSource.getAnnotations()).filter(x=>x.subtype==='Link'&&x.dest).length;
