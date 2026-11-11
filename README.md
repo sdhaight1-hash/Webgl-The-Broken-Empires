@@ -8,8 +8,8 @@ An **independent**, browser-based character journal and rules-learning companion
 - Five-chapter character forge: identity, heritage and background, capabilities, ambitions, review.
 - Editable character sheet with manual skill ratings, wounds, status, equipment, talents, expertise, goals and life events.
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
-- **51 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks.
-- New source library: a local-only PDF reader with verified 663-page chapter and character-creation page navigation, plus an interactive PNG atlas with pan, zoom and locally stored map markers. No proprietary book/map bytes are bundled into the app.
+- **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
+- Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
 - Interactive d100 basic check lab with core-book verified automatic success/failure, critical doubles, **exact-value critical successes** and Success Levels.
 - Automatic browser-local save. No server, account, analytics, or AI services.
 
@@ -56,11 +56,19 @@ The publisher's current [third-party license](https://thebrokenempiresrpg.com/pa
 - `src/rules.ts` is the source-linked codex data layer. Future licensed rules-data can be introduced separately without rewriting the UI.
 - All browser data uses a versioned localStorage key; archive import requires a compatible versioned JSON envelope.
 
+## Coverage model and honest limits
+
+**Indexing is not the same as a verified explanation or an implemented mechanic.** The Codex offers 75 independently paraphrased guided lessons covering selected mechanics across the book. The complete source navigator lists all 207 bookmarks, including chapters not yet summarized. The Source Library can additionally build a transient text index from a PDF selected on the user's computer, searching every extractable page (659 of 663 in the supplied version). That provides source lookup for unbookmarked rules too, without publishing the book's prose.
+
+The browser search runs only after clicking **Index full PDF**, may consume substantial RAM for a 198 MB source document, shows progress, can be cancelled, and forgets extracted text when the component is closed/reloaded. No document text leaves the browser via this feature. Pages 1, 2, 3, and 7 do not have an extractable text layer.
+
+The entire rulebook is **not yet fully rewritten into individually validated lesson cards**; this is an exhaustive source discovery index plus an expanded selection of verified teaching lessons. Complete automated rules enforcement would require a separate large validation and rights review.
+
 ## PDF-grounded rules codex
 
 The independent instructional summaries in src/rules.ts were authored from a targeted review of the user's Core Rulebook PDF, not only its contents page. Every lesson stores a one-based PDF page pointer for the local Source Library. The browser bundle includes **no copied rulebook pages or rule tables**. The source files are still private to the local reader at runtime.
 
-Reviewed portions include core resolution (PDF pp. 20–31); skills and talents (32–58); character creation (82–118); advancement (124–129); equipment, combat and wounds (130–192); travel (200–232); intrigue (252–266); Weave (276–330); and divine magic (348–354). These are selected teaching notes, **not** a complete authoritative implementation of every rule or exception.
+Reviewed portions include core resolution (PDF pp. 20–31); skills and talents (32–58); character creation (82–118); advancement (124–129); equipment, combat and wounds (130–192); travel (200–232); intrigue (252–266); Weave (276–330); divine magic (348–354), gamemastering/bestiary (404–448), solo play (484–496), and appendices including mass combat (592–599), naval combat (600–604), personality alternatives (606–607), and treasure (646–650). These are selected teaching notes, **not** a complete authoritative implementation of every rule or exception.
 
 PDF verification corrected the basic dice lab: an exact modified skill-value roll is a critical success, and automatic failures on 99–100 are not critical failures if they do not exceed the skill. The rulebook's six ability-score choices are themed aptitude packages; numerical derived Attributes are configured separately in character creation.
 
