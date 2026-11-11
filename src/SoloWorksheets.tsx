@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {BookOpen,ClipboardList,Plus,Trash2,Users} from 'lucide-react';
 import {freshId} from './engine.ts';
 import {SOLO_SOURCE} from './soloEngine.ts';
-import type {SoloCampaign,SoloLogKind} from './soloEngine.ts';
+import type {SoloCampaign} from './soloEngine.ts';
 import {editSceneWorksheet,editNPCWorksheet,editThreadWorksheet} from './soloWorksheetModel.ts';
 import './soloWorksheets.css';
 

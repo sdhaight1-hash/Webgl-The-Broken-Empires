@@ -3,12 +3,13 @@ import {ArrowDownToLine,BookOpen,CheckCircle2,Compass,Dices,FileUp,Map,Plus,Scro
 import {freshId,rollPercentile} from './engine.ts';
 import type {Character} from './types.ts';
 import {MechanicsPanel} from './MechanicsPanel.tsx';
+import {SoloWorksheets} from './SoloWorksheets.tsx';
 import {SOLO_STORAGE_KEY,SOLO_SOURCE,addSoloLog,beginSoloScene,closeSoloScene,customOracle,isSoloCampaign,makeSoloCampaign,makeSoloLog,manualOracle,moveSoloToken,readSoloCampaigns} from './soloEngine.ts';
 import type {OracleOutcome,SoloCampaign,SoloLogKind,SoloToken} from './soloEngine.ts';
 import './soloTabletop.css';
 
 const STORE=SOLO_STORAGE_KEY;
-type Tab='play'|'board'|'cast'|'journal';
+type Tab='play'|'board'|'cast'|'worksheets'|'journal';
 type SceneRoll='expected'|'altered'|'interrupted';
 const LABELS:Record<OracleOutcome,string>={'extreme-yes':'Extreme yes',yes:'Yes',no:'No','extreme-no':'Extreme no'};
 const trim=(s:string,n=800)=>s.trim().slice(0,n);
@@ -226,7 +227,7 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
     </div>
     <div className="solo-main-tabs" role="tablist" aria-label="Solo tabletop workspace">
       {([
-        ['play','Play scene',Dices],['board','Scene board',Map],['cast','NPCs & threads',Users],['journal','Campaign journal',ScrollText]
+        ['play','Play scene',Dices],['board','Scene board',Map],['cast','NPCs & threads',Users],['worksheets','Campaign workbook',ScrollText],['journal','Campaign journal',ScrollText]
       ] as const).map(([key,label,Icon])=><button key={key} role="tab" aria-selected={tab===key} className={tab===key?'selected':''} onClick={()=>setTab(key)}><Icon size={17}/>{label}</button>)}
     </div>
     {notice&&<div className="reference-warning" role="status">{notice}<button aria-label="Dismiss" onClick={()=>setNotice('')}><X size={15}/></button></div>}
@@ -340,6 +341,8 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
         <p className="solo-legal-mini">A zone board abstracts the battlefield, not distance or precise tactical geometry. Attack and movement eligibility still require source adjudication.</p>
       </section>
     </div>}
+    {tab==='worksheets'&&<SoloWorksheets campaign={campaign} onChange={change}
+      onOpenRule={onOpenRule} onOpenSheet={onOpenSheet}/>}
     {tab==='cast'&&<div className="solo-cast-layout">
       <section className="panel solo-session-card">
         <div className="solo-panel-header"><div className="eyebrow"><Users size={15}/> NPC REGISTRY</div>{docButton(SOLO_SOURCE.npcs,'Solo NPCs')}</div>
