@@ -36,6 +36,9 @@ for(const page of [22,26,37,490]){
   const item=detail.find(d=>d.sourcePage===page);
   if(!item||item.tables<1||item.retainedRatio<.90)throw new Error('Missing table or major text loss on source '+page);
 }
+const modifiers=detail.find(d=>d.sourcePage===22)?.modifierBands||[];
+if(modifiers.some(item=>!item.presentInTable))
+  throw new Error('Modifier table lost a row: '+JSON.stringify(modifiers));
 if(detail.some(d=>[12,21,29].includes(d.sourcePage)&&d.tables>1))
   throw new Error('False table-positive on two-column prose page');
 const sections=[
