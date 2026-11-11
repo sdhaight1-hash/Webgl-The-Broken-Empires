@@ -21,6 +21,14 @@ for(const sourcePage of checks){
   const tables=blocks.filter(b=>b.kind==='table');
   const chars=parsed.positioned.reduce((sum,r)=>sum+r.text.trim().length,0);
   const structured=blocks.reduce((sum,b)=>sum+blockText(b).replace(/\s*[|]\s*/g,'').length,0);
+  if(sourcePage===22){
+    const check=['+20','+10','+0','-10','-20','-30'];
+    const matches=parsed.positioned.flatMap(r=>check.filter(v=>r.text.includes(v)).map(value=>({
+      value,x:Math.round(r.x),y:Math.round(r.y),textChars:r.text.length,
+      exact:r.text.trim()===value
+    }))).slice(0,28);
+    console.log('MODIFIER_SOURCE_POSITIONS',JSON.stringify(matches));
+  }
   const modifierBands=sourcePage===22?['+20','+10','+0','-10','-20','-30']
     .map(value=>({value,presentInTable:tables.some(t=>t.rows.some(row=>
       row.some(cell=>cell.trim().startsWith(value))))})):undefined;
