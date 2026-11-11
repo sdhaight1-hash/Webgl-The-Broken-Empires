@@ -13,11 +13,12 @@ type SceneRoll='expected'|'altered'|'interrupted';
 const LABELS:Record<OracleOutcome,string>={'extreme-yes':'Extreme yes',yes:'Yes',no:'No','extreme-no':'Extreme no'};
 const trim=(s:string,n=800)=>s.trim().slice(0,n);
 const outcomeLabel=(n:SceneRoll)=>n==='expected'?'As expected':n==='altered'?'Altered expectation':'Unexpected interruption';
-export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenSheet}:{
+export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenSheet,requestedMode}:{
   characters:Character[];
   activeCharacterId:string;
   onOpenRule:(pdfPage:number)=>void;
   onOpenSheet:()=>void;
+  requestedMode?:import('./MechanicsPanel.tsx').Mode;
 }){
   const [campaigns,setCampaigns]=useState<SoloCampaign[]>(()=>{
     try{
@@ -291,7 +292,7 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
         </section>
       </div>
       <div className="solo-play-secondary">
-        <MechanicsPanel character={hero} onOpenRule={onOpenRule} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
+        <MechanicsPanel requestedMode={requestedMode} character={hero} onOpenRule={onOpenRule} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
         <section className="panel solo-hero-card"><div className="solo-panel-header"><div className="eyebrow"><Shield size={15}/> ACTIVE CHARACTER</div>
           <button className="solo-source-link" onClick={onOpenSheet}>Edit sheet</button></div>
           <h3>{hero?.name||'Unassigned hero'}</h3>

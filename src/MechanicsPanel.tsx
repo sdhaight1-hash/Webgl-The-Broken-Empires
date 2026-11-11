@@ -1,23 +1,25 @@
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {BookOpen,Dices,RotateCcw} from 'lucide-react';
 import {rollPercentile} from './engine.ts';
 import {MECHANICS,extendedProgress,opposedTest,skillTest,supportBonus,timerTriggered,useSupplyDie} from './mechanics.ts';
 import type {SupplySize} from './mechanics.ts';
 import type {Character} from './types.ts';
 
-type Mode='skill'|'opposed'|'extended'|'supply'|'timer'|'support';
+export type Mode='skill'|'opposed'|'extended'|'supply'|'timer'|'support';
 const modes:{id:Mode;title:string;page:number}[]=[
   {id:'skill',title:'Skill check',page:23},{id:'opposed',title:'Opposed',page:24},
   {id:'extended',title:'Extended',page:26},{id:'supply',title:'Supplies',page:132},
   {id:'timer',title:'Timer',page:29},{id:'support',title:'Support',page:41}
 ];
 
-export function MechanicsPanel({character,onLog,onOpenRule}:{
+export function MechanicsPanel({character,onLog,onOpenRule,requestedMode}:{
   character:Character|undefined;
   onLog:(message:string,sourcePage:number,roll?:number)=>void;
   onOpenRule:(page:number)=>void;
+  requestedMode?:Mode;
 }){
   const [mode,setMode]=useState<Mode>('skill');
+  useEffect(()=>{if(requestedMode)setMode(requestedMode);},[requestedMode]);
   const [skillId,setSkillId]=useState('');
   const [rating,setRating]=useState(65);
   const [modifier,setModifier]=useState(0);
