@@ -205,3 +205,5 @@
 .tbe-location-selected{border-color:#c57b43;box-shadow:0 0 0 3px #d19c5780}
 @media(max-width:560px){.tbe-hit-controls>label,.tbe-hit-record>label:not(.tbe-check){flex:1 1 100%}
   .tbe-hit-controls>button,.tbe-hit-record>button{width:100%}}
+
+.tbe-hit-tool .tbe-hit-saved{color:#b6e1ba;font-weight:750;margin:10px 0 0}
