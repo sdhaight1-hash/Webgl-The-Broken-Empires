@@ -3,8 +3,12 @@ import assert from 'node:assert/strict';
 import {resolveCheck} from './engine.ts';
 import {MECHANICS,skillTest,opposedTest,supportBonus,extendedProgress,useSupplyDie,timerTriggered} from './mechanics.ts';
 import {makeSoloCampaign,beginSoloScene,closeSoloScene,makeSoloLog,addSoloLog,
-  customOracle,manualOracle,moveSoloToken,isSoloCampaign,readSoloCampaigns} from './soloEngine.ts';
+  customOracle,manualOracle,moveSoloToken,isSoloCampaign,readSoloCampaigns,SOLO_SOURCE} from './soloEngine.ts';
 
+test('solo PDF viewer page links follow actual bookmark positions',()=>{
+  assert.deepEqual([SOLO_SOURCE.overview,SOLO_SOURCE.oracle,SOLO_SOURCE.events,SOLO_SOURCE.randomizers,SOLO_SOURCE.sceneStart,SOLO_SOURCE.npcs],
+    [486,490,491,492,493,495]);
+});
 test('all implemented mechanics have source pages and explicit tested status',()=>{
   assert.equal(MECHANICS.length,8);
   assert.equal(new Set(MECHANICS.map(m=>m.id)).size,MECHANICS.length);
@@ -93,9 +97,9 @@ test('movement requires known tokens and zones, and logs have source-page metada
   const moved=moveSoloToken(campaign,token.id,campaign.zones[1].id);
   assert.equal(moved.tokens[0].zoneId,campaign.zones[1].id);
   assert.throws(()=>moveSoloToken(campaign,'missing',campaign.zones[1].id),RangeError);
-  const logged=addSoloLog(moved,makeSoloLog('oracle','Does it rain?',moved.activeSceneId,486,44));
+  const logged=addSoloLog(moved,makeSoloLog('oracle','Does it rain?',moved.activeSceneId,SOLO_SOURCE.oracle,44));
   assert.equal(logged.journal.at(-1)?.roll,44);
-  assert.equal(logged.journal.at(-1)?.sourcePage,486);
+  assert.equal(logged.journal.at(-1)?.sourcePage,SOLO_SOURCE.oracle);
   assert.ok(isSoloCampaign(logged));
 });
 test('invalid or oversized local storage entries are discarded',()=>{

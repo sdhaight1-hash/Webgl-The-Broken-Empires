@@ -272,7 +272,7 @@ export function SoloTabletop({characters,activeCharacterId,onOpenRule,onOpenShee
             {oracleMode==='book'?<label className="field"><span>Outcome according to your PDF table</span>
               <select value={oracleOutcome} onChange={e=>setOracleOutcome(e.target.value as OracleOutcome)}>
                 {Object.entries(LABELS).map(([key,label])=><option value={key} key={key}>{label}</option>)}</select></label>:
-              <div><strong>{LABELS[customOracle(oracleDie,Math.max(1,Math.min(99,oracleChance))).outcome]}</strong><p className="muted">Custom quick oracle only.</p></div>}
+              <div><strong>{Number.isInteger(oracleChance)&&oracleChance>=1&&oracleChance<=99?LABELS[customOracle(oracleDie,oracleChance).outcome]:'Enter a valid chance from 1 to 99'}</strong><p className="muted">Custom quick oracle only.</p></div>}
             {(oracleDie===100||oracleDie%11===0)&&<p className="solo-event-warning">Matching dice! Generate a random event after recording.</p>}
           </div>}
           <label className="field"><span>Interpret the answer in your fiction</span><textarea rows={2} value={oracleMeaning} onChange={e=>setOracleMeaning(e.target.value)} placeholder="What does this answer imply?"/></label>

@@ -29,7 +29,7 @@ export type OracleRoll={
   mode:'custom'|'table';
 };
 export const SOLO_SOURCE={
-  overview:484,oracle:486,randomizers:488,sceneStart:489,events:491,npcs:495
+  overview:486,oracle:490,randomizers:492,sceneStart:493,events:491,npcs:495
 } as const;
 
 const now=()=>new Date().toISOString();
