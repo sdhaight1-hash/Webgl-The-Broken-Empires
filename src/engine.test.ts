@@ -139,7 +139,9 @@ test('text-only reconstruction preserves adjacent PDF fragments and ignores grap
   ],612);
   assert.equal(extracted.plainText,'Captain moves');
   assert.equal(extracted.runCount,3);
-  assert.deepEqual(reconstructTextPage([],612),{left:[],right:[],plainText:'',runCount:0});
+  assert.deepEqual(extracted.positioned.map(run=>run.text),['Cap','tain','moves']);
+  assert.equal(extracted.positioned[0].y,192);
+  assert.deepEqual(reconstructTextPage([],612),{left:[],right:[],plainText:'',runCount:0,width:612,height:792,positioned:[]});
   assert.throws(()=>reconstructTextPage([],0),RangeError);
 });
 
