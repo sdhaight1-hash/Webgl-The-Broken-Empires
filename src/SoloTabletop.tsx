@@ -302,7 +302,7 @@ export function SoloTabletop({
               <label className="field solo-wide"><span>What you expect to happen</span><textarea rows={3} maxLength={1200} value={sceneExpected} onChange={e=>setSceneExpected(e.target.value)} placeholder="Who is present and what is likely to happen?"/></label>
             </div><button className="button button-gold" disabled={!sceneTitle.trim()} onClick={openScene}><Plus size={16}/> Open scene</button>
           </>}
-          {campaign.scenes.length>0&&<div className="solo-scene-history"><div className="eyebrow">SCENE HISTORY</div>{[...campaign.scenes].reverse().slice(0,8).map(s=><div key={s.id}><strong>{s.title}</strong><small>{s.status==='active'?'Active':'Closed'}</small>{s.outcome&&<p>{s.outcome}</p>}</div>)}</div>}
+          {campaign.scenes.length>0&&<details className="solo-scene-history"><summary>Scene history · {campaign.scenes.length} records</summary>{[...campaign.scenes].reverse().slice(0,8).map(s=><div key={s.id}><strong>{s.title}</strong><small>{s.status==='active'?'Active':'Closed'}</small>{s.outcome&&<p>{s.outcome}</p>}</div>)}</details>}
         </section>
         <section className="panel solo-action-card" id="solo-scene-skill-action"
           aria-label="Character skill action">
