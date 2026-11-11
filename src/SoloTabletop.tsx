@@ -6,6 +6,9 @@ import {enteredLethalWp,readTbeSheet} from './tbeSheetData.ts';
 import {previewSoloSkillAction,commitSoloSkillAction,persistSoloSkillAction} from './soloSkillAction.ts';
 import type {PendingSoloSkillAction} from './soloSkillAction.ts';
 import {SoloRuleDrawer} from './SoloRuleDrawer.tsx';
+import {SoloCombatExchange} from './SoloCombatExchange.tsx';
+import {confirmCombatExchange,undoCombatExchange} from './soloCombatAction.ts';
+import type {PendingCombatRoll,CombatDamageChoice} from './soloCombatAction.ts';
 import type {Character} from './types.ts';
 import {MechanicsPanel} from './MechanicsPanel.tsx';
 import {SoloWorksheets} from './SoloWorksheets.tsx';
@@ -73,6 +76,8 @@ export function SoloTabletop({
   const [pendingSkill,setPendingSkill]=useState<PendingSoloSkillAction|null>(null);
   const [sourcePage,setSourcePage]=useState<number|null>(null);
   const confirmedSkillIds=useRef(new Set<string>());
+  const confirmedCombatIds=useRef(new Set<string>());
+  const reversedCombatIds=useRef(new Set<string>());
 
   const campaign=campaigns.find(c=>c.id===activeId)||campaigns[0];
   const activeScene=campaign.scenes.find(s=>s.id===campaign.activeSceneId);
@@ -239,6 +244,34 @@ export function SoloTabletop({
       setNotice('Skill check confirmed: Resolve and the scene journal were saved.');
     }catch(e){error(e);}
   };
+  const confirmCombat=(pending:PendingCombatRoll,choice:CombatDamageChoice):boolean=>{
+    if(!hero||confirmedCombatIds.current.has(pending.id))return false;
+    try{
+      const result=confirmCombatExchange(hero,campaign,pending,choice);
+      if(!result.applied)return false;
+      const nextCharacters=characters.map(c=>c.id===hero.id?result.character:c);
+      const nextCampaigns=campaigns.map(c=>c.id===campaign.id?result.campaign:c);
+      persistSoloSkillAction(localStorage,nextCharacters,nextCampaigns);
+      confirmedCombatIds.current.add(pending.id);
+      onCommitCharacter(result.character);setCampaigns(nextCampaigns);
+      setNotice('Combat exchange confirmed and recorded.');
+      return true;
+    }catch(e){error(e);return false;}
+  };
+  const reverseCombat=(actionId:string):boolean=>{
+    if(!hero||reversedCombatIds.current.has(actionId))return false;
+    try{
+      const result=undoCombatExchange(hero,campaign,actionId);
+      if(!result.applied)return false;
+      const nextCharacters=characters.map(c=>c.id===hero.id?result.character:c);
+      const nextCampaigns=campaigns.map(c=>c.id===campaign.id?result.campaign:c);
+      persistSoloSkillAction(localStorage,nextCharacters,nextCampaigns);
+      reversedCombatIds.current.add(actionId);
+      onCommitCharacter(result.character);setCampaigns(nextCampaigns);
+      setNotice('Combat consequences reversed; the original roll remains in the journal.');
+      return true;
+    }catch(e){error(e);return false;}
+  };
   const docButton=(page:number,label:string)=><button type="button" className="solo-source-link" onClick={()=>setSourcePage(page)}>
     <BookOpen size={14}/> {label} · PDF {page}</button>;
   return <div className="solo-tabletop">
@@ -362,6 +395,9 @@ export function SoloTabletop({
                 .slice(-3).reverse().map(entry=><p key={entry.id}>{entry.message}</p>)}
             </div>}
         </section>
+        <SoloCombatExchange key={campaign.id+':'+campaign.characterId+':'+campaign.activeSceneId}
+          hero={hero} campaign={campaign} onSource={setSourcePage}
+          onError={setNotice} onConfirm={confirmCombat} onUndo={reverseCombat}/>
         <section className="panel solo-session-card">
           <div className="solo-panel-header"><div className="eyebrow">ASK THE WEAVE</div>{docButton(SOLO_SOURCE.oracle,'Oracle table')}</div>
           <h3>Ask a consequential question</h3>
