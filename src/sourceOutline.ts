@@ -1,4 +1,9 @@
-/** Complete outline metadata extracted from the user's 663-page rulebook PDF.\n * Bookmarks are navigation headings only; no book content is embedded.\n * Page numbers use 1-based PDF viewer positions.\n */\nexport type SourceSection = { level: number; title: string; page: number };\nexport const SOURCE_OUTLINE: SourceSection[] = [
+/** Complete outline metadata extracted from the user's 663-page rulebook PDF.
+ * Bookmarks are navigation headings only; no book content is embedded.
+ * Page numbers use 1-based PDF viewer positions.
+ */
+export type SourceSection = { level: number; title: string; page: number };
+export const SOURCE_OUTLINE: SourceSection[] = [
  {
   "level": 1,
   "title": "1 - Introduction",
@@ -1034,4 +1039,5 @@
   "title": "Table Index",
   "page": 661
  }
-];\nexport const BOOK_PAGES_WITH_TEXT=659;\n
+];
+export const BOOK_PAGES_WITH_TEXT=659;
