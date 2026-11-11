@@ -205,7 +205,7 @@ export async function buildHyperlinkedSrdPdf(options:ExportOptions):Promise<Expo
   pdf.setProperties({
     title:'The Broken Empires - Personal Text Reference',
     subject:'User-generated text-only reading copy with internal section links',
-    creator:'Wayfarer\\'s Ledger - local PDF converter'
+    creator:"Wayfarer's Ledger - local PDF converter"
   });
   renderCover(pdf,tocPages,totalPages);
   let links=1+renderContents(pdf,sections,tocPages,totalPages);
