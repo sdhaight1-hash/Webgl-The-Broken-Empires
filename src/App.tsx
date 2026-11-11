@@ -9,6 +9,9 @@ import { PersonalSrd } from './PersonalSrd.tsx';
 import { SourceOutlineNavigator } from './SourceOutlineNavigator.tsx';
 import { SoloTabletop } from './SoloTabletop.tsx';
 import { TbeCharacterSheet } from './TbeCharacterSheet.tsx';
+import { TalentPicker } from './TalentPicker.tsx';
+import { SKILL_COLUMNS } from './tbeSheetData.ts';
+import { PREVIOUS_CAREERS } from './talentCatalog.ts';
 import {appendCharacterSheetLog,SOLO_STORAGE_KEY} from './soloEngine.ts';
 import type {RollEntry} from './characterSheetModel.ts';
 import type { Mode as MechanicMode } from './MechanicsPanel.tsx';
@@ -68,6 +71,10 @@ export function App(){
     if(character.skills.some(s=>s.name.toLowerCase()===label.toLowerCase())){setNotice('That skill is already on the sheet.');return;}
     edit({skills:[...character.skills,{id:freshId(),name:label,rating:0,note:''}]});setNewSkill('');setNotice(`${label} added. Set its rating from your rulebook.`);
   };
+  const updateForgeSkill=(id:string,field:'rating'|'expertiseLevel',value:number)=>{
+    if(!Number.isInteger(value)||(field==='rating'?(value<0||value>100):(value<1||value>4)))return;
+    edit({skills:character.skills.map(skill=>skill.id===id?{...skill,[field]:value}:skill)});
+  };
   const doRoll=(target=diceTarget,label=diceLabel)=>{try{const result=resolveCheck(rollPercentile(),target);setDiceResult(result);setDiceTarget(target);setDiceLabel(label);setDiceHistory(prev=>[{id:freshId(),label,result},...prev].slice(0,8));}catch{setNotice('Use a target between 0 and 100 for the basic dice lab.');}};
   const recordSheetRoll=(entry:RollEntry)=>{
     if(entry.check){
@@ -122,8 +129,40 @@ export function App(){
           <div className="forge-layout"><div className="forge-main panel"><div className="stepper">{FORGE_STEPS.map((s,i)=><button key={s} className={`step ${i===forgeStep?'current':''} ${i<forgeStep?'complete':''}`} onClick={()=>setForgeStep(i)}><span className="step-number">{i<forgeStep?<Check size={15}/>:String(i+1).padStart(2,'0')}</span><span>{s}</span></button>)}</div>
               <div className="forge-body"><div className="eyebrow">CHAPTER {String(forgeStep+1).padStart(2,'0')} / 05</div>
                 {forgeStep===0&&<><h2>Who are you?</h2><p className="step-intro">Every story begins with a name. The rest can grow as you play.</p><div className="fields two-cols">{field('Character name','name','A name spoken by friends and foes')}{field('Pronouns','pronouns','e.g. they / them')}</div>{field('Appearance & first impression','description','Describe the figure that steps from the shadows...',true)}</>}
-                {forgeStep===1&&<><h2>Where did you begin?</h2><p className="step-intro">Heritage is a published character option. Culture and past career shape your background, but the official benefits require the rulebook.</p><span className="field-title">Choose a heritage</span><div className="heritage-grid">{HERITAGES.map(h=><button key={h} className={`heritage-choice ${character.heritage===h?'chosen':''}`} onClick={()=>setField('heritage',h)}><span className="heritage-icon">{h==='Human'?'✦':h==='Dwarf'?'◆':h==='Ogre'?'◈':h==='Replaced'?'⌘':'✧'}</span><strong>{h}</strong>{character.heritage===h&&<Check size={16}/>}</button>)}</div><div className="fields two-cols">{field('Cultural background','culture','Enter your culture from the rulebook')}{field('Previous career','career','Enter a career from the rulebook')}</div><div className="inline-advisory"><CircleHelp size={17}/> No ancestry or career bonuses are automatically assigned without verified tables.</div></>}
-                {forgeStep===2&&<><h2>What can you do?</h2><p className="step-intro">Skills, expertise, and talents establish capability. Enter their published values manually rather than relying on fabricated starting points.</p><div className="mini-panel"><div className="section-head"><h3>Skills in your ledger</h3><button className="button button-quiet button-small" onClick={()=>go('sheet')}>Edit ratings <ArrowRight size={14}/></button></div><div className="skills-preview">{character.skills.length?character.skills.slice(0,6).map(s=><span key={s.id}>{s.name} <strong>{s.rating}</strong></span>):<p className="muted">No skills added yet. Start with one below.</p>}</div><SkillAdder value={newSkill} setValue={setNewSkill} add={addSkill} skills={character.skills.map(s=>s.name)}/></div><div className="fields two-cols"><div>{listEditor('expertise','Expertise','Specific areas of know-how.',Feather)}</div><div>{listEditor('talents','Talents','Named abilities from your rules.',Sparkles)}</div></div></>}
+                {forgeStep===1&&<><h2>Where did you begin?</h2><p className="step-intro">Heritage is a published character option. Culture and past career shape your background, but the official benefits require the rulebook.</p><span className="field-title">Choose a heritage</span><div className="heritage-grid">{HERITAGES.map(h=><button key={h} className={`heritage-choice ${character.heritage===h?'chosen':''}`} onClick={()=>setField('heritage',h)}><span className="heritage-icon">{h==='Human'?'✦':h==='Dwarf'?'◆':h==='Ogre'?'◈':h==='Replaced'?'⌘':'✧'}</span><strong>{h}</strong>{character.heritage===h&&<Check size={16}/>}</button>)}</div><div className="fields two-cols">{field('Cultural background','culture','Enter your culture from the rulebook')}<label className="field"><span>Previous career</span><input list="forge-career-options"
+  aria-label="Previous career" value={character.career}
+  placeholder="Choose or enter a career" onChange={e=>setField('career',e.target.value)}/>
+  <datalist id="forge-career-options">{PREVIOUS_CAREERS.map(name=><option key={name} value={name}/>)}</datalist></label></div><div className="inline-advisory"><CircleHelp size={17}/> No ancestry or career bonuses are automatically assigned without verified tables.</div></>}
+                {forgeStep===2&&<><h2>What can you do?</h2><p className="step-intro">Skills, expertise, and talents establish capability. Enter their published values manually rather than relying on fabricated starting points.</p><div className="mini-panel forge-skill-panel">
+  <div className="section-head"><h3>Skills in your ledger</h3>
+    <span className="muted">Enter published ratings and Expertise here; these same values appear on the character sheet.</span></div>
+  {character.skills.length>0&&<div className="forge-skill-list">
+    <div className="forge-skill-head"><span>Skill</span><span>Rating %</span><span>Ex</span><span>Remove</span></div>
+    {character.skills.map(skill=><div className="forge-skill-row" key={skill.id}>
+      <span title={skill.name}>{skill.name}</span>
+      <input type="number" min={0} max={100} step={1} aria-label={skill.name+' rating %'}
+        value={skill.rating} onChange={e=>updateForgeSkill(skill.id,'rating',Number(e.target.value))}/>
+      <select aria-label={skill.name+' Expertise'} value={skill.expertiseLevel??1}
+        onChange={e=>updateForgeSkill(skill.id,'expertiseLevel',Number(e.target.value))}>
+        {[1,2,3,4].map(ex=><option key={ex} value={ex}>{ex===1?'—':ex}</option>)}
+      </select>
+      <button type="button" className="forge-skill-remove" aria-label={'Remove '+skill.name}
+        onClick={()=>edit({skills:character.skills.filter(item=>item.id!==skill.id)})}><Trash2 size={15}/></button>
+    </div>)}
+  </div>}
+  {character.skills.length===0&&<p className="muted">No skills recorded yet. Add a skill below to set its rating.</p>}
+  <SkillAdder value={newSkill} setValue={setNewSkill} add={addSkill}
+    skills={character.skills.map(s=>s.name)}/>
+</div>
+<div className="forge-capability-detail">
+  <div>{listEditor('expertise','Expertise','Specific areas of know-how.',Feather)}</div>
+  <section className="panel forge-talent-panel" aria-label="Select Talents">
+    <div className="section-head"><div><div className="eyebrow"><Sparkles size={14}/> CHARACTER TALENTS</div>
+      <h3>Talents</h3></div></div>
+    <TalentPicker key={activeId} entries={character.talents} onChange={talents=>edit({talents})}
+      onOpenRule={pdfPage=>{setReferencePage(pdfPage);go('srd');}}/>
+  </section>
+</div></>}
                 {forgeStep===3&&<><h2>What drives you?</h2><p className="step-intro">Goals are at the heart of the narrative. Give your character something worth risking everything for.</p>{field('Defining goal','goal','What must your character accomplish?',true)}{field('Important relationship or bond','bond','Who matters most to them?',true)}{field('History & turning point','history','An event that changed everything...',true)}{listEditor('events','Life events','Write any outcomes from the book’s life-event process.',Feather)}</>}
                 {forgeStep===4&&<><h2>A story takes shape.</h2><p className="step-intro">Review your concept. Any details can be changed later from your character sheet.</p><div className="review-crest"><Shield size={46} strokeWidth={1}/><div><h3>{character.name||'Unnamed wanderer'}</h3><span>{pretty(character.heritage)} · {pretty(character.career)}</span></div></div><div className="review-grid">{[['Heritage',character.heritage],['Culture',character.culture],['Career',character.career],['Goal',character.goal],['Skills',`${character.skills.length} recorded`],['Life events',`${character.events.length} recorded`]].map(([k,v])=><div key={k}><small>{k}</small><strong>{pretty(v)}</strong></div>)}</div><div className="inline-advisory"><CircleHelp size={17}/> Narrative record only. Consult your copy of the core rules for legal character-build costs and final mechanical validation.</div></>}
               </div><div className="forge-footer"><button className="button button-quiet" disabled={forgeStep===0} onClick={()=>setForgeStep(n=>Math.max(0,n-1))}><ArrowLeft size={17}/> Back</button><span>Changes saved automatically</span>{forgeStep===4?<button className="button button-gold" onClick={()=>go('sheet')}>Open full sheet <ArrowRight size={17}/></button>:<button className="button button-gold" onClick={()=>setForgeStep(n=>Math.min(4,n+1))}>Continue <ArrowRight size={17}/></button>}</div>
@@ -174,5 +213,7 @@ export function App(){
 }
 
 function SkillAdder({value,setValue,add,skills}:{value:string;setValue:(value:string)=>void;add:(name?:string)=>void;skills:string[]}){
-  return <div className="skill-adder"><div className="add-skill"><input aria-label="New skill name" value={value} placeholder="Add a skill by name..." onChange={e=>setValue(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')add()}}/><button className="button button-quiet button-small" onClick={()=>add()} disabled={!value.trim()}><Plus size={15}/> Add skill</button></div><div className="skill-suggestions"><span>SUGGESTED PUBLICLY NAMED SKILLS:</span>{SUGGESTED_SKILLS.filter(s=>!skills.some(x=>x.toLowerCase()===s.toLowerCase())).slice(0,6).map(s=><button key={s} onClick={()=>add(s)}>+ {s}</button>)}</div></div>;
+  return <div className="skill-adder"><div className="add-skill"><input aria-label="New skill name" list="forge-skill-options" value={value} placeholder="Search or enter a skill..." onChange={e=>setValue(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')add()}}/><button className="button button-quiet button-small" onClick={()=>add()} disabled={!value.trim()}><Plus size={15}/> Add skill</button></div><datalist id="forge-skill-options">{SKILL_COLUMNS.flatMap(column=>[...column.skills]).map(name=>
+    <option key={name} value={name}/>)}</datalist>
+    <div className="skill-suggestions"><span>COMMON SKILLS:</span>{SUGGESTED_SKILLS.filter(s=>!skills.some(x=>x.toLowerCase()===s.toLowerCase())).slice(0,6).map(s=><button key={s} onClick={()=>add(s)}>+ {s}</button>)}</div></div>;
 }

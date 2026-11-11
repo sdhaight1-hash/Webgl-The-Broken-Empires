@@ -106,3 +106,60 @@ button:not(:disabled):active{transform:translateY(1px)}
 .tbe-sheet-footer{color:#c9ada0}
 @media(max-width:980px){.main-content{padding:24px 16px 44px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* Guided creation: edit skills and select Talents without leaving the Forge. */
+.forge-skill-panel .section-head{align-items:center;gap:15px}
+.forge-skill-panel .section-head .muted{font-size:11px;line-height:1.5;max-width:320px}
+.forge-skill-list{border:1px solid #744e4a;border-radius:7px;overflow:hidden;margin:12px 0 15px}
+.forge-skill-head,.forge-skill-row{display:grid;grid-template-columns:minmax(0,1fr) 88px 62px 52px;
+  gap:7px;align-items:center;padding:7px 10px}
+.forge-skill-head{background:#512f36;color:#e5c19f;font-size:10px;font-weight:700;text-transform:uppercase}
+.forge-skill-row{border-top:1px solid #593e41;background:#35272e}
+.forge-skill-row:nth-child(odd){background:#3b2b32}
+.forge-skill-row>span{overflow-wrap:anywhere;font-size:12px;color:#f1dbc8}
+.forge-skill-row input,.forge-skill-row select{width:100%;min-width:0;height:34px;border:1px solid #866357;
+  border-radius:5px;padding:5px 8px;background:#211c25;color:#f8e7d1;text-align:center}
+.forge-skill-row .forge-skill-remove{justify-self:center;display:grid;place-items:center;
+  width:30px;height:30px;border-radius:5px;border:1px solid #83524e;background:#4b2b32;color:#ecc4b8}
+.forge-skill-row .forge-skill-remove:hover{background:#774047}
+.forge-capability-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:12px;
+  align-items:start;margin-top:15px}
+.forge-capability-detail>.panel,.forge-capability-detail>div>.panel{min-width:0;height:100%}
+.forge-talent-panel{background:#33262e;border:1px solid #79564b}
+.forge-talent-panel .tbe-talent-picker input,.forge-talent-panel .tbe-talent-picker select{
+  background:#211b24;border:1px solid #825e54;color:#f3ddc4;
+  border-radius:5px;padding:8px 9px;font-size:11px;min-height:34px}
+.forge-talent-panel .tbe-talent-add>button{display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  border:1px solid #b48c62;color:#fae3c0;background:#694044;border-radius:5px;
+  padding:7px 10px;font-size:10px;white-space:nowrap}
+.forge-talent-panel .tbe-talent-add>button:hover:not(:disabled){background:#8a4b4b}
+.forge-talent-panel .tbe-talent-record button{border:0;background:transparent;color:#f4c78e;
+  font-size:10px;display:inline-flex;align-items:center;gap:4px;padding:4px}
+.forge-talent-panel .tbe-talent-record .tbe-talent-remove{color:#e4a7a0}
+@media(max-width:1170px){.forge-capability-detail{grid-template-columns:1fr}}
+@media(max-width:550px){.forge-skill-head,.forge-skill-row{grid-template-columns:minmax(0,1fr) 67px 48px 36px;
+  gap:4px;padding:7px 6px}.forge-skill-panel .section-head{align-items:start;flex-direction:column}
+  .forge-talent-panel .tbe-talent-add{flex-wrap:wrap}
+  .forge-talent-panel .tbe-talent-add>button{flex:1}}
+
+/* Video review: prioritize legible editable skills over six microscopic columns. */
+.tbe-paper .tbe-skill-matrix{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tbe-paper .tbe-skill-column h4{font-size:11px;letter-spacing:.04em;padding:11px 8px}
+.tbe-paper .tbe-skill-labels,.tbe-paper .tbe-skill-row{
+  grid-template-columns:minmax(0,1fr) 60px 46px 36px;gap:5px;padding-left:7px;padding-right:7px}
+.tbe-paper .tbe-skill-labels{font-size:9.5px;min-height:27px;align-items:center}
+.tbe-paper .tbe-skill-row{min-height:40px}
+.tbe-paper .tbe-skill-name{font-size:11.5px;line-height:1.35}
+.tbe-paper .tbe-skill-row input{font-size:12px!important;height:32px!important}
+.tbe-paper .tbe-skill-row select{font-size:11px!important;height:32px}
+.tbe-paper .tbe-skill-row .tbe-die{width:34px;height:32px}
+.tbe-paper .tbe-strands .tbe-skill-labels{grid-template-columns:minmax(0,1fr) 58px}
+.tbe-paper .tbe-strand-row{grid-template-columns:minmax(0,1fr) 58px;font-size:11px;min-height:40px;padding:4px 8px}
+.tbe-paper .tbe-strand-row input{font-size:12px!important;height:32px!important}
+@media(max-width:1150px){.tbe-paper .tbe-skill-matrix{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.tbe-paper .tbe-skill-matrix{grid-template-columns:1fr}}
+@media(max-width:400px){
+  .tbe-paper .tbe-skill-labels,.tbe-paper .tbe-skill-row{
+    grid-template-columns:minmax(0,1fr) 49px 41px 32px;gap:3px;padding-left:5px;padding-right:5px}
+  .tbe-paper .tbe-skill-row .tbe-die{width:30px}
+}
