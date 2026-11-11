@@ -304,6 +304,64 @@ export function SoloTabletop({
           </>}
           {campaign.scenes.length>0&&<div className="solo-scene-history"><div className="eyebrow">SCENE HISTORY</div>{[...campaign.scenes].reverse().slice(0,8).map(s=><div key={s.id}><strong>{s.title}</strong><small>{s.status==='active'?'Active':'Closed'}</small>{s.outcome&&<p>{s.outcome}</p>}</div>)}</div>}
         </section>
+        <section className="panel solo-action-card" id="solo-scene-skill-action"
+          aria-label="Character skill action">
+          <div className="solo-panel-header"><div className="eyebrow"><Dices size={16}/> SCENE SKILL ACTION</div>
+            {docButton(23,'Skill rules')}</div>
+          <h3>Choose, roll, then confirm</h3>
+          <p className="muted">Roll within the scene, review its modifier and result, then confirm to spend Resolve and record the check. Nothing is applied before confirmation.</p>
+          {!hero?<p className="solo-action-guidance">Assign an existing character to this campaign to roll their skills.</p>:
+            hero.skills.length===0?<p className="solo-action-guidance">This character has no recorded skills. Add a skill from the character sheet to use it here.</p>:
+            <div className="solo-action-controls">
+              <label className="field solo-action-skill"><span>Character skill</span>
+                <select aria-label="Scene skill" value={skill?.id??''} disabled={!!pendingSkill}
+                  onChange={e=>{setSkillId(e.target.value);setPendingSkill(null);}}>
+                  {hero.skills.map(s=><option value={s.id} key={s.id}>{s.name||'Unnamed skill'} · {s.rating}%</option>)}
+                </select></label>
+              <label className="field solo-action-favor"><span>Resolve as Favor</span>
+                <select aria-label="Scene Resolve Favor" disabled={!!pendingSkill} value={skillFavor}
+                  onChange={e=>setSkillFavor(Number(e.target.value))}>
+                  {[0,1,2,3].map(n=><option key={n} value={n}
+                    disabled={n>(heroStats?.availableResolve??0)}>{n===0?'None':n+' Resolve · +'+(n*10)+'%'}</option>)}
+                </select></label>
+              {skillPreview&&<div className="solo-action-target" aria-label="Effective skill target">
+                <span>Roll against</span><strong>{adjustedTarget}%</strong>
+                <small>Base {skill?.rating} {skillPreview.modifier>=0?'+':''}{skillPreview.modifier} modifier
+                  {skillFavor?' +'+skillFavor*10+' Favor':''} · Expertise {skillPreview.expertiseLevel}</small>
+              </div>}
+            </div>}
+          {!pendingSkill&&<button type="button" className="button button-gold"
+            disabled={!hero||!skill||!activeScene||!Number.isInteger(skill.rating)||
+              adjustedTarget===null||adjustedTarget<0||adjustedTarget>100||
+              skillFavor>(heroStats?.availableResolve??0)}
+            onClick={rollSceneSkill}><Dices size={16}/> Roll selected skill</button>}
+          {!activeScene&&<p className="solo-action-guidance">Open a scene before making a scene skill roll.</p>}
+          {skill&&adjustedTarget!==null&&(adjustedTarget<0||adjustedTarget>100)&&
+            <p className="solo-action-guidance">This adjusted target is outside the verified 0–100 range. Resolve the exceptional case manually using the rulebook.</p>}
+          {pendingSkill&&<div className="solo-skill-result" role="status">
+            <div className="solo-skill-result-top"><div><span>UNCONFIRMED ROLL</span>
+              <strong>{pendingSkill.skillName}</strong></div>
+              <strong className="solo-skill-die">{String(pendingSkill.roll).padStart(2,'0')}</strong></div>
+            <div className="solo-skill-outcome">
+              <strong>{pendingSkill.success?'SUCCESS':'FAILURE'}{pendingSkill.critical?' · CRITICAL':''}</strong>
+              <span>{pendingSkill.levels} SL · target {pendingSkill.target}% · Ex {pendingSkill.expertise}</span>
+            </div>
+            <p>Base {pendingSkill.rating} {pendingSkill.modifier>=0?'+':''}{pendingSkill.modifier} modifier
+              {pendingSkill.favor?' +'+(pendingSkill.favor*10)+' Favor':''}
+              {' = '+pendingSkill.target+'%'}. Confirming spends {pendingSkill.favor} Resolve.</p>
+            <div className="solo-skill-result-actions">
+              <button type="button" className="button button-gold" onClick={confirmSceneSkill}>
+                <CheckCircle2 size={16}/> Confirm &amp; journal</button>
+              <button type="button" className="button button-quiet" onClick={()=>setPendingSkill(null)}>
+                <X size={15}/> Discard result</button>
+            </div>
+          </div>}
+          {campaign.journal.some(e=>e.kind==='check'&&e.skillAction&&e.sceneId===campaign.activeSceneId)&&
+            <div className="solo-skill-history"><strong>Recent confirmed checks · current scene</strong>
+              {campaign.journal.filter(e=>e.kind==='check'&&e.skillAction&&e.sceneId===campaign.activeSceneId)
+                .slice(-3).reverse().map(entry=><p key={entry.id}>{entry.message}</p>)}
+            </div>}
+        </section>
         <section className="panel solo-session-card">
           <div className="solo-panel-header"><div className="eyebrow">ASK THE WEAVE</div>{docButton(SOLO_SOURCE.oracle,'Oracle table')}</div>
           <h3>Ask a consequential question</h3>
@@ -340,14 +398,29 @@ export function SoloTabletop({
         </section>
       </div>
       <div className="solo-play-secondary">
-        <MechanicsPanel requestedMode={requestedMode} character={hero} onOpenRule={setSourcePage} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
-        <section className="panel solo-hero-card"><div className="solo-panel-header"><div className="eyebrow"><Shield size={15}/> ACTIVE CHARACTER</div>
-          <button className="solo-source-link" onClick={onOpenSheet}>Edit sheet</button></div>
+        <section className="panel solo-hero-card"><div className="solo-panel-header"><div className="eyebrow"><Shield size={15}/> ACTIVE CHARACTER HUD</div>
+          <button className="solo-source-link" onClick={onOpenSheet}>Full sheet</button></div>
           <h3>{hero?.name||'Unassigned hero'}</h3>
           <p className="muted">{hero?.heritage||'Unknown heritage'} · {hero?.career||'Unknown career'}</p>
+          {heroStats&&<div className="solo-hero-metrics">
+            <div><span>Available Resolve</span><strong>{heroStats.availableResolve}<small> / {heroStats.maxResolve}</small></strong></div>
+            <div><span>Fatigue</span><strong>{hero?.attributes?.fatigue??0}</strong></div>
+            <div><span>Recorded lethal WP</span><strong>{heroWp===null?'—':heroWp}</strong></div>
+            <div><span>Initiative</span><strong>{heroStats.effectiveInitiative}</strong></div>
+          </div>}
+          {heroSupply&&<div className="solo-hero-supplies">
+            {(['gear','ammo','medical','rations'] as const).map(kind=><span key={kind}>
+              {kind}: <strong>{heroSupply[kind]===null?'—':heroSupply[kind]===0?'empty':'d'+heroSupply[kind]}</strong></span>)}
+          </div>}
           <p>{hero?.goal||'Assign a character and a goal to give your story direction.'}</p>
-          <div className="solo-quick-skills">{hero?.skills.slice(0,10).map(s=><span key={s.id}>{s.name} <strong>{s.rating}</strong></span>)}</div>
+          {hero&&hero.skills.length>0&&<div className="solo-quick-skills" aria-label="Quick access to character skills">
+            {hero.skills.slice(0,8).map(s=><button type="button" key={s.id}
+              disabled={!!pendingSkill} onClick={()=>{
+                setSkillId(s.id);document.getElementById('solo-scene-skill-action')?.scrollIntoView({behavior:'smooth',block:'center'});
+              }}>{s.name} <strong>{s.rating}%</strong></button>)}
+          </div>}
         </section>
+        <MechanicsPanel requestedMode={requestedMode} character={hero} onOpenRule={setSourcePage} onLog={(msg,p,roll)=>log('check',msg,p,roll)}/>
       </div>
     </div>}
     {tab==='board'&&<div className="solo-board-layout">
