@@ -3,11 +3,11 @@ import {ArrowDownToLine,BookOpen,CheckCircle2,Compass,Dices,FileUp,Map,Plus,Scro
 import {freshId,rollPercentile} from './engine.ts';
 import type {Character} from './types.ts';
 import {MechanicsPanel} from './MechanicsPanel.tsx';
-import {SOLO_SOURCE,addSoloLog,beginSoloScene,closeSoloScene,customOracle,isSoloCampaign,makeSoloCampaign,makeSoloLog,manualOracle,moveSoloToken,readSoloCampaigns} from './soloEngine.ts';
+import {SOLO_STORAGE_KEY,SOLO_SOURCE,addSoloLog,beginSoloScene,closeSoloScene,customOracle,isSoloCampaign,makeSoloCampaign,makeSoloLog,manualOracle,moveSoloToken,readSoloCampaigns} from './soloEngine.ts';
 import type {OracleOutcome,SoloCampaign,SoloLogKind,SoloToken} from './soloEngine.ts';
 import './soloTabletop.css';
 
-const STORE='wayfarers-ledger-solo-v1';
+const STORE=SOLO_STORAGE_KEY;
 type Tab='play'|'board'|'cast'|'journal';
 type SceneRoll='expected'|'altered'|'interrupted';
 const LABELS:Record<OracleOutcome,string>={'extreme-yes':'Extreme yes',yes:'Yes',no:'No','extreme-no':'Extreme no'};
