@@ -107,7 +107,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
   };
   const field=(label:string,value:string,onChange:(value:string)=>void,opts?:{short?:boolean;placeholder?:string})=>
     <label className={'tbe-field'+(opts?.short?' tbe-small-field':'')}>
-      <span>{label}</span><input aria-label={label} value={value} placeholder={opts?.placeholder} onChange={e=>onChange(e.target.value)} maxLength={300}/>
+      <span>{label}</span><input aria-label={label} value={value} placeholder={opts?.placeholder} onChange={e=>onChange(e.target.value)} maxLength={opts?.short?20:300}/>
     </label>;
   const area=(label:string,value:string,onChange:(value:string)=>void,rows=3)=>
     <label className="tbe-field tbe-area"><span>{label}</span><textarea aria-label={label} rows={rows} value={value} maxLength={4000} onChange={e=>onChange(e.target.value)}/></label>;
@@ -145,11 +145,11 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
       <div className="tbe-wound-table-wrap"><table className="tbe-wound-table"><thead><tr>
         <th>WP</th><th>NL?</th><th>Wounds</th><th>INF</th><th>RB</th>
       </tr></thead><tbody>{l.wounds.map((w,i)=><tr key={i}>
-        <td><input aria-label={display+' wound '+(i+1)+' WP'} value={w.wp} onChange={e=>setWound(id,i,{wp:e.target.value})}/></td>
+        <td><input maxLength={20} aria-label={display+' wound '+(i+1)+' WP'} value={w.wp} onChange={e=>setWound(id,i,{wp:e.target.value})}/></td>
         <td><input type="checkbox" aria-label={display+' wound '+(i+1)+' nonlethal'} checked={w.nonlethal} onChange={e=>setWound(id,i,{nonlethal:e.target.checked})}/></td>
-        <td><input aria-label={display+' wound '+(i+1)+' description'} value={w.description} onChange={e=>setWound(id,i,{description:e.target.value})}/></td>
+        <td><input maxLength={1200} aria-label={display+' wound '+(i+1)+' description'} value={w.description} onChange={e=>setWound(id,i,{description:e.target.value})}/></td>
         <td><input type="checkbox" aria-label={display+' wound '+(i+1)+' infected'} checked={w.infection} onChange={e=>setWound(id,i,{infection:e.target.checked})}/></td>
-        <td><input aria-label={display+' wound '+(i+1)+' RB'} value={w.recoveryBonus} onChange={e=>setWound(id,i,{recoveryBonus:e.target.value})}/></td>
+        <td><input maxLength={30} aria-label={display+' wound '+(i+1)+' RB'} value={w.recoveryBonus} onChange={e=>setWound(id,i,{recoveryBonus:e.target.value})}/></td>
       </tr>)}</tbody></table></div>
     </section>;
   };
@@ -292,7 +292,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
           <section className="tbe-block">{heading('Armor penalties')}
             {(['athletics','riseFromProne','stealth','dodge','perception'] as const).map(key=>
               <label className="tbe-penalty" key={key}><span>{key==='riseFromProne'?'Rise from prone':key}</span>
-                <input aria-label={'Armor penalty '+key} value={sheet.armorPenalties[key]} onChange={e=>
+                <input maxLength={25} aria-label={'Armor penalty '+key} value={sheet.armorPenalties[key]} onChange={e=>
                   save({armorPenalties:{...sheet.armorPenalties,[key]:e.target.value}})}/></label>)}
           </section>
           <section className="tbe-block">{heading('Shield')}
@@ -317,10 +317,10 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
         {heading('Weapons',152)}<div className="tbe-grid-scroll"><table className="tbe-weapons">
           <thead><tr><th>Name / type</th>{attackColumns.map(([key,label])=><th key={key}>{label}</th>)}<th>Notes</th><th/></tr></thead>
           <tbody>{sheet.weapons.map((w,i)=><tr key={w.id}>
-            <td><input aria-label={'Weapon '+(i+1)+' name'} value={w.name} onChange={e=>changeWeapon(i,'name',e.target.value)}/></td>
-            {attackColumns.map(([key,label])=><td key={key}><input aria-label={'Weapon '+(i+1)+' '+label} value={w[key]}
+            <td><input maxLength={240} aria-label={'Weapon '+(i+1)+' name'} value={w.name} onChange={e=>changeWeapon(i,'name',e.target.value)}/></td>
+            {attackColumns.map(([key,label])=><td key={key}><input maxLength={240} aria-label={'Weapon '+(i+1)+' '+label} value={w[key]}
               onChange={e=>changeWeapon(i,key,e.target.value)}/></td>)}
-            <td><input aria-label={'Weapon '+(i+1)+' notes'} value={w.notes} onChange={e=>changeWeapon(i,'notes',e.target.value)}/></td>
+            <td><input maxLength={1200} aria-label={'Weapon '+(i+1)+' notes'} value={w.notes} onChange={e=>changeWeapon(i,'notes',e.target.value)}/></td>
             <td><button type="button" aria-label={'Remove weapon '+(i+1)} onClick={()=>
               save({weapons:sheet.weapons.filter((_,j)=>i!==j)})}><Trash2 size={14}/></button></td>
           </tr>)}</tbody>
@@ -337,7 +337,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
       <section className="tbe-block">
         {heading('Goals')}<div className="tbe-goal-grid">
           {sheet.goals.map((row,i)=><div key={i} className="tbe-goal-row">
-            <input aria-label={'Goal '+(i+1)} value={i===0&&!row.text&&character.goal?character.goal:row.text}
+            <input maxLength={400} aria-label={'Goal '+(i+1)} value={i===0&&!row.text&&character.goal?character.goal:row.text}
               onChange={e=>{
                 const rows=sheet.goals.map((g,j)=>i===j?{...g,text:e.target.value}:g);
                 onUpdate({tbeSheet:{...sheet,goals:rows},...(i===0?{goal:e.target.value}:{})});
@@ -380,8 +380,8 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
             <span>Entered ENC: {enteredInventoryEnc(sheet)??'check entries'}</span></div>
           <div className="tbe-inventory-table"><div className="tbe-inventory-head"><span>Item</span><span>ENC</span><span/></div>
             {sheet.inventory.map((row,i)=><div className="tbe-inventory-row" key={row.id}>
-              <input aria-label={'Inventory item '+(i+1)} value={row.item} onChange={e=>changeInventory(i,'item',e.target.value)}/>
-              <input aria-label={'Inventory ENC '+(i+1)} value={row.enc} onChange={e=>changeInventory(i,'enc',e.target.value)}/>
+              <input maxLength={500} aria-label={'Inventory item '+(i+1)} value={row.item} onChange={e=>changeInventory(i,'item',e.target.value)}/>
+              <input maxLength={30} aria-label={'Inventory ENC '+(i+1)} value={row.enc} onChange={e=>changeInventory(i,'enc',e.target.value)}/>
               <button aria-label={'Remove inventory item '+(i+1)} onClick={()=>save({inventory:sheet.inventory.filter((_,j)=>j!==i)})}><Trash2 size={14}/></button>
             </div>)}
           </div><button className="tbe-add" disabled={sheet.inventory.length>=100} onClick={()=>

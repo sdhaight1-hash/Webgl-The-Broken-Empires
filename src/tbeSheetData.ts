@@ -89,7 +89,7 @@ const textArray=(value:unknown,count:number)=>
   Array.isArray(value)&&value.length===count&&value.every((x:unknown)=>txt(x,300));
 const wound=(w:unknown)=>object(w)&&txt(w.wp,20)&&typeof w.nonlethal==='boolean'&&
   txt(w.description,1200)&&typeof w.infection==='boolean'&&txt(w.recoveryBonus,30);
-const location=(l:unknown)=>object(l)&&txt(l.armor,200)&&typeof l.toughened==='boolean'&&
+const location=(l:unknown)=>object(l)&&txt(l.armor,300)&&typeof l.toughened==='boolean'&&
   txt(l.ap,20)&&typeof l.sundered==='boolean'&&txt(l.bulk,20)&&typeof l.impaired==='boolean'&&
   Array.isArray(l.wounds)&&l.wounds.length===5&&l.wounds.every(wound);
 const weapon=(w:unknown)=>object(w)&&txt(w.id,90)&&
@@ -99,13 +99,14 @@ const inventory=(x:unknown)=>object(x)&&txt(x.id,90)&&txt(x.item,500)&&txt(x.enc
 export function isTbeSheet(value:unknown):value is TbeSheetData{
   if(!object(value))return false;
   if(!['sex','age','size','xp','startingPiety','totalLethalWp','baseRecovery','roundsDying',
-    'silverPieces','maxEnc','relationshipNpcs','threads','fraying'].every(k=>txt(value[k])))return false;
+    'silverPieces','maxEnc','fraying'].every(k=>txt(value[k]))&&
+    txt(value.relationshipNpcs,4000)&&txt(value.threads,4000))return false;
   if(!textArray(value.abilityDescriptors,3)||!textArray(value.personalityTraits,3))return false;
   if(!object(value.strands)||!STRAND_NAMES.every(k=>txt((value.strands as Record<string,unknown>)[k],25)))return false;
   if(typeof value.shock!=='boolean'||!object(value.locations)||!BODY_LOCATIONS.every(({id})=>location((value.locations as Record<string,unknown>)[id])))return false;
   if(!object(value.armorPenalties)||!['athletics','riseFromProne','stealth','dodge','perception']
     .every(k=>txt((value.armorPenalties as Record<string,unknown>)[k],25)))return false;
-  if(!object(value.shield)||!['size','ap','shieldBonus','enc'].every(k=>txt((value.shield as Record<string,unknown>)[k],50))||
+  if(!object(value.shield)||!['size','ap','shieldBonus','enc'].every(k=>txt((value.shield as Record<string,unknown>)[k],300))||
     typeof value.shield.split!=='boolean')return false;
   if(!Array.isArray(value.weapons)||value.weapons.length>30||!value.weapons.every(weapon))return false;
   if(!Array.isArray(value.inventory)||value.inventory.length>100||!value.inventory.every(inventory))return false;
