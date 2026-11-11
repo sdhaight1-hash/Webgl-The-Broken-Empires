@@ -1,9 +1,17 @@
 import {freshId} from './engine.ts';
 
 export type SoloLogKind='scene'|'oracle'|'event'|'check'|'opposed'|'journal'|'npc'|'board';
+/** Optional structured provenance on confirmed skill actions. Old v1 saves
+ * remain valid with this property absent. */
+export type SoloSkillLogDetail={
+  id:string;characterId:string;skillId:string;
+  rating:number;modifier:number;expertise:number;favor:number;target:number;
+  success:boolean;critical:boolean;levels:number
+};
 export type SoloLog={
   id:string; sceneId:string|null; kind:SoloLogKind; message:string;
-  roll?:number; sourcePage?:number; createdAt:string
+  roll?:number; sourcePage?:number; createdAt:string;
+  skillAction?:SoloSkillLogDetail
 };
 export type SoloScene={
   id:string;title:string;location:string;expected:string;
@@ -108,11 +116,22 @@ export function isSoloCampaign(value:unknown):value is SoloCampaign{
   if(!Array.isArray(c.zones)||c.zones.length>20||!c.zones.every(z=>rec(z)&&str(z.id,150)&&str(z.label,150)))return false;
   if(!Array.isArray(c.tokens)||c.tokens.length>100||!c.tokens.every(t=>rec(t)&&str(t.id,150)&&str(t.sceneId,150)&&str(t.name,150)&&
     (t.kind==='hero'||t.kind==='npc'||t.kind==='other')&&(t.npcId===null||str(t.npcId,150))&&str(t.zoneId,150)))return false;
+  const validSkillAction=(value:unknown):boolean=>{
+    if(!rec(value))return false;
+    const bounded=(key:string,lo:number,hi:number)=>
+      Number.isInteger(value[key])&&(value[key] as number)>=lo&&(value[key] as number)<=hi;
+    return str(value.id,150)&&str(value.characterId,150)&&str(value.skillId,150)&&
+      bounded('rating',0,100)&&bounded('modifier',-100,100)&&
+      bounded('expertise',1,4)&&bounded('favor',0,3)&&bounded('target',0,100)&&
+      bounded('levels',0,20)&&typeof value.success==='boolean'&&typeof value.critical==='boolean';
+  };
   if(!Array.isArray(c.journal)||c.journal.length>1000||!c.journal.every(e=>rec(e)&&str(e.id,150)&&str(e.message,4500)&&
     (e.sceneId===null||str(e.sceneId,150))&&str(e.createdAt,50)&&
     ['scene','oracle','event','check','opposed','journal','npc','board'].includes(String(e.kind))&&
     (e.sourcePage===undefined||(Number.isInteger(e.sourcePage)&&e.sourcePage>=1&&e.sourcePage<=663))&&
-    (e.roll===undefined||(Number.isInteger(e.roll)&&e.roll>=1&&e.roll<=100))))return false;
+    (e.roll===undefined||(Number.isInteger(e.roll)&&e.roll>=1&&e.roll<=100))&&
+    (e.skillAction===undefined||(e.kind==='check'&&e.sourcePage===23&&
+      typeof e.roll==='number'&&validSkillAction(e.skillAction)))))return false;
   return true;
 }
 export function readSoloCampaigns(raw:string|null):SoloCampaign[]{
