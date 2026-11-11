@@ -38,6 +38,21 @@ test('three-column embedded table yields aligned rows and wrapped cells',()=>{
   assert.equal(table.header,true);
 });
 
+test('a wrapped first data row is recovered using later table anchors',()=>{
+  const rows=[
+    [run('Simple',324,190,49),run('+20',397,190,26)],
+    [run('Easy',324,210,40),run('+10',397,210,26),run('Short description',456,210,93)],
+    [run('Medium',324,230,49),run('+0',397,230,25),run('A standard situation',456,230,94)],
+    [run('Hard',324,250,38),run('-20',397,250,28),run('Another description',456,250,100)]
+  ];
+  const body=structureTextPage(page(rows.flat()));
+  const table=body.find(b=>b.kind==='table');
+  assert.ok(table&&table.kind==='table');
+  assert.equal(table.rows.length,4);
+  assert.equal(table.rows[0][0],'Simple');
+  assert.equal(table.rows[0][1],'+20');
+});
+
 test('full-page four-column table is not divided at the narrative gutter',()=>{
   const cols=[66,205,344,471];
   const rows=[
