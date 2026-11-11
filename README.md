@@ -10,8 +10,8 @@ An **independent**, browser-based character journal and rules-learning companion
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
 - **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
 - Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
-- **Personal SRD (local-only):** on-demand, art-free text view of the owner's chosen PDF, chapter/section navigation across the entire 663-page volume, reading-flow and page-column layouts, a text-position view for tables, adjustable type, source-PDF cross-checks and optional full-book search. No extracted book text is committed, uploaded, persisted.
-- **Export linked PDF:** user-initiated browser-only text PDF generation with a clickable 207-section contents list, nested viewer bookmarks, links back to contents / adjacent source pages, and recognized `Chapter N` cross-links. The PDF is downloaded to the user's device only.
+- **Personal SRD (local-only):** on-demand art-free text view of the owner's chosen PDF, now with structured **headings, readable paragraphs and actual HTML tables**, extracted from source text positions. Chapter navigation covers all 663 source pages; column/position modes remain available to verify ambiguous geometry. No source text is committed or uploaded.
+- **Export formatted linked PDF:** browser-only re-typesetting of paragraphs and tabular rows with wrapped cells, grid borders and automatic continuation pages. The 207-section contents, bookmarks, chapter links, and previous/next navigation target the correctly remapped output pages.
 - Interactive d100 basic check lab with core-book verified automatic success/failure, critical doubles, **exact-value critical successes** and Success Levels.
 - **Solo tabletop:** multiple saved campaigns, scene lifecycle, source-linked d100 oracle and event workflows, authored NPCs, open threads, editable zone-based tabletop, draggable tokens, character-sheet integration, narrative journal, and independent JSON backup/restore.
 - **Eight structured and tested mechanics:** percentile skill checks, opposed contests, success margins, extended progress, Timer Die, supporting skill bonus, Expertise SL floor, Supply Dice. Codex entries can open corresponding live calculators in solo play.
@@ -42,7 +42,7 @@ The **Personal SRD** page is a locally generated reading interface, **not** a pu
 1. Open **Personal SRD** in the app.
 2. Select your own `ref docs/Core Rulebook.pdf` from disk; the app reads it with Mozilla PDF.js.
 3. Navigate all 207 indexed bookmarks or use the previous/next page controls.
-4. Toggle **Reading flow**, **Page columns**, or **Text positions**. The third mode reconstructs the position of textual PDF runs and is particularly helpful for tables without rendering artwork.
+4. **Structured text + tables** is the default. Switch among Page columns, Text positions and Legacy flow to cross-check a difficult table or unusual layout.
 5. Choose **Index all pages** to search the source text throughout the book; the index builds and stays only in the current browser session and can be cancelled. The app reads pages on demand otherwise.
 6. Use **Check original** whenever a chart, table, footnote or layout-sensitive rule needs confirmation.
 
@@ -50,13 +50,13 @@ The **Personal SRD** page is a locally generated reading interface, **not** a pu
 
 After selecting the rulebook on the **Personal SRD** page, click **Export linked PDF**. Export is independent of the optional search index; it processes all source pages, shows progress and supports cancellation. On completion, your browser downloads `The_Broken_Empires_Personal_Text_Linked.pdf`.
 
-The generated file uses one text-only page for each original PDF page, preceded by a cover and an internally linked contents section. Links and the PDF viewer bookmark sidebar target output page positions (which differ from the printed original page numbers); each content page shows its **original PDF page number**. The export creates original links for recognized `Chapter N` references, plus Previous / Next / Contents controls on each source page.
+The generated file reflows each source page into one or more properly typeset pages, preceded by a cover and an internally linked contents section. Links and the PDF viewer bookmark sidebar target output page positions (which differ from the printed original page numbers); each content page shows its **original PDF page number**. The export creates original links for recognized `Chapter N` references, plus Previous / Next / Contents controls on each source page.
 
-The output contains neither embedded source artwork nor imported PDF page images. Its layout is based on extracted text positions so tables remain spatially recognizable where possible, but **complex tables, fonts, ligatures, symbols, footnotes and raster-only text can be imperfect**. Standard PDF fonts cannot reproduce every Unicode glyph, so uncommon symbols may be simplified or replaced. Check the original rulebook for exact adjudication. The output is a personal reading copy, **not a permission grant to redistribute the book or publish it as an open SRD**.
+The output contains neither embedded source artwork nor imported PDF page images. Instead of reproducing each text fragment at its old coordinates, it infers layout blocks from text positions and redraws paragraphs and tables with word wrapping. **Merged cells, unusual fonts and spacing, symbols, footnotes and raster-only text still require comparison with the original PDF**. Standard PDF fonts cannot reproduce every Unicode glyph, so uncommon symbols may be simplified or replaced. Check the original rulebook for exact adjudication. The output is a personal reading copy, **not a permission grant to redistribute the book or publish it as an open SRD**.
 
 The manual GitHub Actions workflow `Audit local hyperlinked PDF export` regenerates the entire PDF from the owner's Git LFS source on a runner and validates metadata, link annotations, bookmarks and page counts; it does not publish the generated book or print its text into logs.
 
-The end-to-end source audit passed on the supplied 663-page book, producing a **671-page text PDF** (cover + 7 contents + 663 source pages), approximately **2.4 MB**, with **214 clickable contents-page links**, **2,604 internal links**, and **24 top-level bookmark groups** (including subsections). No art or images were copied.
+The former 671-page coordinate-only export preserved source text but failed to format it and has been replaced. A full-book audit of the new reflow renderer processed **663/663 source pages** and generated **1,045 typeset pages** in its final audited revision (November 11, 2026), with linked contents and nested bookmarks. Output page count varies as layout inference and pagination improve. Run the manual GitHub Actions export audit for current metadata.
 
 The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
 
@@ -83,6 +83,18 @@ Solo source viewer links use **1-based PDF viewer pages**, not printed folios. T
 **What remains deliberately manual:** The commercial solo Oracle probability table, Random Events lookup, Action/Subject word tables and scene expectation table. The current code *does not* claim their exact threshold distributions, so it never invents results or reproduce copyrighted tables. The custom oracle probabilities are optional convenience logic, not a house rule falsely attributed to the book.
 
 The board is a **solo, zone-based VTT slice**, not a full multiplayer VTT. It does not yet implement scene fog of war, pixel-precise map measurements, synchronized sessions, complete combat and magic automation or an AI narrator. See [issue #5](https://github.com/sdhaight1-hash/Webgl-The-Broken-Empires/issues/5) for the distinct rule-by-rule verification effort.
+
+## Formatted SRD reconstruction
+
+The old exporter stamped PDF.js text fragments at individually scaled coordinates. This caused microtype, collisions, broken paragraphs and flattened tables, particularly on source PDF pages 22, 26 and 37.
+
+The new **src/srdLayout.ts** extracts semantic headings and paragraphs, separates physical reading columns, and detects repeated cell alignments in the source PDF to build actual table rows. Both the Personal SRD reader and the PDF exporter consume that model.
+
+The PDF renderer typesets text at readable sizes, wraps full paragraphs and table cells, draws ruled grids, automatically creates continuation pages, and resolves internal links after pagination. The Previous and Next controls walk through **every** output page, including continuations.
+
+Automated verification covers narrative ordering, in-column and full-width table detection, wrapped first rows, page mapping, link destinations, output bounds and actual source text retention. The manual source audit processes user-owned Git LFS bytes without printing or publishing book text.
+
+**Known fidelity limit:** PDF-to-document-structure extraction remains heuristic. Merged-cell tables, sidebars, nested layouts, font-specific glyphs and raster-only text may require manual corrections. Re-run the source audit and compare suspicious sections with your original PDF. Do not claim every book table is perfect until the book has been reviewed page by page.
 
 ## Rules integrity and important limitations
 
