@@ -65,3 +65,43 @@ export function recordWound(
     }
   };
 }
+
+/** Basic damage arithmetic from source PDF p.176, using explicitly adjudicated
+ * inputs. External hits normally apply location armor; shield AP is optional.
+ * Internal hits do not apply either form of protection (source PDF p.175).
+ * This does not model special maneuvers, sunder, wound effects or Talents.
+ */
+export type DamageInput={
+  baseDamage:number;
+  degreeOfSuccess:number;
+  armorAP:number;
+  shieldAP:number;
+  type:'external'|'internal';
+  applyShield:boolean;
+};
+export type DamageResult={
+  incoming:number;
+  appliedArmor:number;
+  appliedShield:number;
+  woundPoints:number;
+};
+export function calculateWoundPoints(input:DamageInput):DamageResult{
+  for(const [name,value] of [
+    ['Base damage',input.baseDamage],['Degree of success',input.degreeOfSuccess],
+    ['Armor AP',input.armorAP],['Shield AP',input.shieldAP]
+  ] as const){
+    if(!Number.isSafeInteger(value)||value<0||value>999)
+      throw new RangeError(name+' must be a whole number from 0 to 999');
+  }
+  if(input.type!=='external'&&input.type!=='internal')
+    throw new RangeError('Damage type must be external or internal');
+  if(typeof input.applyShield!=='boolean')
+    throw new RangeError('Shield decision must be explicit');
+  const incoming=input.baseDamage+input.degreeOfSuccess;
+  const appliedArmor=input.type==='external'?input.armorAP:0;
+  const appliedShield=input.type==='external'&&input.applyShield?input.shieldAP:0;
+  return {
+    incoming,appliedArmor,appliedShield,
+    woundPoints:Math.max(0,incoming-appliedArmor-appliedShield)
+  };
+}
