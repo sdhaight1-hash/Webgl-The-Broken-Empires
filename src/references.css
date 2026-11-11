@@ -43,3 +43,14 @@
 .reference-disclaimer{color:#8ba0a7;font-size:11px;line-height:1.8;margin-top:18px}
 @media(max-width:1100px){.reference-layout{grid-template-columns:1fr}.reference-outline{max-height:none}.creation-index{display:grid;grid-template-columns:repeat(2,1fr);gap:0 14px}.reference-map-viewport{height:60vh}}
 @media(max-width:550px){.reference-tabs button{flex:1;justify-content:center;padding:11px}.reference-outline{padding:16px}.reference-toolbar{padding:13px;flex-wrap:wrap}.reference-page-control{gap:5px}.reference-page-control .button-small{padding:8px}.reference-pdf{height:68vh}.creation-index{grid-template-columns:1fr}.reference-map-viewport{min-height:370px}}
+
+.reference-forge-guide{padding:23px}
+.reference-forge-guide h3{font:18px Cinzel,serif;margin:0 0 10px;color:#eae1d4}
+.reference-forge-guide p{font-size:11px;color:#91a3a9;line-height:1.7}
+.reference-forge-guide ol{list-style:none;padding:0;margin:15px 0 0;max-height:360px;overflow-y:auto;scrollbar-width:thin}
+.reference-forge-guide li button{display:flex;align-items:center;gap:8px;padding:8px 3px;width:100%;border:0;border-top:1px solid #31424b;text-align:left;background:transparent;font-size:10.5px;color:#bdcac9}
+.reference-forge-guide li button:hover{color:#ead4aa;background:#283831}
+.reference-forge-guide li button>span{width:20px;flex-shrink:0;color:#c4a778;font-family:Cinzel,serif}
+.reference-forge-guide li button small{margin-left:auto;white-space:nowrap;color:#8399a1;font-size:9px}
+@media(max-width:1050px){.forge-aside .reference-forge-guide{grid-column:span 2}}
+@media(max-width:550px){.forge-aside .reference-forge-guide{grid-column:span 1}}

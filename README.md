@@ -60,7 +60,7 @@ The publisher's current [third-party license](https://thebrokenempiresrpg.com/pa
 
 A GitHub Actions metadata-only reference audit verified the user-supplied PDF has **663 pages and 207 bookmarks**. Its character creation chapter begins at PDF page 82. The reference explorer indexes the 12 named character creation stages (PDF pages 84–118) without copying commercial page contents. This is a structural audit, **not** verification of each game's rules calculation.
 
-The map is a large PNG stored in Git LFS. The browser can open it locally, but smooth deep-zoom on very large images will eventually require a tile pyramid rather than decoding the entire image at once. The map image and PDF are never saved in localStorage, only map marker coordinates/names and character information.
+The map is a 16,200 × 10,800 pixel (174.96 megapixel) PNG stored in Git LFS. The browser can open it locally, but smooth deep-zoom on very large images will eventually require a tile pyramid rather than decoding the entire image at once. The map image and PDF are never saved in localStorage, only map marker coordinates/names and character information.
 
 ## Next implementation gates
 

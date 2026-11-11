@@ -32,3 +32,16 @@ test('character and saved roster have safe defaults', () => {
   assert.equal(safeReadRoster('bad json').length, 0);
   assert.equal(safeReadRoster(JSON.stringify([c, {id: 1}])).length, 1);
 });
+
+import { ARTICLE_BOOK_PAGES, BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
+
+test('book index uses bounded 1-based PDF pages and unique chapter positions', () => {
+  assert.equal(PDF_PAGE_COUNT,663);
+  assert.equal(new Set(BOOK_LINKS.map(e=>e.page)).size,BOOK_LINKS.length);
+  for(const {page} of BOOK_LINKS)assert.ok(page>=1&&page<=PDF_PAGE_COUNT);
+});
+test('twelve character creation stages follow verified PDF bookmark order', () => {
+  assert.equal(CREATION_SEQUENCE.length,12);
+  assert.deepEqual(CREATION_SEQUENCE.map(e=>e.page),[84,85,90,91,93,95,106,112,113,114,115,118]);
+  assert.equal(ARTICLE_BOOK_PAGES.origins,82);
+});
