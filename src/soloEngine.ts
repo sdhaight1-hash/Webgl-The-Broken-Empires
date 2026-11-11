@@ -129,9 +129,11 @@ export function isSoloCampaign(value:unknown):value is SoloCampaign{
   if(!Array.isArray(c.scenes)||c.scenes.length>100||!c.scenes.every(s=>rec(s)&&str(s.id,150)&&str(s.title,120)&&
     str(s.location,180)&&str(s.expected,1200)&&str(s.outcome,3000)&&str(s.createdAt,50)&&
     (s.closedAt===null||str(s.closedAt,50))&&(s.status==='active'||s.status==='closed')))return false;
+  const bounded=(v:unknown,min:number,max:number)=>typeof v==='number'&&
+    Number.isInteger(v)&&v>=min&&v<=max;
   const validLocation=(v:unknown)=>['body','head','rightArm','leftArm','rightLeg','leftLeg'].includes(String(v));
   const validWound=(v:unknown)=>rec(v)&&str(v.id,150)&&validLocation(v.location)&&
-    str(v.detail,50)&&Number.isInteger(v.wp)&&v.wp>=1&&v.wp<=999&&
+    str(v.detail,50)&&bounded(v.wp,1,999)&&
     str(v.injury,1100)&&typeof v.nonlethal==='boolean';
   if(!Array.isArray(c.npcs)||c.npcs.length>100||!c.npcs.every(n=>rec(n)&&str(n.id,150)&&str(n.name,150)&&str(n.role,200)&&str(n.disposition,200)&&str(n.details,4000)&&str(n.tags,1000)&&
     (n.combatWounds===undefined||(Array.isArray(n.combatWounds)&&n.combatWounds.length<=100&&n.combatWounds.every(validWound)))))return false;
@@ -152,16 +154,17 @@ export function isSoloCampaign(value:unknown):value is SoloCampaign{
     str(w.description,1200)&&typeof w.infection==='boolean'&&str(w.recoveryBonus,30);
   const validCombat=(v:unknown)=>rec(v)&&str(v.id,150)&&str(v.characterId,150)&&str(v.opponentId,150)&&
     (v.direction==='hero-attacks'||v.direction==='hero-defends')&&str(v.heroSkillId,150)&&
-    [v.heroRoll,v.opponentRoll].every(n=>Number.isInteger(n)&&n>=1&&n<=100)&&
+    [v.heroRoll,v.opponentRoll].every(n=>bounded(n,1,100))&&
     [v.heroFavor,v.opponentRating,v.opponentExpertise,v.degree,v.woundPoints,v.heroSpentBefore,v.heroSpentAfter].every(n=>
-      Number.isInteger(n)&&n>=0&&n<=1998)&&
-    Number.isInteger(v.opponentModifier)&&v.opponentModifier>=-100&&v.opponentModifier<=100&&
-    v.heroFavor<=3&&v.opponentRating<=100&&v.opponentExpertise>=1&&v.opponentExpertise<=4&&
-    v.heroSpentBefore<=200&&v.heroSpentAfter<=200&&v.heroSpentAfter-v.heroSpentBefore===v.heroFavor&&
+      bounded(n,0,1998))&&
+    bounded(v.opponentModifier,-100,100)&&
+    bounded(v.heroFavor,0,3)&&bounded(v.opponentRating,0,100)&&bounded(v.opponentExpertise,1,4)&&
+    bounded(v.heroSpentBefore,0,200)&&bounded(v.heroSpentAfter,0,200)&&
+    Number(v.heroSpentAfter)-Number(v.heroSpentBefore)===Number(v.heroFavor)&&
     typeof v.attackerWon==='boolean'&&['hero','npc','none'].includes(String(v.target))&&
     (v.location===undefined||validLocation(v.location))&&
     (v.detail===undefined||str(v.detail,50))&&
-    (v.slot===undefined||(Number.isInteger(v.slot)&&v.slot>=0&&v.slot<5))&&
+    (v.slot===undefined||bounded(v.slot,0,4))&&
     (v.beforeWound===undefined||validRow(v.beforeWound))&&
     (v.appliedWound===undefined||validRow(v.appliedWound))&&
     (v.npcWound===undefined||validWound(v.npcWound))&&
