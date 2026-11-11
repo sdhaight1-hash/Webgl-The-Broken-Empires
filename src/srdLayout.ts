@@ -184,7 +184,7 @@ function broadTableRanges(lines:Line[],width:number):{start:number;end:number;bl
     const xMax=Math.max(...all.flatMap(l=>l.segments.map(s=>s.right)));
     // A full-width table must genuinely cross the page gutter. Otherwise
     // detect tables in each column independently to avoid joining prose streams.
-    if(xMax-xMin<width*.55||xMin>width*.35)continue;
+    if(xMax-xMin<width*.48||xMin>width*.35)continue;
     found.push({start:lines[i].y-3,end:table.bottom+3,block:table.table});
     i=table.end;
   }
