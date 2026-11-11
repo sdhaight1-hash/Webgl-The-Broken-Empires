@@ -8,6 +8,9 @@ import { ReferenceWorkbench } from './ReferenceWorkbench.tsx';
 import { PersonalSrd } from './PersonalSrd.tsx';
 import { SourceOutlineNavigator } from './SourceOutlineNavigator.tsx';
 import { SoloTabletop } from './SoloTabletop.tsx';
+import { InteractiveCharacterControls } from './InteractiveCharacterControls.tsx';
+import {appendCharacterSheetLog,SOLO_STORAGE_KEY} from './soloEngine.ts';
+import type {RollEntry} from './characterSheetModel.ts';
 import type { Mode as MechanicMode } from './MechanicsPanel.tsx';
 import { CREATION_SEQUENCE } from './bookIndex.ts';
 
@@ -65,10 +68,21 @@ export function App(){
     if(character.skills.some(s=>s.name.toLowerCase()===label.toLowerCase())){setNotice('That skill is already on the sheet.');return;}
     edit({skills:[...character.skills,{id:freshId(),name:label,rating:0,note:''}]});setNewSkill('');setNotice(`${label} added. Set its rating from your rulebook.`);
   };
-  const updateSkill=(id:string,field:'name'|'rating'|'note',value:string|number)=>edit({skills:character.skills.map(skill=>skill.id===id?{...skill,[field]:value}:skill)});
+  const updateSkill=(id:string,field:'name'|'rating'|'note'|'modifier'|'expertiseLevel',value:string|number)=>edit({skills:character.skills.map(skill=>skill.id===id?{...skill,[field]:value}:skill)});
   const removeSkill=(id:string)=>edit({skills:character.skills.filter(skill=>skill.id!==id)});
   const doRoll=(target=diceTarget,label=diceLabel)=>{try{const result=resolveCheck(rollPercentile(),target);setDiceResult(result);setDiceTarget(target);setDiceLabel(label);setDiceHistory(prev=>[{id:freshId(),label,result},...prev].slice(0,8));}catch{setNotice('Use a target between 0 and 100 for the basic dice lab.');}};
-  const rollSkill=(name:string,rating:number)=>{setDiceLabel(name);setDiceTarget(rating);doRoll(rating,name);go('dice');};
+  const recordSheetRoll=(entry:RollEntry)=>{
+    if(entry.check){
+      setDiceResult(entry.check);setDiceTarget(entry.check.target);setDiceLabel(entry.label);
+      setDiceHistory(prev=>[{id:freshId(),label:entry.label,result:entry.check!},...prev].slice(0,8));
+    }
+    try{
+      const stored=appendCharacterSheetLog(localStorage.getItem(SOLO_STORAGE_KEY),
+        localStorage.getItem(SOLO_STORAGE_KEY+'-active')||'',activeId,
+        {message:entry.message,sourcePage:entry.sourcePage,roll:entry.roll});
+      if(stored)localStorage.setItem(SOLO_STORAGE_KEY,stored);
+    }catch{setNotice('The roll was made, but its solo journal could not be saved. Export your campaign.');}
+  };
   const download=()=>{const blob=new Blob([JSON.stringify({format:'wayfarers-ledger',version:1,characters:roster},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download='wayfarers-ledger-characters.json';link.click();URL.revokeObjectURL(url);setNotice('Character archive exported.');};
   const importCharacters=async(file:File|undefined)=>{if(!file)return;try{const text=await file.text();const data:unknown=JSON.parse(text);if(!data||typeof data!=='object'||(data as {format?:string}).format!=='wayfarers-ledger'||(data as {version?:number}).version!==1)throw new Error('Not a supported Ledger archive');const values=(data as {characters?:unknown}).characters;
     if(!Array.isArray(values)||!values.length||values.length>200||!values.every(isCharacter))throw new Error('Invalid or incomplete character records');
@@ -119,9 +133,11 @@ export function App(){
         </>}
 
         {page==='sheet'&&<>
-          <div className="page-heading sheet-heading"><div><div className="eyebrow"><ScrollText size={15}/> CHARACTER RECORD</div><h1>{character.name||'Unnamed wanderer'}</h1><p>{[character.heritage,character.culture,character.career].filter(Boolean).join(' · ')||'Your story is waiting to be written.'}</p></div><div className="heading-actions"><button className="button button-quiet button-small" onClick={duplicate}><Copy size={15}/> Duplicate</button><button className="button button-quiet button-small" onClick={download}><ArrowDownToLine size={15}/> Export</button><button className="button button-outline-danger button-small" onClick={deleteCharacter}><Trash2 size={15}/> Delete</button></div></div>
+          <div className="page-heading sheet-heading"><div><div className="eyebrow"><ScrollText size={15}/> LIVE CHARACTER RECORD</div><h1>{character.name||'Unnamed wanderer'}</h1><p>{[character.heritage,character.culture,character.career].filter(Boolean).join(' · ')||'Your story is waiting to be written.'}</p></div><div className="heading-actions"><button className="button button-quiet button-small" onClick={duplicate}><Copy size={15}/> Duplicate</button><button className="button button-quiet button-small" onClick={download}><ArrowDownToLine size={15}/> Export</button><button className="button button-outline-danger button-small" onClick={deleteCharacter}><Trash2 size={15}/> Delete</button></div></div>
           <div className="sheet-grid"><div className="sheet-primary"><section className="panel sheet-panel"><div className="section-head"><div><div className="eyebrow">IDENTITY</div><h3>The person behind the tale</h3></div><button className="button button-quiet button-small" onClick={()=>{setForgeStep(0);go('forge')}}>Guided forge <ArrowRight size={14}/></button></div><div className="fields two-cols">{field('Name','name','Character name')}{field('Pronouns','pronouns','Pronouns')}<label className="field"><span>Heritage</span><select value={character.heritage} onChange={e=>setField('heritage',e.target.value)}><option value="">Choose...</option>{HERITAGES.map(h=><option key={h}>{h}</option>)}</select></label>{field('Culture','culture','Cultural background')}{field('Previous career','career','Career')}{field('Status / wealth','status','Enter from rulebook')}</div>{field('Appearance','description','Physical description',true)}</section>
-            <section className="panel sheet-panel"><div className="section-head"><div><div className="eyebrow">CAPABILITIES</div><h3>Skills & ratings</h3></div><span className="section-count">{character.skills.length} SKILLS</span></div><p className="muted">Ratings are manual. Use the die icon to make a check instantly. This is not an authoritative skills catalog.</p><div className="skill-table-head"><span>SKILL</span><span>RATING</span><span>CHECK</span><span/></div><div className="skill-rows">{character.skills.length===0?<div className="empty-mini">Your ledger has no skills yet. Add one below.</div>:character.skills.map(s=><div className="skill-row" key={s.id}><input aria-label="Skill name" value={s.name} onChange={e=>updateSkill(s.id,'name',e.target.value)}/><div className="rating-input"><input aria-label={`${s.name} rating`} type="number" min={0} max={100} value={s.rating} onChange={e=>updateSkill(s.id,'rating',Math.max(0,Math.min(100,Number(e.target.value)||0)))}/><span>%</span></div><button className="roll-icon" title={`Roll ${s.name}`} aria-label={`Roll ${s.name}`} onClick={()=>rollSkill(s.name,s.rating)}><Dices size={17}/></button><button className="icon-button danger-hover" title={`Remove ${s.name}`} aria-label={`Remove ${s.name}`} onClick={()=>removeSkill(s.id)}><X size={15}/></button></div>)}</div><SkillAdder value={newSkill} setValue={setNewSkill} add={addSkill} skills={character.skills.map(s=>s.name)}/></section>
+            <InteractiveCharacterControls character={character} onUpdate={edit}
+              onUpdateSkill={updateSkill} onRemoveSkill={removeSkill} onAddSkill={addSkill}
+              onRecord={recordSheetRoll} onOpenRule={p=>{setReferencePage(p);go('srd')}}/>
             <div className="sheet-double">{listEditor('expertise','Expertise','Areas of practice or special knowledge.',Feather)}{listEditor('talents','Talents','Named talents and notes.',Sparkles)}</div>
             <section className="panel sheet-panel"><div className="section-head"><div><div className="eyebrow">STORY</div><h3>Goals & history</h3></div></div>{field('Defining goal','goal','The goal driving this chronicle',true)}{field('Bond','bond','A person, vow, or relationship',true)}{field('Personal history','history','How this story began',true)}{listEditor('events','Life events','Events that shape your character.',Feather)}</section>
           </div><aside className="sheet-secondary"><div className="panel sheet-profile"><div className="profile-emblem"><Shield size={55} strokeWidth={0.9}/></div><div className="eyebrow">YOUR CHRONICLE</div><h3>{character.name||'The Unnamed'}</h3><p>{character.heritage||'Heritage unknown'}</p><div className="profile-rule"/><span>“{character.goal||'The road ahead is unwritten.'}”</span></div>{listEditor('wounds','Wounds & conditions','No invented hit-point or injury mechanics.',HeartPulse)}{listEditor('equipment','Equipment & assets','Tools, gear, wealth and possessions.',Shield)}<section className="panel sheet-list"><div className="eyebrow">ADDITIONAL RECORD</div><h3>Notes & advancement</h3>{field('Experience / advancement','experience','Record XP and purchases manually')}{field('Session notes','notes','What happened on the road?',true)}</section><p className="small-disclaimer">The purchased rulebook controls all mechanical values. This sheet is an editable journal, not a verified character legality checker.</p></aside></div>
