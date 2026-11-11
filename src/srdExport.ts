@@ -35,7 +35,7 @@ export function safePdfText(text:string):string {
     '\u2192':'->','\u2190':'<-','\u2264':'<=','\u2265':'>=','\u2010':'-',
     '\u2011':'-','\u202f':' ','\u2044':'/','\u2212':'-'
   };
-  return text.replace(/[\u2018-\u2022\u00a0\u200b\u2122\u2190-\u2192\u2264-\u2265\u202f\u2044\u2212]/g,
+  return text.replace(/[\u2010-\u2022\u00a0\u200b\u2122\u2190-\u2192\u2264-\u2265\u202f\u2044\u2212]/g,
     ch=>punctuation[ch]??'?')
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g,'')
@@ -164,7 +164,7 @@ function renderSourcePage(
     if(Math.abs(size-previousSize)>.18){pdf.setFontSize(size);previousSize=size;}
     const line=safePdfText(run.text.replace(/\s+/g,' '));
     if(!line.trim())continue;
-    pdf.text(line,x,y,{horizontalScale:Math.min(1,(PAGE_WIDTH-MARGIN-x)/Math.max(1,pdf.getTextWidth(line)))});
+    pdf.text(line,x,y,{horizontalScale:Math.max(0.25,Math.min(1,(PAGE_WIDTH-MARGIN-x)/Math.max(1,pdf.getTextWidth(line))))});
     // Safe, explicit "Chapter N" cross-references only. No guessed destinations.
     const chapters=/\bChapter\s+(\d{1,2})\b/gi;
     for(const match of line.matchAll(chapters)){
