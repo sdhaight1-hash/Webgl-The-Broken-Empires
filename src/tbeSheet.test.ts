@@ -108,3 +108,71 @@ test('strands, piety, armor penalties, shield and fraying retain independent fie
   assert.equal(copy.shield.split,true);
   assert.equal(copy.fraying,'8');
 });
+
+// The general location comes from the attacker d100 ones die;
+// the defender determines detail, or a fallback d10 when no defense was rolled.
+import {locateHit,recordWound} from './hitLocation.ts';
+
+test('attacker ones digit picks the six canonical general hit locations',()=>{
+  assert.deepEqual([10,11,15,16,17,18,19,100].map(r=>locateHit(r,10).location),
+    ['head','body','body','rightArm','leftArm','rightLeg','leftLeg','head']);
+  assert.equal(locateHit(25,10).detail,'Groin');
+  assert.equal(locateHit(16,3).detail,'Bicep');
+  assert.equal(locateHit(18,10).detail,'Foot');
+});
+
+test('head eyes and ears use even-right, odd-left detailed die',()=>{
+  assert.equal(locateHit(20,3).detail,'Left eye');
+  assert.equal(locateHit(20,4).detail,'Right eye');
+  assert.equal(locateHit(20,8).detail,'Right ear');
+  assert.equal(locateHit(20,9).detail,'Left ear');
+  assert.equal(locateHit(20,100).detail,'Neck');
+  assert.equal(locateHit(16,1).detail,'Shoulder');
+  assert.equal(locateHit(18,7).detail,'Knee');
+});
+
+test('hit location lookup rejects impossible die results',()=>{
+  for(const value of [0,-2,101,1.5,NaN,Infinity]){
+    assert.throws(()=>locateHit(value,10),RangeError);
+    assert.throws(()=>locateHit(10,value),RangeError);
+  }
+});
+
+test('quick wound entry records a detail without altering other wound slots',()=>{
+  const original=makeTbeSheet(),hit=locateHit(16,9);
+  const updated=recordWound(original,hit,4,'slash',false);
+  assert.equal(updated.locations.rightArm.wounds[0].wp,'4');
+  assert.equal(updated.locations.rightArm.wounds[0].description,'Hand — slash');
+  assert.equal(updated.locations.rightArm.wounds[0].nonlethal,false);
+  assert.equal(enteredLethalWp(updated),4);
+  assert.equal(enteredLethalWp(original),0);
+  assert.equal(original.locations.rightArm.wounds[0].description,'');
+  assert.deepEqual(original.locations.leftArm,updated.locations.leftArm);
+  const next=recordWound(updated,hit,2,'bash',true);
+  assert.equal(next.locations.rightArm.wounds[1].nonlethal,true);
+  assert.equal(enteredLethalWp(next),4);
+});
+
+test('quick wound entry never overwrites any occupied slot',()=>{
+  let sheet=makeTbeSheet();
+  const hit=locateHit(10,10);
+  sheet.locations.head.wounds[0].recoveryBonus='2';
+  sheet=recordWound(sheet,hit,2,'',false);
+  assert.equal(sheet.locations.head.wounds[0].wp,'');
+  assert.equal(sheet.locations.head.wounds[1].wp,'2');
+  for(let i=0;i<3;i++)sheet=recordWound(sheet,hit,1,'',false);
+  assert.throws(()=>recordWound(sheet,hit,1,'',false),/five wound slots/);
+  assert.throws(()=>recordWound(makeTbeSheet(),hit,0,'',false),RangeError);
+  assert.throws(()=>recordWound(makeTbeSheet(),hit,1.2,'',false),RangeError);
+  assert.throws(()=>recordWound(makeTbeSheet(),hit,2,'x'.repeat(1101),false),RangeError);
+});
+
+test('import validation rejects malformed text fields independently',()=>{
+  const sheet=makeTbeSheet();
+  assert.equal(isTbeSheet({...sheet,sex:4}),false);
+  assert.equal(isTbeSheet({...sheet,relationshipNpcs:null}),false);
+  assert.equal(isTbeSheet({...sheet,threads:42}),false);
+  assert.equal(isTbeSheet({...sheet,relationshipNpcs:'x'.repeat(4001)}),false);
+  assert.equal(isTbeSheet({...sheet,threads:'x'.repeat(4001)}),false);
+  assert.equal(isTbeSheet(sheet),true);
+});
