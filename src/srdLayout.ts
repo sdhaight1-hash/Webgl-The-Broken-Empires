@@ -19,7 +19,7 @@ const median=(values:number[],fallback=11)=>{
   return ordered[Math.floor(ordered.length/2)];
 };
 
-function joinWords(previous:string,next:string,gap:number,fontSize:number):string {
+function joinWords(previous:string,next:string,gap:number):string {
   const text=next.trim();
   if(!previous)return text;
   if(!text)return previous;
@@ -54,7 +54,7 @@ function makeLines(runs:readonly PositionedRun[]):Line[]{
         current={text:item.text.trim(),x:item.x,right:item.right,size:item.size};
         segments.push(current);
       }else{
-        current.text=joinWords(current.text,item.text,gap,item.size);
+        current.text=joinWords(current.text,item.text,gap);
         current.right=Math.max(current.right,item.right);
         current.size=Math.max(current.size,item.size);
       }
