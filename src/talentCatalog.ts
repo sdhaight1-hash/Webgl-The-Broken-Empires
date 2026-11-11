@@ -40,6 +40,11 @@ export type TalentOption={name:string;category:TalentCategory;page:number};
 export const TALENT_CATALOG:TalentOption[]=Object.entries(TALENT_GROUPS).flatMap(([group,pages])=>
   Object.entries(pages).flatMap(([page,names])=>(names as readonly string[]).map(name=>
     ({name,category:group as TalentCategory,page:Number(page)}))));
+/** Index labels whose spelling/variant grouping did not match an exact source
+ * text substring in the initial audit. They remain manually selectable. */
+export const TALENT_NAMES_PENDING_VERIFICATION=new Set([
+  'Armor Training I–IV','Impaired Fighter (Arm)','Impaired Fighter (Leg)'
+]);
 export const TALENT_CATEGORIES=Object.keys(TALENT_GROUPS) as TalentCategory[];
 export function findTalent(name:string):TalentOption|undefined{
   return TALENT_CATALOG.find(t=>t.name.toLocaleLowerCase()===name.trim().toLocaleLowerCase());

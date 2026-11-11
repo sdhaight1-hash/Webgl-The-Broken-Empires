@@ -2,7 +2,7 @@ import {useMemo,useState} from 'react';
 import {BookOpen,ChevronDown,Plus,Search,Trash2} from 'lucide-react';
 import type {RecordEntry} from './types.ts';
 import {freshId} from './engine.ts';
-import {findTalent,TALENT_CATALOG,TALENT_CATEGORIES} from './talentCatalog.ts';
+import {findTalent,TALENT_CATALOG,TALENT_CATEGORIES,TALENT_NAMES_PENDING_VERIFICATION} from './talentCatalog.ts';
 import type {TalentCategory} from './talentCatalog.ts';
 import './talentPicker.css';
 
@@ -24,7 +24,7 @@ export function TalentPicker({entries,onChange,onOpenRule}:Props){
       setMessage(n+' is already on this character.');return;
     }
     onChange([...entries,{id:freshId(),text:n}]);
-    setMessage('Added '+n+'. Check requirements and effects in your rulebook.');
+    setMessage('Added '+n+'. '+(TALENT_NAMES_PENDING_VERIFICATION.has(n)?'Check the exact printed Talent name. ':'')+'Check requirements and effects in your rulebook.');
     setChosen('');setCustom('');
   };
   return <section className="tbe-talent-picker" aria-label="Talent selection and record">
@@ -41,7 +41,7 @@ export function TalentPicker({entries,onChange,onOpenRule}:Props){
     <div className="tbe-talent-add">
       <select aria-label="Select Talent" value={chosen} onChange={e=>setChosen(e.target.value)}>
         <option value="">Choose a Talent ({available.length})</option>
-        {available.map(option=><option key={option.name} value={option.name}>{option.name} · PDF {option.page}</option>)}
+        {available.map(option=><option key={option.name} value={option.name}>{option.name}{TALENT_NAMES_PENDING_VERIFICATION.has(option.name)?' · verify source label':''} · PDF {option.page}</option>)}
       </select>
       <button type="button" disabled={!chosen} onClick={()=>add(chosen)}><Plus size={14}/> Add Talent</button>
     </div>
