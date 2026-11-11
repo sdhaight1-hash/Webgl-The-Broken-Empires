@@ -83,7 +83,7 @@ function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
   for(let i=start+1;i<lines.length&&i<start+65;i++){
     const line=lines[i];
     const gap=line.y-previous.y;
-    if(gap>Math.max(25,line.size*2.7))break;
+    if(gap>Math.max(46,line.size*4.2))break;
     const matched=line.segments.filter(s=>anchors.some(x=>Math.abs(x-s.x)<=Math.max(8,line.size*.9))).length;
     const matchesMain=line.segments.some(s=>Math.abs(s.x-anchors[0])<11);
     // Single-cell continuation lines belong to the preceding table row only if
@@ -153,7 +153,7 @@ function extendTableBackward(lines:Line[],index:number,detected:Detection):{star
   let start=index;
   for(let j=index-1;j>=Math.max(0,index-5);j--){
     const line=lines[j],after=lines[j+1];
-    if(after.y-line.y>Math.max(23,line.size*2.15))break;
+    if(after.y-line.y>Math.max(46,line.size*4.2))break;
     const alignedFirst=line.segments.some(s=>Math.abs(s.x-anchors[0])<18);
     const alignedLater=line.segments.some(s=>anchors.slice(1).some(x=>Math.abs(s.x-x)<18));
     // A 2+-cell data row or the continuation of its final table cell.
