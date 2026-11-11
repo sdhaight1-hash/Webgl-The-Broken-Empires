@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {BookOpen,ChevronDown,Dices,Minus,Plus,RotateCcw,Shield,Trash2,Zap} from 'lucide-react';
-import type {Character,SheetAttributes,SheetSupplies,Skill,SupplyCategory,SupplyDieSize} from './types.ts';
+import type {Character,Skill,SupplyCategory,SupplyDieSize} from './types.ts';
 import {rollPercentile} from './engine.ts';
 import {useSupplyDie} from './mechanics.ts';
 import {
