@@ -143,22 +143,74 @@ function isHeading(line:Line,baseline:number,previous:Line|null):boolean{
   return topGap>baseline*2.3&&line.text.length<62&&line.size>=baseline*1.12;
 }
 
+
+/** Tables often start with a two-cell row (the example cell wraps). A later
+ * row supplies the three stable column anchors. Recover immediately preceding
+ * aligned rows without letting two-column prose *start* a table detection.
+ */
+function extendTableBackward(lines:Line[],index:number,detected:Detection):{start:number;table:Detection['table']}{
+  const anchors=lines[index].segments.map(s=>s.x);
+  let start=index;
+  for(let j=index-1;j>=Math.max(0,index-5);j--){
+    const line=lines[j],after=lines[j+1];
+    if(after.y-line.y>Math.max(23,line.size*2.15))break;
+    const alignedFirst=line.segments.some(s=>Math.abs(s.x-anchors[0])<18);
+    const alignedLater=line.segments.some(s=>anchors.slice(1).some(x=>Math.abs(s.x-x)<18));
+    // A 2+-cell data row or the continuation of its final table cell.
+    if(line.segments.length>=2&&alignedFirst&&alignedLater){start=j;continue;}
+    if(line.segments.length===1&&alignedLater&&!alignedFirst&&start<j+2){start=j;continue;}
+    break;
+  }
+  if(start===index)return {start,table:detected.table};
+  const rows:string[][]=[];
+  for(let j=start;j<index;j++){
+    const cells=Array.from({length:anchors.length},()=>'');
+    for(const cell of lines[j].segments){
+      let best=0,dist=Infinity;
+      for(let k=0;k<anchors.length;k++){
+        const d=Math.abs(anchors[k]-cell.x);
+        if(d<dist){dist=d;best=k;}
+      }
+      cells[best]=appendLine(cells[best],cell.text);
+    }
+    const startsNew=lines[j].segments.some(s=>Math.abs(s.x-anchors[0])<18);
+    if(!rows.length||startsNew)rows.push(cells);
+    else cells.forEach((v,k)=>{if(v)rows[rows.length-1][k]=appendLine(rows[rows.length-1][k],v);});
+  }
+  const combined=[...rows,...detected.table.rows];
+  const header=combined.length>1&&combined[0].filter(Boolean).length>=2&&
+    combined[0].every(v=>!/\d/.test(v))&&combined.slice(1).some(row=>row.some(v=>/\d/.test(v)));
+  return {start,table:{...detected.table,rows:combined,header}};
+}
+
 function convertLines(lines:Line[]):StructuredBlock[]{
   if(!lines.length)return [];
   const base=median(lines.map(l=>l.size));
+  const detected=new Map<number,{end:number;table:Detection['table']}>();
+  let occupiedUntil=-1;
+  for(let i=0;i<lines.length;i++){
+    if(i<=occupiedUntil)continue;
+    const table=makeTable(lines,i,3);
+    if(!table)continue;
+    const earlier=extendTableBackward(lines,i,table);
+    const start=Math.max(occupiedUntil+1,earlier.start);
+    detected.set(start,{end:table.end,table:earlier.table});
+    occupiedUntil=table.end;
+    i=table.end;
+  }
   const blocks:StructuredBlock[]=[];
   let paragraph='';
   let previous:Line|null=null;
   const flush=()=>{if(paragraph.trim())blocks.push({kind:'paragraph',text:paragraph.trim()});paragraph='';};
   for(let i=0;i<lines.length;i++){
-    const line=lines[i];
-    const table=makeTable(lines,i,3);
+    const table=detected.get(i);
     if(table){
       flush();
       blocks.push(table.table);
       i=table.end;
       previous=lines[i];continue;
     }
+    const line=lines[i];
     if(isHeading(line,base,previous)){
       flush();blocks.push({kind:'heading',text:line.text});previous=null;continue;
     }
