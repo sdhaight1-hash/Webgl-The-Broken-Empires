@@ -54,6 +54,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
   const [quickWp,setQuickWp]=useState('');
   const [quickInjury,setQuickInjury]=useState('');
   const [quickNonlethal,setQuickNonlethal]=useState(false);
+  const [woundMessage,setWoundMessage]=useState('');
   const sheet=readTbeSheet(character);
   const stats=deriveAttributes(character);
   const a=sheetAttributes(character);
@@ -84,7 +85,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
       const updated=recordWound(sheet,hit,Number(quickWp),quickInjury,quickNonlethal);
       onUpdate({tbeSheet:updated});
       setQuickWp('');setQuickInjury('');setQuickNonlethal(false);
-      setNotice('Recorded '+quickWp+' WP at '+hit.label+' — '+hit.detail+'.');
+      setNotice('');setWoundMessage('Recorded '+quickWp+' WP at '+hit.label+' — '+hit.detail+'.');
     }catch(error){setError(error);}
   };
   const changeWeapon=(index:number,key:keyof WeaponRow,value:string)=>
@@ -310,7 +311,9 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
         </div>
         <div className="tbe-wound-sum">
           <span className="tbe-calculated">Calculated lethal WP: {enteredLethalWp(sheet)??'check entries'}</span>
-          {enteredLethalWp(sheet)!==null&&sheet.totalLethalWp!==String(enteredLethalWp(sheet))&&
+          {enteredLethalWp(sheet)!==null&&
+            (enteredLethalWp(sheet)!==0||sheet.totalLethalWp.trim()!=='')&&
+            sheet.totalLethalWp!==String(enteredLethalWp(sheet))&&
             <button type="button" className="tbe-mini" onClick={()=>
               save({totalLethalWp:String(enteredLethalWp(sheet))})}>Sync total WP</button>}
         </div>
@@ -322,16 +325,22 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
           If the defender made no roll, use the d10 button. Zero is the ones digit of 10 or 100.</p>
         <div className="tbe-hit-controls">
           <label>Attacker d100<input type="number" min="1" max="100" step="1" value={attackerRoll}
-            aria-label="Attacker d100 result" placeholder="1–100" onChange={e=>setAttackerRoll(e.target.value)}/></label>
+            aria-label="Attacker d100 result" placeholder="1–100" onChange={e=>{setAttackerRoll(e.target.value);setWoundMessage('');}}/></label>
           <label>Defender d100 / fallback d10<input type="number" min="1" max="100" step="1" value={defenderRoll}
-            aria-label="Defender roll result" placeholder="1–100" onChange={e=>setDefenderRoll(e.target.value)}/></label>
-          <button className="tbe-hit-die" type="button" onClick={()=>setDefenderRoll(String(rollDie(10)))}>
+            aria-label="Defender roll result" placeholder="1–100" onChange={e=>{setDefenderRoll(e.target.value);setWoundMessage('');}}/></label>
+          {lastRoll?.check&&<button type="button" onClick={()=>{
+            setAttackerRoll(String(lastRoll.roll));setWoundMessage('');
+          }}><Dices size={16}/> Use last d100: {lastRoll.roll}</button>}
+          <button className="tbe-hit-die" type="button" onClick={()=>{
+            setDefenderRoll(String(rollDie(10)));setWoundMessage('');
+          }}>
             <Dices size={16}/> No defender roll: d10</button>
         </div>
         {hit?<div className="tbe-hit-result" role="status">
           <strong>{hit.label} · {hit.detail}</strong>
           <span>Attacker ones: {hit.attackerOnes} · Defender/detail: {hit.defenderOnes}</span>
         </div>:<p className="tbe-hit-hint">Enter both rolls to identify a location. No damage is applied automatically.</p>}
+        {woundMessage&&<p className="tbe-hit-saved" role="status">{woundMessage}</p>}
         {hit&&<div className="tbe-hit-record">
           <label>Wound Points (after armor)<input aria-label="Quick wound WP" type="number" min="1" max="999"
             step="1" value={quickWp} placeholder="WP" onChange={e=>setQuickWp(e.target.value)}/></label>
