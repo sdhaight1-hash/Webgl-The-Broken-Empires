@@ -177,7 +177,7 @@ function convertLines(lines:Line[]):StructuredBlock[]{
 function broadTableRanges(lines:Line[],width:number):{start:number;end:number;block:StructuredBlock}[]{
   const found:{start:number;end:number;block:StructuredBlock}[]=[];
   for(let i=0;i<lines.length;i++){
-    const table=makeTable(lines,i,4);
+    const table=makeTable(lines,i,3);
     if(!table)continue;
     const all=lines.slice(i,table.end+1);
     const xMin=Math.min(...all.map(l=>l.x));
