@@ -1,8 +1,5 @@
 name: Audit local hyperlinked PDF export
 on:
-  push:
-    branches: [feature/export-hyperlinked-personal-srd-pdf]
-    paths: [.github/workflows/srd-export-audit.yml]
   workflow_dispatch:
 jobs:
   audit:

@@ -31,6 +31,8 @@ const result=await buildHyperlinkedSrdPdf({
 const outputTask=getDocument({data:new Uint8Array(await result.blob.arrayBuffer()),useSystemFonts:true,disableFontFace:true});
 const output=await outputTask.promise;
 const outline=await output.getOutline();
+const countBookmarks=(nodes)=>nodes.reduce((count,node)=>count+1+countBookmarks(node.items||[]),0);
+const bookmarkEntries=countBookmarks(outline||[]);
 let clickableContents=0;
 for(let i=2;i<2+result.tocPages;i++){
   const page=await output.getPage(i);
@@ -43,7 +45,7 @@ const lastSource=await output.getPage(result.pageCount);
 const lastContents=(await lastSource.getAnnotations()).filter(x=>x.subtype==='Link'&&x.dest).length;
 const summary={
   inputPages:input.numPages,processed,exportPages:output.numPages,
-  contentsPages:result.tocPages,bookmarks:outline?.length||0,
+  contentsPages:result.tocPages,bookmarks:outline?.length||0,bookmarkEntries,
   clickableContents,pageLinks,lastContents,
   internalLinks:result.links,outputBytes:result.blob.size
 };
@@ -52,6 +54,7 @@ await outputTask.destroy();
 await inputTask.destroy();
 if(summary.inputPages!==663||summary.processed!==663||summary.exportPages!==result.pageCount||
   summary.clickableContents<SOURCE_OUTLINE.length||summary.bookmarks<15||
+  summary.bookmarkEntries<SOURCE_OUTLINE.length+1||
   summary.lastContents<2||summary.outputBytes<300_000){
   throw new Error('Full export audit failed structural acceptance checks');
 }

@@ -164,14 +164,15 @@ function renderSourcePage(
     if(Math.abs(size-previousSize)>.18){pdf.setFontSize(size);previousSize=size;}
     const line=safePdfText(run.text.replace(/\s+/g,' '));
     if(!line.trim())continue;
-    pdf.text(line,x,y,{horizontalScale:Math.max(0.25,Math.min(1,(PAGE_WIDTH-MARGIN-x)/Math.max(1,pdf.getTextWidth(line))))});
+    const scaleX=Math.max(0.25,Math.min(1,(PAGE_WIDTH-MARGIN-x)/Math.max(1,pdf.getTextWidth(line))));
+    pdf.text(line,x,y,{horizontalScale:scaleX});
     // Safe, explicit "Chapter N" cross-references only. No guessed destinations.
     const chapters=/\bChapter\s+(\d{1,2})\b/gi;
     for(const match of line.matchAll(chapters)){
       const target=chapterLinks.get(Number(match[1]));
       if(!target)continue;
-      const start=x+pdf.getTextWidth(line.slice(0,match.index));
-      const width=pdf.getTextWidth(match[0]);
+      const start=x+pdf.getTextWidth(line.slice(0,match.index))*scaleX;
+      const width=pdf.getTextWidth(match[0])*scaleX;
       if(start>=0 && start+width<PAGE_WIDTH-8){
         pdf.link(start,y-size,width,size*1.15,{pageNumber:target});
         crossRefs++;
