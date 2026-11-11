@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { BookOpen, Compass, FileUp, Layers, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react';
-import { BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
+import { CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
+import { SOURCE_OUTLINE, BOOK_PAGES_WITH_TEXT } from './sourceOutline.ts';
+import { LocalPdfSearch } from './LocalPdfSearch.tsx';
 import './references.css';
 
 type Pin = { id: string; key: string; x: number; y: number; label: string };
@@ -25,9 +27,8 @@ function useFileUrl(file: File | null):string {
   },[file]);
   return url;
 }
-export function ReferenceWorkbench({requestedPage=82}:{requestedPage?:number}) {
+export function ReferenceWorkbench({requestedPage=82,bookFile,onBookFileChange}:{requestedPage?:number;bookFile:File|null;onBookFileChange:(file:File|null)=>void}) {
   const [tab,setTab]=useState<'book'|'map'>('book');
-  const [bookFile,setBookFile]=useState<File|null>(null);
   const [mapFile,setMapFile]=useState<File|null>(null);
   const [page,setPage]=useState(clamp(requestedPage,1,PDF_PAGE_COUNT));
   const [search,setSearch]=useState('');
@@ -88,17 +89,19 @@ export function ReferenceWorkbench({requestedPage=82}:{requestedPage?:number}) {
     {tab==='book'?<div className="reference-layout">
       <aside className="panel reference-outline">
         <div className="eyebrow">RULEBOOK NAVIGATION</div>
+        <div className="reference-book-coverage"><strong>{SOURCE_OUTLINE.length} sections</strong><span>{BOOK_PAGES_WITH_TEXT} searchable text pages / {PDF_PAGE_COUNT} PDF pages</span></div>
+        <LocalPdfSearch file={bookFile} onSelectPage={openPage}/>
         <h3>Character creation</h3><p className="muted">The 12 stages below are indexed directly from the supplied book's PDF bookmarks.</p>
         <ol className="creation-index">{CREATION_SEQUENCE.map((step,i)=><li key={step.page}><button className={page===step.page?'selected':''} onClick={()=>openPage(step.page)}><span>{String(i+1).padStart(2,'0')}</span>{step.title}<small>p. {step.page}</small></button></li>)}</ol>
-        <h3>Browse all chapters</h3>
-        <label className="field"><span>Filter sections</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search the contents..."/></label>
-        <div className="reference-chapters">{BOOK_LINKS.filter(item=>item.title.toLowerCase().includes(search.toLowerCase())||item.group.toLowerCase().includes(search.toLowerCase())).map(item=><button key={item.page} className={page===item.page?'selected':''} onClick={()=>openPage(item.page)}><span>{item.title}</span><small>{item.page}</small></button>)}</div>
+        <h3>Complete table of contents</h3><p className="muted">Every PDF bookmark, including appendices and supplementary systems. Entries without a guided lesson open their exact source section.</p>
+        <label className="field"><span>Filter sections</span><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search all 207 headings..."/></label>
+        <div className="reference-chapters">{SOURCE_OUTLINE.filter(item=>item.title.toLowerCase().includes(search.toLowerCase())).map((item,i)=><button key={item.page+'-'+i} className={page===item.page?'selected':''} style={{paddingLeft:item.level===1?6:20}} onClick={()=>openPage(item.page)}><span>{item.level===1?'◆ ':''}{item.title}</span><small>{item.page}</small></button>)}</div>
       </aside>
       <section className="panel reference-reader">
-        <div className="reference-toolbar"><div><strong>Core Rulebook</strong><small>663 PDF pages · source-indexed</small></div><label className="button button-quiet button-small"><FileUp size={15}/> {bookFile?'Replace PDF':'Open your PDF'}<input type="file" className="hidden-input" accept=".pdf,application/pdf" onChange={e=>setBookFile(e.target.files?.[0]||null)}/></label></div>
+        <div className="reference-toolbar"><div><strong>Core Rulebook</strong><small>{PDF_PAGE_COUNT} PDF pages · {SOURCE_OUTLINE.length} sections · local search</small></div><label className="button button-quiet button-small"><FileUp size={15}/> {bookFile?'Replace PDF':'Open your PDF'}<input type="file" className="hidden-input" accept=".pdf,application/pdf" onChange={e=>onBookFileChange(e.target.files?.[0]||null)}/></label></div>
         <div className="reference-page-control"><button className="button button-quiet button-small" disabled={page<=1} onClick={()=>openPage(page-1)}>Previous</button><label>PDF page <input type="number" min={1} max={PDF_PAGE_COUNT} value={page} onChange={e=>setPage(clamp(Number(e.target.value)||1,1,PDF_PAGE_COUNT))}/><span> / {PDF_PAGE_COUNT}</span></label><button className="button button-quiet button-small" disabled={page>=PDF_PAGE_COUNT} onClick={()=>openPage(page+1)}>Next</button></div>
-        {bookUrl?<iframe key={bookUrl} className="reference-pdf" src={bookUrl+'#page='+page} title="Local Broken Empires rulebook" />:<div className="reference-empty"><BookOpen size={48}/><h3>Connect your rulebook</h3><p>Select <strong>ref docs/Core Rulebook.pdf</strong> from your local repository. The page-linked chapter guide will open directly to the relevant section.</p><label className="button button-gold"><FileUp size={16}/> Choose local PDF<input type="file" className="hidden-input" accept=".pdf,application/pdf" onChange={e=>setBookFile(e.target.files?.[0]||null)}/></label></div>}
-        <p className="reference-footnote">Page links refer to the PDF viewer page count, not printed folio numbers. Your file is not retained when this tab reloads.</p>
+        {bookUrl?<iframe key={bookUrl} className="reference-pdf" src={bookUrl+'#page='+page} title="Local Broken Empires rulebook" />:<div className="reference-empty"><BookOpen size={48}/><h3>Connect your rulebook</h3><p>Select <strong>ref docs/Core Rulebook.pdf</strong> from your local repository. The page-linked chapter guide will open directly to the relevant section.</p><label className="button button-gold"><FileUp size={16}/> Choose local PDF<input type="file" className="hidden-input" accept=".pdf,application/pdf" onChange={e=>onBookFileChange(e.target.files?.[0]||null)}/></label></div>}
+        <p className="reference-footnote">Page links refer to PDF viewer pages, not printed folios. The selected PDF remains available while the app is open. Its file and extracted text are never uploaded or persisted.</p>
       </section>
     </div>:<div className="reference-layout">
       <aside className="panel reference-outline">

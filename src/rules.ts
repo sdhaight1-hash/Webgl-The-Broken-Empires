@@ -524,6 +524,226 @@ const seeds: Omit<RuleArticle, 'source' | 'sourceTitle' | 'status'>[] = [
       'Piety SLs influence the scale of the granted effect; the god cannot grant a miracle outside its Domains.',
       'Adverse miracles offer targets a resistance check governed by the context of their relationship to the deity.'
     ]
+  },
+  {
+    id:'enemy-difficulty', title:'Assigning enemy skill difficulty', category:'Gamemaster & foes', page:441,
+    summary:'Enemy ratings describe the opposition’s most relevant skills, with a lighter set of supporting capabilities.',
+    details:[
+      'Begin with the foe’s intended challenge and the Average Skill appropriate to that threat rather than calculating a rigid difficulty score.',
+      'Give the enemy a few defining skills at its typical rating, other useful skills slightly below that, and ordinary skills lower still.',
+      'Leaders can receive stronger specialty skills. These values are starting points for GM judgment, not a promise of a balanced encounter.'
+    ]
+  },
+  {
+    id:'size', title:'Creature size in combat', category:'Gamemaster & foes', page:443,
+    summary:'Size differences affect initiative, reach, grappling, target difficulty and permissible maneuvers.',
+    details:[
+      'Creature sizes range from minute to colossal, with human-sized combatants classed as Medium.',
+      'A creature three or more size categories larger can become impossible to parry, restrict certain maneuvers, and make itself easier to hit.',
+      'In a grapple, the larger participant benefits from a Might advantage. Most listed bestiary profiles already incorporate size effects.'
+    ]
+  },
+  {
+    id:'ferocity', title:'Ferocity and enemy morale', category:'Gamemaster & foes', page:444,
+    summary:'Ferocity estimates when a creature will retreat, surrender or otherwise stop fighting.',
+    details:[
+      'The 1–6 Ferocity scale covers fearful creatures through foes that will not break.',
+      'Morale checks are appropriate after major injuries, heavy losses, losing a leader, or when the tactical situation looks hopeless.',
+      'The GM can adjust Ferocity to reflect circumstances. A creature defending its young may be far more committed than one merely hunting.'
+    ]
+  },
+  {
+    id:'creature-abilities', title:'Special creature abilities', category:'Gamemaster & foes', page:445,
+    summary:'Bestiary abilities change specific combat assumptions; read each trait before applying the ordinary procedure.',
+    details:[
+      'Examples include natural weapons, magical defenses, different movement rates, multiple turns and special forms of resilience.',
+      'A trait may change what types of attacks can be parried or which maneuvers and conditions affect the creature.',
+      'Do not assume a trait from an ordinary species description. Apply the exact ability listed in the creature profile.'
+    ]
+  },
+  {
+    id:'npc-magic', title:'Simplified NPC spellcasting', category:'Gamemaster & foes', page:447,
+    summary:'GMs can resolve enemy Spellweavers with a streamlined casting method rather than fully preparing every spell.',
+    details:[
+      'Choose an appropriate Bind and Strand and determine the intended effect within the normal laws of magic.',
+      'The NPC rolls its Bind. The result sets resistance; control and possible reaction are evaluated using the streamlined NPC procedure.',
+      'The GM may instead use the normal Spellweaver casting model for important NPCs, but should not mix both systems in one casting.'
+    ]
+  },
+  {
+    id:'solo-principles', title:'Solo play principles', category:'Solo roleplaying', page:486,
+    summary:'In solo play, create meaningful complications and let the character’s choices drive a focused sequence of scenes.',
+    details:[
+      'Ask questions that introduce a chance of conflict rather than confirming an uneventful world.',
+      'Interpret prompts using the existing situation; trust initial plausible interpretations instead of perpetually rerolling.',
+      'Advance character goals actively and move between scenes when the interesting decision has been resolved.'
+    ]
+  },
+  {
+    id:'solo-oracle', title:'Ask the Weave: yes/no oracle', category:'Solo roleplaying', page:490,
+    summary:'Assign odds, roll percentile dice, and interpret ordinary or extreme yes/no answers.',
+    details:[
+      'Form a question with a meaningful consequence and choose how likely a positive result is.',
+      'Neutral odds use the middle probability, while likely and unlikely odds reflect prior context.',
+      'Use the oracle when uncertainty changes what happens; skip it when the answer can be sensibly decided without a roll.',
+      'The precise percentile bands for each odds category are in the purchased book.'
+    ],
+    quiz:{question:'What should you decide before asking the solo oracle?',options:['Which answer you want','The yes/no question and its odds','A new character class'],correct:1,explanation:'Set the question and probability first (PDF p. 490).'}
+  },
+  {
+    id:'solo-events', title:'Critical oracle rolls and random events', category:'Solo roleplaying', page:491,
+    summary:'Critical percentile results on oracle questions can introduce an extra complication or discovery.',
+    details:[
+      'Matching percentile dice trigger a Random Event in addition to the oracle answer.',
+      'Determine the event’s kind, then interpret prompts in the context of current goals, people and circumstances.',
+      'Random events are provocations for imagination, not prewritten scenes requiring a fixed interpretation.'
+    ]
+  },
+  {
+    id:'solo-scenes', title:'Starting a new solo scene', category:'Solo roleplaying', page:493,
+    summary:'Decide what the next scene should look like and optionally test whether reality changes those expectations.',
+    details:[
+      'A scene is a focused activity; end it when its central concern resolves or attention moves elsewhere.',
+      'A subversion check can leave expectations intact, remove something expected, add something new, or replace the opening with an unexpected event.',
+      'When the scene’s arrival is already clear, skip the table and begin the scene directly.'
+    ]
+  },
+  {
+    id:'solo-npcs', title:'Fast solo NPC creation', category:'Solo roleplaying', page:495,
+    summary:'A few descriptive prompts give an NPC consistent identity without demanding a full stat block.',
+    details:[
+      'Interpret a small set of random tags for personality, appearance, role and motives.',
+      'Assign specific skills and attributes only when the scene needs them. Ask the oracle if an uncertain ability exists or a guess is too high.',
+      'Revise numbers that contradict established fiction; coherence matters more than a perfect initial random value.'
+    ]
+  },
+  {
+    id:'mass-units', title:'Mass combat: units and facing', category:'Mass combat', page:592,
+    summary:'Units represent bodies of soldiers with attack, defense, morale, movement and facing characteristics.',
+    details:[
+      'A unit card tracks the number of soldiers and individual injuries alongside its fighting dice and initiative.',
+      'Place units within abstract battlefield zones; facing determines which enemies can be attacked and where flank or rear pressure matters.',
+      'A Commander makes strategic decisions while Leaders are attached to particular formations.'
+    ]
+  },
+  {
+    id:'mass-actions', title:'Mass combat: movement and actions', category:'Mass combat', page:593,
+    summary:'Unit turns emphasize moving through terrain, changing facing, making attacks, charging and withdrawing.',
+    details:[
+      'Terrain reduces a formation’s available zone movement and can prevent an effective charge.',
+      'Units cannot freely walk backward or sideways while keeping formation; turning may require a separate action.',
+      'An engaged unit generally stays in place until it deliberately withdraws or breaks.'
+    ]
+  },
+  {
+    id:'mass-rolls', title:'Mass combat: opposed fighting dice', category:'Mass combat', page:594,
+    summary:'Formations oppose fighting dice rather than rolling normal personal-percentile attack skills.',
+    details:[
+      'Compare the attackers’ adjusted melee or missile die totals against the appropriate opposing value.',
+      'A higher result normally inflicts the difference as unit injuries, while a tied melee clash can wound both sides.',
+      'Modifiers represent flanking, cover, charges and other conditions; apply only effects that fit the current attack.'
+    ],
+    quiz:{question:'In a mass-combat melee, two units roll exactly the same final total. What happens?',options:['No unit suffers harm','Each side receives one wound mark','Both units immediately break'],correct:1,explanation:'Tied melee totals inflict a wound mark on both units (PDF p. 594).'}
+  },
+  {
+    id:'mass-casualties', title:'Mass combat: the casualty bar', category:'Mass combat', page:595,
+    summary:'Injuries accumulate in a unit’s casualty boxes and may become losses of individual soldiers.',
+    details:[
+      'A first slash represents injury and a second mark in the same box represents a casualty.',
+      'Injuries fill boxes consecutively; players decide whether to spread the damage or finish wounded soldiers within the allowed sequence.',
+      'As casualties mount, morale and attack effectiveness degrade. A unit without remaining soldiers is removed.'
+    ]
+  },
+  {
+    id:'mass-morale', title:'Mass combat: morale, breaks and rallying', category:'Mass combat', page:596,
+    summary:'Reaching casualty thresholds forces morale checks, and a broken formation risks disrupting nearby allies.',
+    details:[
+      'Morale checks occur as injury reaches key fractions of the unit’s original strength; worsening losses can penalize its fighting.',
+      'A failed morale roll causes the unit to break, flee and become vulnerable to attacks.',
+      'An attached leader can try to rally the unit; a PC Commander can use Battle-wise to help a formation.'
+    ]
+  },
+  {
+    id:'mass-magic', title:'Spellcasters in mass combat', category:'Mass combat', page:597,
+    summary:'Mass combat abstracts Spellweaver effects into battlefield assault, protection or manipulation.',
+    details:[
+      'Choose the effect class and its scale using the simplified mass-battle procedure.',
+      'A Bind roll determines whether the action succeeds; the desired strength determines the resources needed to suppress backlash.',
+      'Unlike personal combat spellcasting, these procedures influence whole formations or zones.'
+    ]
+  },
+  {
+    id:'naval-setup', title:'Naval combat: ships and opening range', category:'Naval combat', page:600,
+    summary:'A ship-to-ship engagement tracks relative cable lengths and uses ship-level skills.',
+    details:[
+      'Each ship has Maneuvering, Crew, Weapon and Hull values. Damage can reduce the ship’s future fighting capability.',
+      'A naval round represents several minutes and begins with ships choosing a maneuvering objective.',
+      'Initial separation is determined from the scenario or a starting-range roll; Hull falling to zero destroys the vessel.'
+    ]
+  },
+  {
+    id:'naval-position', title:'Naval combat: winning position', category:'Naval combat', page:601,
+    summary:'Opposed Maneuvering rolls decide which vessel can change range or line up a shot.',
+    details:[
+      'Each ship chooses whether it will change distance or compete for firing position before making the roll.',
+      'Only the successful winner gains the declared advantage; a strong margin while seeking firing position grants a firing bonus.',
+      'A captain can risk harm to the ship or crew to gain a temporary maneuvering edge.'
+    ],
+    quiz:{question:'Which ship action creates the opportunity to fire?',options:['Change Distance','Vie for Firing Position','Emergency Repair'],correct:1,explanation:'Winning the positioning contest enables a Weapon roll (PDF pp. 600–601).'}
+  },
+  {
+    id:'naval-fire', title:'Naval combat: firing and damage', category:'Naval combat', page:602,
+    summary:'A winning firing position permits a Weapon check that reduces a selected ship capability.',
+    details:[
+      'A successful Weapon roll uses generated SLs and the chosen armament’s multiplier to determine damage.',
+      'The firing die result determines which enemy ship value takes damage, with an exceptional choice result.',
+      'When Maneuvering, Crew or Weapon fall to zero, the vessel loses that capability. Unlike ordinary character checks, ship ratings at zero have no minimum automatic success chance.'
+    ]
+  },
+  {
+    id:'naval-boarding', title:'Naval combat: boarding actions', category:'Naval combat', page:603,
+    summary:'At very close range, crews can grapple ships and resolve boarding with opposed Crew rolls.',
+    details:[
+      'Within one cable length, ships can begin boarding; the opposed Crew result causes losses to the weaker crew.',
+      'Personal combat can occur inside the larger boarding action and can influence crew-level checks.',
+      'The rules allow risky withdrawal, surrender, and emergency repair procedures.'
+    ]
+  },
+  {
+    id:'naval-repairs', title:'Naval combat: repairs', category:'Naval combat', page:603,
+    summary:'Friendly ports and improvised field repairs recover different kinds of ship capability.',
+    details:[
+      'Port repairs cost money and can restore relevant ship values within the daily limits.',
+      'Emergency repairs need suitable materials and a safe place, and only restore certain damaged ship systems.',
+      'A suitable leadership or crafting skill may increase daily recovery during improvised repairs.'
+    ]
+  },
+  {
+    id:'personality-pairs', title:'Optional opposing personality traits', category:'Optional rules & rewards', page:606,
+    summary:'The appendix offers an alternate scored-pair model that replaces the basic personality trait approach.',
+    details:[
+      'Choose opposing trait pairs with scores representing which impulse is more likely in a difficult moment.',
+      'A percentile roll can resolve a genuine personality dilemma; the selected approach can affect skill checks and reward character growth.',
+      'This is an optional replacement for the chapter-seven personality rules, not a bonus layered on top of them.'
+    ]
+  },
+  {
+    id:'treasure-type', title:'Treasure categories and discoveries', category:'Optional rules & rewards', page:646,
+    summary:'The treasure appendix uses tiered types to generate appropriate loot and story hooks.',
+    details:[
+      'A treasure type reflects the danger and significance of the source, not a universal entitlement to valuable goods.',
+      'The same generation process can suggest coins, specialized supplies, curiosities, magical objects or clues.',
+      'Treasure prompts can be adapted to the fiction rather than followed as a restrictive inventory table.'
+    ]
+  },
+  {
+    id:'masterwork-items', title:'Masterwork equipment effects', category:'Optional rules & rewards', page:650,
+    summary:'Certain especially well-made items improve specific skills, weapon damage or protection.',
+    details:[
+      'A quality tool can offer a small bonus to the particular activity it facilitates, rather than to every possible roll.',
+      'Weapons and armor may have different masterwork benefits, determined by their generated form.',
+      'The purchase and treasure tables contain detailed examples and exceptions.'
+    ]
   }
 ];
 

@@ -35,6 +35,7 @@ test('character and saved roster have safe defaults', () => {
 
 import { ARTICLE_BOOK_PAGES, BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
 import { ARTICLES, CATEGORIES } from './rules.ts';
+import { SOURCE_OUTLINE, BOOK_PAGES_WITH_TEXT } from './sourceOutline.ts';
 
 test('book index uses bounded 1-based PDF pages and unique chapter positions', () => {
   assert.equal(PDF_PAGE_COUNT,663);
@@ -57,7 +58,7 @@ test('exact-value critical success and 99–100 automatic failure precedence', (
   assert.equal(resolveCheck(5,0).critical,false);
 });
 test('PDF-based codex lessons have valid pages, unique IDs, examples and quizzes', () => {
-  assert.ok(ARTICLES.length>=40);
+  assert.ok(ARTICLES.length>=75);
   assert.equal(new Set(ARTICLES.map(a=>a.id)).size,ARTICLES.length);
   assert.ok(CATEGORIES.includes('Core resolution'));
   for (const a of ARTICLES) {
@@ -76,4 +77,38 @@ test('core lessons reference correct PDF creation and critical pages',()=>{
   assert.equal(ARTICLES.find(a=>a.id==='criticals')?.page,23);
   assert.equal(ARTICLES.find(a=>a.id==='aptitudes')?.page,90);
   assert.equal(ARTICLES.find(a=>a.id==='attributes')?.page,91);
+});
+
+
+test('all PDF bookmark sections have navigable page ranges',()=>{
+  assert.equal(SOURCE_OUTLINE.length,207);
+  assert.equal(BOOK_PAGES_WITH_TEXT,659);
+  assert.ok(SOURCE_OUTLINE.every(s=>s.level>=1&&s.level<=3&&s.title.trim().length>0&&s.page>=1&&s.page<=PDF_PAGE_COUNT));
+  assert.ok(SOURCE_OUTLINE.every((s,i)=>i===0||s.page>=SOURCE_OUTLINE[i-1].page));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===484 && s.title.includes('Solo Roleplaying')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===592 && s.title.includes('Mass Combat')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===600 && s.title.includes('Naval Combat')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===661 && s.title.includes('Table Index')));
+});
+test('lesson coverage is distinguished from complete section indexing',()=>{
+  const lessonPages=new Set(ARTICLES.map(a=>a.page));
+  const indexedPages=new Set(SOURCE_OUTLINE.map(s=>s.page));
+  assert.ok(lessonPages.size<indexedPages.size);
+  assert.ok(ARTICLES.every(a=>a.page>=1&&a.page<=PDF_PAGE_COUNT));
+});
+
+
+test('later rulebook procedures remain source-indexed and guided',()=>{
+  const topics=[
+    ['enemy-difficulty',441],['ferocity',444],['solo-oracle',490],
+    ['solo-scenes',493],['mass-units',592],['mass-morale',596],
+    ['naval-setup',600],['naval-fire',602],['naval-boarding',603],
+    ['personality-pairs',606],['treasure-type',646]
+  ] as const;
+  for (const [id,page] of topics) {
+    const lesson=ARTICLES.find(a=>a.id===id);
+    assert.equal(lesson?.page,page,id);
+    assert.ok(lesson && lesson.details.length>=2);
+    assert.ok(SOURCE_OUTLINE.some(section=>section.page<=page));
+  }
 });
