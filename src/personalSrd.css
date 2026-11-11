@@ -64,3 +64,14 @@
 /* Preserve PDF text geometry for tables without copying art or rendering page images. */
 .personal-srd-spatial{display:block;width:100%;height:auto;max-width:900px;margin:0 auto;color:#242b2a;overflow:visible;background:#ede7d9}
 .personal-srd-spatial text{font-family:Georgia,"Times New Roman",serif;white-space:pre;pointer-events:auto}
+
+/* User-initiated, private hyperlinked PDF export controls */
+.personal-srd-export-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}
+.personal-srd-export-actions .button{cursor:pointer;white-space:nowrap}
+.personal-srd-export-actions .button:disabled{cursor:not-allowed;opacity:.45}
+.personal-srd-export-progress{margin:-7px 0 18px;padding:12px 16px;border:1px solid #526254;background:#203630;border-radius:7px;display:flex;align-items:center;gap:15px}
+.personal-srd-export-progress progress{flex:1;height:10px;accent-color:#c6a06b;min-width:85px}
+.personal-srd-export-progress span{color:#d7dbce;font-size:11px}
+.personal-srd-export-progress .button{flex-shrink:0}
+.personal-srd-export-note{font-size:11px;color:#b8d7c2;border-left:2px solid #81a68e;padding:10px 15px;margin:-4px 0 18px;background:#20352e}
+@media(max-width:780px){.personal-srd-export-actions{justify-content:flex-start;width:100%}.personal-srd-export-progress{flex-wrap:wrap}.personal-srd-export-progress progress{width:100%;flex-basis:100%}}

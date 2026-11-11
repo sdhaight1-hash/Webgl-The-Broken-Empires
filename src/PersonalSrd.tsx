@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Columns2, FileSearch, FileUp, ListTree, Minus, Plus, RotateCcw, ScanText, Search, X } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Columns2, Download, FileSearch, FileUp, ListTree, Minus, Plus, RotateCcw, ScanText, Search, X } from 'lucide-react';
 import * as pdfjs from 'pdfjs-dist';
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { SOURCE_OUTLINE } from './sourceOutline.ts';
@@ -39,11 +39,16 @@ export function PersonalSrd({
   const [indexStatus,setIndexStatus]=useState<IndexStatus>('idle');
   const [indexProgress,setIndexProgress]=useState(0);
   const [indexError,setIndexError]=useState('');
+  const [exportStatus,setExportStatus]=useState<'idle'|'working'|'complete'|'cancelled'|'error'>('idle');
+  const [exportProgress,setExportProgress]=useState(0);
+  const [exportError,setExportError]=useState('');
+  const exportController=useRef<AbortController|null>(null);
   const [cacheVersion,setCacheVersion]=useState(0);
   const cache=useRef(new Map<number,TextPage>());
   const cancelIndex=useRef(0);
 
   useEffect(()=>setPage(requestedPage),[requestedPage]);
+  useEffect(()=>()=>{exportController.current?.abort();},[file]);
 
   useEffect(()=>{
     let disposed=false;
@@ -140,6 +145,52 @@ export function PersonalSrd({
   };
   const stopIndex=()=>{cancelIndex.current++;setIndexStatus('cancelled');};
 
+  const cancelExport=()=>{
+    exportController.current?.abort();
+    setExportStatus('cancelled');
+  };
+  const exportLinkedPdf=async()=>{
+    if(!document||exportStatus==='working'||indexStatus==='running')return;
+    if(document.numPages!==PDF_PAGE_COUNT){
+      setExportStatus('error');
+      setExportError('The selected file has '+document.numPages+' pages; the chapter links require the 663-page Core Rulebook.');
+      return;
+    }
+    const controller=new AbortController();
+    exportController.current=controller;
+    setExportStatus('working');
+    setExportProgress(0);
+    setExportError('');
+    try{
+      const {buildHyperlinkedSrdPdf}=await import('./srdExport.ts');
+      const result=await buildHyperlinkedSrdPdf({
+        totalPages:document.numPages,
+        sections:SOURCE_OUTLINE,
+        signal:controller.signal,
+        readPage:p=>getPageText(document,p),
+        onProgress:({completed})=>setExportProgress(completed)
+      });
+      if(controller.signal.aborted)return;
+      const url=URL.createObjectURL(result.blob);
+      const anchor=window.document.createElement('a');
+      anchor.href=url;
+      anchor.download='The_Broken_Empires_Personal_Text_Linked.pdf';
+      window.document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),2000);
+      setExportStatus('complete');
+    }catch(e){
+      if(controller.signal.aborted)setExportStatus('cancelled');
+      else{
+        setExportStatus('error');
+        setExportError(e instanceof Error?e.message:'Failed to create the linked PDF.');
+      }
+    }finally{
+      if(exportController.current===controller)exportController.current=null;
+    }
+  };
+
   const sourceHeadings=useMemo(()=>{
     const q=contentsQuery.toLocaleLowerCase().trim();
     return SOURCE_OUTLINE.filter(item=>item.page<=maxPage&&(!q||item.title.toLocaleLowerCase().includes(q)));
@@ -171,8 +222,21 @@ export function PersonalSrd({
     </header>
     <div className="personal-srd-banner">
       <div><strong>Personal text-only edition</strong><span>This is a local reader generated from your PDF—not an openly licensed or published SRD. Original tables, symbols and complex layouts may need verification in the source.</span></div>
-      <label className="button button-quiet button-small"><FileUp size={15}/>{file?'Change rulebook PDF':'Choose rulebook PDF'}<input type="file" accept=".pdf,application/pdf" className="hidden-input" onChange={e=>onFileChange(e.target.files?.[0]||null)}/></label>
+      <div className="personal-srd-export-actions">
+        <button className="button button-gold button-small" disabled={loadState!=='ready'||exportStatus==='working'||indexStatus==='running'} onClick={()=>void exportLinkedPdf()}>
+          <Download size={15}/>{exportStatus==='working'?'Generating PDF…':'Export linked PDF'}
+        </button>
+        <label className="button button-quiet button-small"><FileUp size={15}/>{file?'Change rulebook PDF':'Choose rulebook PDF'}<input type="file" accept=".pdf,application/pdf" className="hidden-input" onChange={e=>onFileChange(e.target.files?.[0]||null)}/></label>
+      </div>
     </div>
+    {exportStatus==='working'&&<div className="personal-srd-export-progress" role="status">
+      <progress max={maxPage} value={exportProgress}/>
+      <span>Building linked contents, bookmarks, and text pages: {exportProgress} / {maxPage}</span>
+      <button className="button button-quiet button-small" onClick={cancelExport}><X size={14}/> Cancel</button>
+    </div>}
+    {exportStatus==='complete'&&<p className="personal-srd-export-note">The linked, text-only PDF was generated and its download started. Check the downloaded file before using its tables.</p>}
+    {exportStatus==='cancelled'&&<p className="personal-srd-export-note">Export cancelled; you can start it again.</p>}
+    {exportError&&exportStatus==='error'&&<p role="alert" className="reference-warning">{exportError}</p>}
     {!file?<section className="panel personal-srd-placeholder"><BookOpen size={52}/><h2>Open your rulebook</h2><p>Select your local <strong>ref docs/Core Rulebook.pdf</strong>. The book stays on your computer, and you can browse its text without images or art.</p><label className="button button-gold"><FileUp size={16}/> Select local PDF<input type="file" accept=".pdf,application/pdf" className="hidden-input" onChange={e=>onFileChange(e.target.files?.[0]||null)}/></label></section>:
     <div className="personal-srd-layout">
       <aside className="panel personal-srd-sidebar">
@@ -188,7 +252,7 @@ export function PersonalSrd({
         <div className="personal-srd-search">
           <div className="eyebrow"><Search size={14}/> FIND ANY RULE</div>
           <p className="muted">For full-book search, index the PDF once. You can read pages while it processes.</p>
-          <button className="button button-quiet button-small" disabled={loadState!=='ready'||indexStatus==='running'} onClick={()=>void startIndex()}>
+          <button className="button button-quiet button-small" disabled={loadState!=='ready'||indexStatus==='running'||exportStatus==='working'} onClick={()=>void startIndex()}>
             <FileSearch size={15}/>{indexStatus==='complete'?'Rebuild search index':indexStatus==='running'?'Indexing…':'Index all pages'}
           </button>
           {indexStatus==='running'&&<button className="button button-quiet button-small" onClick={stopIndex}><X size={15}/> Stop</button>}
@@ -240,7 +304,7 @@ export function PersonalSrd({
           <span><CheckCircle2 size={15}/> {cache.current.size} pages processed this session</span>
           <button className="button button-quiet button-small" disabled={selectedPage>=maxPage} onClick={()=>goto(selectedPage+1)}>Next <ArrowRight size={16}/></button>
         </div>
-        <p className="reference-footnote">Text extraction omits graphical art and page images, not necessarily every decorative glyph. Use Text positions mode to inspect table alignment without artwork. PDF text fonts, footnotes, rotated labels and complex tables can still be imperfect; check the original PDF for adjudication. Extraction remains in browser memory only.</p>
+        <p className="reference-footnote">Text extraction omits graphical art and page images, not necessarily every decorative glyph. The local exported PDF includes a clickable contents and chapter bookmarks but does not automatically license the material for redistribution. Use Text positions mode to inspect table alignment without artwork. PDF text fonts, footnotes, rotated labels and complex tables can still be imperfect; check the original PDF for adjudication. Extraction remains in browser memory only.</p>
       </section>
     </div>}
   </div>;

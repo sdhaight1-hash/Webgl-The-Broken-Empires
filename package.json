@@ -7,13 +7,14 @@
     "dev": "vite --host 0.0.0.0",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test src/engine.test.ts"
+    "test": "node --experimental-strip-types --test src/engine.test.ts src/srdExport.test.ts"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "pdfjs-dist": "6.5.438"
+    "pdfjs-dist": "6.5.438",
+    "jspdf": "4.2.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
