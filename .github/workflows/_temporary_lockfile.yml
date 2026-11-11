@@ -1,0 +1,16 @@
+name: Temporary lockfile refresh
+on:
+  push:
+    branches: [feature/full-rulebook-index]
+    paths: [.github/workflows/_temporary_lockfile.yml]
+  workflow_dispatch:
+jobs:
+  regenerate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --package-lock-only --no-audit --no-fund
+      - run: node -e 'const fs=require("fs"); console.log("LOCK_B64_BEGIN"+Buffer.from(fs.readFileSync("package-lock.json")).toString("base64")+"LOCK_B64_END")'
