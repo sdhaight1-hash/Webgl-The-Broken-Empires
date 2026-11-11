@@ -138,7 +138,7 @@ export function SoloCombatExchange({hero,campaign,onSource,onError,onConfirm,onU
         <div className="solo-combat-sources">{sectionLink(176,'Hit location')}
           {sectionLink(175,'Protection')}</div>
         <div className="solo-combat-fields solo-combat-damage">
-          {weapons.length>0&&<label className="field"><span>Weapon reference (manual)</span>
+          {pending.direction==='hero-attacks'&&weapons.length>0&&<label className="field"><span>Hero weapon reference (manual)</span>
             <select value={weaponId} onChange={e=>setWeaponId(e.target.value)}>
               <option value="">Choose a weapon</option>
               {weapons.map(w=><option key={w.id} value={w.id}>{w.name}{w.damage?' · DMG '+w.damage:''}</option>)}
