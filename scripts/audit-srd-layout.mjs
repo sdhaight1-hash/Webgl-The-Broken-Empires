@@ -9,7 +9,7 @@ pdfjs.GlobalWorkerOptions.workerSrc=new URL('../node_modules/pdfjs-dist/legacy/b
 const input=new Uint8Array(fs.readFileSync('ref docs/Core Rulebook.pdf'));
 const task=pdfjs.getDocument({data:input,useSystemFonts:true,disableFontFace:true});
 const doc=await task.promise;
-const checks=[22,26,37,490,491,493];
+const checks=[12,20,21,22,23,25,26,29,37,490,491,493];
 const detail=[];
 const pages=[];
 for(const sourcePage of checks){
@@ -28,12 +28,18 @@ for(const sourcePage of checks){
   page.cleanup();
 }
 console.log('LAYOUT_SOURCE_AUDIT',JSON.stringify({pdfPages:doc.numPages,detail}));
+for(const page of [22,26,37,490]){
+  const item=detail.find(d=>d.sourcePage===page);
+  if(!item||item.tables<1||item.retainedRatio<.90)throw new Error('Missing table or major text loss on source '+page);
+}
+if(detail.some(d=>[12,21,29].includes(d.sourcePage)&&d.tables>1))
+  throw new Error('False table-positive on two-column prose page');
 const sections=[
-  {level:1,title:'Core mechanics',page:1},
-  {level:2,title:'Modifier table',page:1},
-  {level:2,title:'Extended rolls table',page:2},
-  {level:2,title:'Skills tables',page:3},
-  {level:1,title:'Solo procedures',page:4}
+  {level:1,title:'Introduction',page:1},
+  {level:2,title:'Modifier table',page:4},
+  {level:2,title:'Extended rolls table',page:7},
+  {level:2,title:'Skills tables',page:9},
+  {level:1,title:'Solo procedures',page:10}
 ];
 const result=await buildHyperlinkedSrdPdf({totalPages:pages.length,sections,readPage:async p=>pages[p-1]});
 const outputTask=pdfjs.getDocument({data:new Uint8Array(await result.blob.arrayBuffer())});
