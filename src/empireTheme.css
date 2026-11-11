@@ -1,0 +1,108 @@
+/* Broken Empires, night edition: oxblood, charcoal, dark parchment and brass.
+ * Original source art is not bundled. One palette across every workspace. */
+:root{color-scheme:dark;--bg:#110f14;--side:#171318;--panel:#251d24;--panel2:#30252a;--panel-border:#664743;--text:#f0e4d4;--muted:#bba9a0;--faint:#8a766e;--gold:#e4bb81;--gold2:#c99b68;--teal:#af9985;
+--empire-paper:#241b21;--empire-paper2:#32242b;--empire-ink:#130f15;--empire-oxblood:#7c3439;--empire-brass:#e4bb81;--empire-muted:#c4ac9c;
+background:var(--bg);color:var(--text)}
+body{background:var(--bg);color:var(--text)}
+::selection{background:#994e4b;color:#fff3df}
+.app-shell{background:radial-gradient(circle at 75% -12%,#44282f 0,transparent 36%),var(--bg)}
+.sidebar{background:linear-gradient(168deg,#2a1b23,#1b151d 58%,#110f14);border-color:#65403f}
+.brand-symbol{background:linear-gradient(140deg,#683c42,#271d25);color:var(--gold);border-color:#916b53}
+.brand-name span{color:var(--gold)}
+.nav-caption,.crumb,.eyebrow{color:#dbb184}
+.nav-item{color:#cdb6a8;border:1px solid transparent}
+.nav-item:hover{color:#fff0d9;background:#402932;border-color:#71454a}
+.nav-item.active{background:linear-gradient(90deg,#68353a,#35232d);border-color:#a36b56;color:#fff0d9}
+.nav-item.active:before{background:#e0b87f}
+.nav-item.active svg{color:#e7c08a}
+.sidebar-separator,.stat-tile:not(:last-child):after{background:#65443e}
+.roster-item:hover,.roster-item.selected{background:#3a282f}
+.roster-item.selected{border-color:#7b514a}
+.roster-monogram,.profile-chip{background:#4c3139;border-color:#89614f;color:#f9dfb8}
+.topbar{background:#20171ed9;border-color:#694642;backdrop-filter:blur(10px)}
+.crumb-current,.save-state{color:#e2cbbb}
+.main-content{max-width:1720px}
+.panel{background:linear-gradient(152deg,#30232a,#211b22);border:1px solid #694944;box-shadow:0 9px 24px #06040629}
+.hero{background:#34252b;border-color:#8e5f52}
+.hero-overlay{background:linear-gradient(90deg,#20131ce8,#47282fba 43%,#28182035),linear-gradient(0deg,#21151ebc,transparent 60%)}
+.hero h1,.page-heading h1,.section-heading h2{color:#fdf0da}
+.hero p,.overview-character p,.beginning-panel p{color:#ddc6b9}
+.dashboard-stats{background:linear-gradient(125deg,#3a2930,#251e26);border-color:#75514b}
+.stat-icon{background:#4d3037}
+.stat-tile strong{color:#f8e5c7}
+.tag{border-color:#936b52;background:#422d30;color:#f7d6a4}
+.button{transition:background .17s ease,border-color .17s ease,transform .17s ease,box-shadow .17s ease}
+.button-gold{background:linear-gradient(140deg,#f0d2a0,#d3a166);border-color:#f4d5a2;color:#2a191b}
+.button-gold:hover{background:#f6dfb0;box-shadow:0 7px 20px #b9855650}
+.button-quiet{background:#402d34;border-color:#80564f;color:#f0daca}
+.button-quiet:hover,.button-glass:hover{background:#64383d;border-color:#b88762}
+.button-glass{background:#32212bc4;border-color:#a7775a;color:#f1dcc9}
+.button-outline-danger{border-color:#98545b;color:#ffc0b0}
+.button-outline-danger:hover{background:#603238}
+.panel .field input,.panel .field select,.panel .field textarea,
+.solo-tabletop input:not([type=checkbox]):not([type=radio]),.solo-tabletop select,.solo-tabletop textarea{background:#1c161c;color:#f4e6d1;border:1px solid #866058;border-radius:6px}
+input::placeholder,textarea::placeholder{color:#99877b}
+input[type=checkbox],input[type=radio]{accent-color:#a75d4f}
+:where(button,a,input,textarea,select,summary):focus-visible{outline:2px solid #edc48a;outline-offset:3px}
+button:not(:disabled):active{transform:translateY(1px)}
+.solo-metrics span{background:#38272e;border-color:#79504b;color:#edceb5}
+.solo-main-tabs{border-color:#79534f}
+.solo-main-tabs button{background:#35252d;border-color:#75504b;color:#e2c8b6}
+.solo-main-tabs button.selected,.solo-main-tabs button:hover{background:#733940;border-color:#c49766;color:#ffefd4}
+.solo-main-tabs button.selected{box-shadow:inset 0 -3px #e7c18b}
+.solo-source-link{color:#f4ca90;border-color:#91694c;background:#37272b}
+.solo-source-link:hover{background:#5b3439}
+.solo-story-snippet,.solo-rule-result{background:#3b292f;border-left-color:#ca9563;color:#f1decf}
+.solo-event-dice strong,.solo-roll-readout,.solo-oracle-result{background:#462d32;border-color:#a67555;color:#ffdfa6}
+.solo-zone-grid{background-color:#211920;border-color:#815851}
+.solo-zone{background:#38252de8;border-color:#865c50}
+.solo-token{background:#713f41;border-color:#c2916d;color:#fff0dd}
+.solo-token.hero{background:#75502f;border-color:#e9c084;color:#fff3de}
+.solo-zone-move{background:#483039;border-color:#ad806a;color:#f2ddc7}
+.solo-tool-modes button{background:#392830;border-color:#886058;color:#e6cbba}
+.solo-tool-modes button.selected{background:#733a40;border-color:#cca06d;color:#ffefd7}
+.solo-mechanic-registry>button,.solo-thread-list>div,.solo-journal-entries article{border-color:#76514b}
+.solo-npc-list article{background:#35272d;border-color:#81564c}
+.vtt-panel{background:#30242b}
+.vtt-allocation-row,.vtt-skill-table input,.vtt-skill-table select,.vtt-supply,.vtt-roll-toolbar,.vtt-resource,.vtt-stat{background:#392830;border-color:#80564f}
+.vtt-roll-target{background:#794740;border-color:#c08c66;color:#ffdfb0}
+.vtt-roll-target:hover:not(:disabled){background:#a35b50}
+.vtt-roll-message{background:#442f35;border-color:#a27356}
+/* Dark version of the supplied parchment character form. */
+.tbe-paper{background:radial-gradient(circle at 10% -12%,#51343a,transparent 35%),linear-gradient(135deg,#2e2229,#211a22 66%,#302129);border-color:#a16f51;color:#f3dfc4;box-shadow:0 18px 46px #0008}
+.tbe-tab-strip>button{background:#35262d;border-color:#795148;color:#e6c7b4}
+.tbe-tab-strip>button.active{background:#7f383d;border-color:#d6a575;color:#ffead0}
+.tbe-paper-header{border-color:#b97c5b}
+.tbe-paper-header h2,.tbe-kicker,.tbe-page-mark{color:#f3c58e}
+.tbe-paper-header p{color:#cbb0a0}
+.tbe-paper .tbe-block,.tbe-paper .tbe-location{background:linear-gradient(145deg,#3c2b31,#2a2129);border-color:#94694f}
+.tbe-paper .tbe-block-heading h3,.tbe-paper .tbe-help{color:#edbe86}
+.tbe-paper .tbe-block-heading button,.tbe-paper .tbe-mini,.tbe-paper .tbe-add,.tbe-paper .tbe-add-skill>button{background:#61383d;color:#ffe4c3;border:1px solid #bd8b65}
+.tbe-paper input:not([type=checkbox]),.tbe-paper textarea,.tbe-paper select{background:#1b161c;color:#fff0d9;border:1px solid #866456}
+.tbe-paper .tbe-field>span,.tbe-paper .tbe-inline-fields label,.tbe-paper .tbe-skill-toolbar label,.tbe-paper .tbe-check,
+.tbe-paper .tbe-penalty,.tbe-paper .tbe-detail-list,.tbe-paper .tbe-attribute-setup,
+.tbe-paper .tbe-enc-head,.tbe-paper .tbe-goal-row label{color:#e0bda2}
+.tbe-paper .tbe-skill-column,.tbe-paper .tbe-location{background:#30242b;border-color:#90624e}
+.tbe-paper .tbe-skill-column h4{background:#82383c;color:#ffdfb7}
+.tbe-paper .tbe-strands h4{background:#603945}
+.tbe-paper .tbe-skill-labels,.tbe-paper .tbe-wound-table th,.tbe-paper .tbe-weapons th{background:#64373a;color:#ffe0b9;border-color:#a16d4c}
+.tbe-paper .tbe-skill-row,.tbe-paper .tbe-strand-row{border-color:#765149}
+.tbe-paper .tbe-skill-row:nth-of-type(even),.tbe-paper .tbe-strand-row:nth-of-type(even),
+.tbe-paper .tbe-wound-table tbody tr:nth-child(even){background:#6d3b3940}
+.tbe-paper .tbe-skill-name,.tbe-paper .tbe-strand-row,.tbe-paper .tbe-piety,
+.tbe-paper .tbe-attribute-grid span,.tbe-paper .tbe-attribute-grid strong,.tbe-paper .tbe-attribute-roll{color:#f6dfc6}
+.tbe-paper .tbe-piety,.tbe-paper .tbe-location-header{background:#753a3b;color:#ffe6c5}
+.tbe-paper .tbe-attribute-grid>div{background:#423037;border-color:#a47456}
+.tbe-paper .tbe-resolve-track>span{background:#392a31;border-color:#96694f}
+.tbe-paper .tbe-resolve-track>span.filled{background:#c19462;border-color:#f0d09a}
+.tbe-paper .tbe-resolve-count,.tbe-paper .tbe-calculated,.tbe-paper .tbe-other-skills,
+.tbe-paper .tbe-old-notes,.tbe-paper .tbe-detail-list strong{color:#ecc08c}
+.tbe-paper .tbe-wound-table td,.tbe-paper .tbe-weapons td,.tbe-paper .tbe-penalty,
+.tbe-paper .tbe-detail-list{border-color:#795248}
+.tbe-paper .tbe-wound-table input:not([type=checkbox]){background:#251e25;border-color:#5b4240}
+.tbe-paper .tbe-legacy-grid{border-color:#916950}
+.tbe-paper .tbe-legacy-grid .tbe-block{background:#37262d}
+.tbe-paper .tbe-die{background:#874b44;border-color:#d29a6b;color:#fff0c9}
+.tbe-sheet-footer{color:#c9ada0}
+@media(max-width:980px){.main-content{padding:24px 16px 44px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
