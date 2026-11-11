@@ -21,7 +21,11 @@ for(const sourcePage of checks){
   const tables=blocks.filter(b=>b.kind==='table');
   const chars=parsed.positioned.reduce((sum,r)=>sum+r.text.trim().length,0);
   const structured=blocks.reduce((sum,b)=>sum+blockText(b).replace(/\s*[|]\s*/g,'').length,0);
+  const modifierBands=sourcePage===22?['+20','+10','+0','-10','-20','-30']
+    .map(value=>({value,presentInTable:tables.some(t=>t.rows.some(row=>
+      row.some(cell=>cell.trim().startsWith(value))))})):undefined;
   detail.push({sourcePage,textRuns:parsed.runCount,blocks:blocks.length,tables:tables.length,
+    modifierBands,tableRowCellCounts:tables.map(t=>t.rows.slice(0,12).map(r=>r.filter(Boolean).length)),
     tableRows:tables.map(t=>t.rows.length),tableColumns:tables.map(t=>t.columnCount),
     retainedRatio:Math.round(100*structured/Math.max(1,chars))/100});
   pages.push(parsed);
