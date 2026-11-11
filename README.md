@@ -6,7 +6,7 @@ An **independent**, browser-based character journal and rules-learning companion
 
 - Responsive dark-fantasy dashboard with a lightweight WebGL landscape and graceful static fallback.
 - Five-chapter character forge: identity, heritage and background, capabilities, ambitions, review.
-- Editable character sheet with manual skill ratings, wounds, status, equipment, talents, expertise, goals and life events.
+- **Interactive character sheet:** source-backed derived attributes (Max Resolve, Initiative, Toughness, Death Threshold, Lethality Level), a five-point allocator, Resolve/Fatigue trackers, immediate percentile rolls from skills (with per-skill modifiers, Score and Expertise), Initiative d10 rolls, four Supply Dice trackers and an in-sheet dice tray. Existing wounds, gear, goals, notes and free-form records remain editable.
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
 - **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
 - Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
@@ -61,6 +61,20 @@ The former 671-page coordinate-only export preserved source text but failed to f
 The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
 
 **Rights:** removing artwork does not license the rulebook text. The publisher's current [third-party license](https://thebrokenempiresrpg.com/pages/license) does not authorize software adaptations or wholesale rule reproduction. This feature is intended for an owner's own local PDF rather than distributing the text to others. Seek written authorization before publishing a comprehensive SRD, rules database, or public text-based adaptation.
+
+## Interactive character sheet — phase 1
+
+Open **Character sheet** to play directly from the character instead of repeatedly switching to the Dice Laboratory.
+
+- The **Primary attributes** card allocates the standard five starting Attribute points across Resolve, Initiative, Toughness and Death Threshold. Derived values follow the core rulebook's normal non-random starting formulas (PDF pp. 91–92). **Lethality Level = ceil(Death Threshold / 3)** plus an optional explicitly entered Talent adjustment.
+- **Advanced bonuses** are editable: future XP/Talent bonuses and an armor Initiative penalty. They are not silently inferred from character descriptions or talent notes.
+- **Resources** tracks spent Resolve and Fatigue, showing the updated available Resolve. Setting Resolve Favor (0–3 points) before a skill roll adds +10 to the target per Resolve spent, and records the expenditure automatically.
+- **Skills** show the base rating, situational modifier, unmodified Skill Score, Expertise floor and adjusted target. Click the adjusted target to roll the validated d100 mechanic. Criticals, automatic success/failure, and SLs are calculated by the existing engine; unsupported effective targets outside 0–100 remain unavailable rather than inventing special rules.
+- **Initiative** rolls d10 plus the derived effective Initiative (after a manually entered armor penalty); Supply Dice (Gear, Ammo, Medical, Rations) are selectable, rollable and automatically step down on a 1–2, with a depleted d6 becoming empty.
+- **Dice tray** shows the latest result in place. Skill rolls also appear in the Dice Laboratory's history; all rolls are journaled to the current solo campaign **only if it belongs to the same character**. No campaign is created implicitly.
+- Old character archives without the new optional attributes and supplies fields remain readable. New fields are included in ordinary browser-local autosave and JSON character exports.
+
+**Not yet automated:** full hit-location armor/wound state, combat exchanges, weapons/defenses, talent prerequisites and XP legality, and entirely automatic character creation from culture/career. These are future rule-verification tasks, not claimed functionality.
 
 ## Solo tabletop — playable first milestone
 
