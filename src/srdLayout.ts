@@ -50,7 +50,7 @@ function makeLines(runs:readonly PositionedRun[]):Line[]{
       const gap=current?item.x-current.right:0;
       // Table cells are typically separated by a substantial physical gap.
       // Runs within one cell (italic/bold fragments) are joined, never stretched.
-      if(!current||gap>Math.max(10,item.size*.9)){
+      if(!current||gap>Math.max(6.5,item.size*.58)){
         current={text:item.text.trim(),x:item.x,right:item.right,size:item.size};
         segments.push(current);
       }else{
