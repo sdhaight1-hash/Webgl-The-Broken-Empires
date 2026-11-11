@@ -76,7 +76,7 @@ The character sheet now includes a **source-grounded hit-location lookup** (PDF 
 
 All new fields are optional on stored Character records, and old JSON character archives continue loading. Existing freeform wound/equipment/event/expertise notes are retained under **Page 2 → Existing character records** rather than discarded.
 
-**Quality note:** This is a responsive application translation of the source sheet, not a pixel-perfect copy of the PDF's ornamental artwork. User-owned data stays local. A browser comparison of wide desktop and mobile layouts is the remaining visual acceptance task.
+**Quality note:** This is a responsive application translation of the source sheet, not a pixel-perfect copy of the PDF's ornamental artwork. Following the November 11 walkthrough, the skills matrix uses wider columns and larger controls instead of six very small desktop columns. User-owned data stays local. A browser comparison of wide desktop and mobile layouts remains a visual acceptance task.
 
 ## Interactive character sheet — phase 1
 
