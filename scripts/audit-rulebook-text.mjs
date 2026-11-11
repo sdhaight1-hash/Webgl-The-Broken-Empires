@@ -20,6 +20,6 @@ for(let p=1;p<=doc.numPages;p++){
  page.cleanup();
  if(p%100===0)console.log('AUDIT_PROGRESS',p+'/'+doc.numPages);
 }
-console.log('AUDIT_RESULT',JSON.stringify({pages:doc.numPages,readable,empty,textItems:items,convertedCharacters:converted}));
+console.log('RULEBOOK_TEXT_AUDIT',JSON.stringify({pages:doc.numPages,readable,empty,textItems:items,convertedCharacters:converted}));
 await task.destroy();
 if(doc.numPages!==663||readable<650||items<10000)process.exitCode=1;
