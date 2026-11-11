@@ -8,7 +8,7 @@ import { ReferenceWorkbench } from './ReferenceWorkbench.tsx';
 import { PersonalSrd } from './PersonalSrd.tsx';
 import { SourceOutlineNavigator } from './SourceOutlineNavigator.tsx';
 import { SoloTabletop } from './SoloTabletop.tsx';
-import { InteractiveCharacterControls } from './InteractiveCharacterControls.tsx';
+import { TbeCharacterSheet } from './TbeCharacterSheet.tsx';
 import {appendCharacterSheetLog,SOLO_STORAGE_KEY} from './soloEngine.ts';
 import type {RollEntry} from './characterSheetModel.ts';
 import type { Mode as MechanicMode } from './MechanicsPanel.tsx';
@@ -68,8 +68,6 @@ export function App(){
     if(character.skills.some(s=>s.name.toLowerCase()===label.toLowerCase())){setNotice('That skill is already on the sheet.');return;}
     edit({skills:[...character.skills,{id:freshId(),name:label,rating:0,note:''}]});setNewSkill('');setNotice(`${label} added. Set its rating from your rulebook.`);
   };
-  const updateSkill=(id:string,field:'name'|'rating'|'note'|'modifier'|'expertiseLevel',value:string|number)=>edit({skills:character.skills.map(skill=>skill.id===id?{...skill,[field]:value}:skill)});
-  const removeSkill=(id:string)=>edit({skills:character.skills.filter(skill=>skill.id!==id)});
   const doRoll=(target=diceTarget,label=diceLabel)=>{try{const result=resolveCheck(rollPercentile(),target);setDiceResult(result);setDiceTarget(target);setDiceLabel(label);setDiceHistory(prev=>[{id:freshId(),label,result},...prev].slice(0,8));}catch{setNotice('Use a target between 0 and 100 for the basic dice lab.');}};
   const recordSheetRoll=(entry:RollEntry)=>{
     if(entry.check){
@@ -133,14 +131,18 @@ export function App(){
         </>}
 
         {page==='sheet'&&<>
-          <div className="page-heading sheet-heading"><div><div className="eyebrow"><ScrollText size={15}/> LIVE CHARACTER RECORD</div><h1>{character.name||'Unnamed wanderer'}</h1><p>{[character.heritage,character.culture,character.career].filter(Boolean).join(' · ')||'Your story is waiting to be written.'}</p></div><div className="heading-actions"><button className="button button-quiet button-small" onClick={duplicate}><Copy size={15}/> Duplicate</button><button className="button button-quiet button-small" onClick={download}><ArrowDownToLine size={15}/> Export</button><button className="button button-outline-danger button-small" onClick={deleteCharacter}><Trash2 size={15}/> Delete</button></div></div>
-          <div className="sheet-grid"><div className="sheet-primary"><section className="panel sheet-panel"><div className="section-head"><div><div className="eyebrow">IDENTITY</div><h3>The person behind the tale</h3></div><button className="button button-quiet button-small" onClick={()=>{setForgeStep(0);go('forge')}}>Guided forge <ArrowRight size={14}/></button></div><div className="fields two-cols">{field('Name','name','Character name')}{field('Pronouns','pronouns','Pronouns')}<label className="field"><span>Heritage</span><select value={character.heritage} onChange={e=>setField('heritage',e.target.value)}><option value="">Choose...</option>{HERITAGES.map(h=><option key={h}>{h}</option>)}</select></label>{field('Culture','culture','Cultural background')}{field('Previous career','career','Career')}{field('Status / wealth','status','Enter from rulebook')}</div>{field('Appearance','description','Physical description',true)}</section>
-            <InteractiveCharacterControls character={character} onUpdate={edit}
-              onUpdateSkill={updateSkill} onRemoveSkill={removeSkill} onAddSkill={addSkill}
-              onRecord={recordSheetRoll} onOpenRule={p=>{setReferencePage(p);go('srd')}}/>
-            <div className="sheet-double">{listEditor('expertise','Expertise','Areas of practice or special knowledge.',Feather)}{listEditor('talents','Talents','Named talents and notes.',Sparkles)}</div>
-            <section className="panel sheet-panel"><div className="section-head"><div><div className="eyebrow">STORY</div><h3>Goals & history</h3></div></div>{field('Defining goal','goal','The goal driving this chronicle',true)}{field('Bond','bond','A person, vow, or relationship',true)}{field('Personal history','history','How this story began',true)}{listEditor('events','Life events','Events that shape your character.',Feather)}</section>
-          </div><aside className="sheet-secondary"><div className="panel sheet-profile"><div className="profile-emblem"><Shield size={55} strokeWidth={0.9}/></div><div className="eyebrow">YOUR CHRONICLE</div><h3>{character.name||'The Unnamed'}</h3><p>{character.heritage||'Heritage unknown'}</p><div className="profile-rule"/><span>“{character.goal||'The road ahead is unwritten.'}”</span></div>{listEditor('wounds','Wounds & conditions','No invented hit-point or injury mechanics.',HeartPulse)}{listEditor('equipment','Equipment & assets','Tools, gear, wealth and possessions.',Shield)}<section className="panel sheet-list"><div className="eyebrow">ADDITIONAL RECORD</div><h3>Notes & advancement</h3>{field('Experience / advancement','experience','Record XP and purchases manually')}{field('Session notes','notes','What happened on the road?',true)}</section><p className="small-disclaimer">The purchased rulebook controls all mechanical values. This sheet is an editable journal, not a verified character legality checker.</p></aside></div>
+          <div className="page-heading sheet-heading"><div>
+            <div className="eyebrow"><ScrollText size={15}/> THE BROKEN EMPIRES · INTERACTIVE CHARACTER SHEET</div>
+            <h1>{character.name||'Unnamed wanderer'}</h1>
+            <p>Based on the two-page fillable character form. Editable locations, weapons, goals, resources and one-click skill checks.</p>
+          </div><div className="heading-actions">
+            <button className="button button-quiet button-small" onClick={()=>{setForgeStep(0);go('forge')}}><WandSparkles size={15}/> Guided forge</button>
+            <button className="button button-quiet button-small" onClick={duplicate}><Copy size={15}/> Duplicate</button>
+            <button className="button button-quiet button-small" onClick={download}><ArrowDownToLine size={15}/> Export</button>
+            <button className="button button-outline-danger button-small" onClick={deleteCharacter}><Trash2 size={15}/> Delete</button>
+          </div></div>
+          <TbeCharacterSheet key={activeId} character={character} onUpdate={edit} onRecord={recordSheetRoll}
+            onOpenRule={pdfPage=>{setReferencePage(pdfPage);go('srd');}}/>
         </>}
 
         {page==='codex'&&<><div className="page-heading"><div className="eyebrow"><BookOpen size={15}/> THE RULES CODEX</div><h1>Knowledge is a <em>weapon.</em></h1><p>Source-checked lessons, examples, and quick knowledge checks based on your Core Rulebook. Open each topic at its exact PDF page.</p></div><SourceOutlineNavigator onOpenPage={page=>{setReferencePage(page);go('srd');}}/><div className="codex-search"><Search size={19}/><input aria-label="Search codex" placeholder="Search mechanics, characters, combat, magic..." value={search} onChange={e=>setSearch(e.target.value)}/><span>{shownArticles.length} RESULTS</span></div><div className="category-tabs">{CATEGORIES.map(c=><button key={c} className={category===c?'selected':''} onClick={()=>setCategory(c)}>{c}</button>)}</div><div className="codex-layout"><div className="codex-list">{shownArticles.length===0?<p className="muted">No matching entries.</p>:shownArticles.map(a=><button key={a.id} onClick={()=>setArticle(a.id)} className={`codex-item ${activeArticle.id===a.id?'selected':''}`}><span className="codex-category">{a.category} · PDF p. {a.page}</span><strong>{a.title}</strong><span>{a.summary}</span><ArrowRight size={17}/></button>)}</div><article className="panel article-panel"><div className="eyebrow"><ScrollText size={14}/> RULEBOOK STUDY · {activeArticle.category.toUpperCase()} · PDF p. {activeArticle.page}</div><h2>{activeArticle.title}</h2><div className={`provenance ${activeArticle.status==='secondary-source'?'provenance-secondary':''}`}><span className="status-light"/>{activeArticle.status==='core-rulebook'?'Checked against your PDF':activeArticle.status==='verified-overview'?'Official feature overview':activeArticle.status==='secondary-source'?'Secondary-source description':'Awaiting full rules'}</div><p className="article-lead">{activeArticle.summary}</p><div className="article-divider"/>{activeArticle.details.map((line,i)=><p key={i}>{line}</p>)}
