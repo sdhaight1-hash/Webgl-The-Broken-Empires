@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BookOpen, Compass, FileUp, Layers, Minus, Plus, RotateCcw, Trash2, X } from 'lucide-react';
+import { BookOpen, Compass, FileUp, Layers, Minus, Plus, RotateCcw, Trash2 } from 'lucide-react';
 import { BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
 import './references.css';
 

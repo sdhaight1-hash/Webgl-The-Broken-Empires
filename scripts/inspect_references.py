@@ -32,7 +32,7 @@ for word in keywords:
     print(f"  {word}: {len(hits[word])} pages; {hits[word][:18]}")
 with map_path.open("rb") as f:
     sig = f.read(24)
-if sig[:8] == b"\\x89PNG\\r\\n\\x1a\\n":
+if sig[:8] == bytes([137, 80, 78, 71, 13, 10, 26, 10]):
     width, height = struct.unpack(">II", sig[16:24])
     print(f"MAP PNG width={width}, height={height}, pixels={width*height:,}")
 else:
