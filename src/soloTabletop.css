@@ -1,0 +1,100 @@
+.solo-tabletop{min-width:0}
+.solo-topbar{padding:19px 21px;margin:17px 0 16px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(250px,1fr);gap:14px 20px}
+.solo-top-select{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.solo-top-actions{display:flex;flex-wrap:wrap;align-items:end;justify-content:flex-end;gap:7px}
+.solo-top-actions .button{cursor:pointer}
+.solo-campaign-name{grid-column:1/2}.solo-campaign-premise{grid-column:2/3}
+.solo-metrics{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:10px 0 17px}
+.solo-metrics span{padding:11px 14px;background:#192b34;border:1px solid #2d434c;border-radius:7px;color:#a6bbba;font-size:11px}
+.solo-metrics strong{font-size:15px;font-family:Cinzel,serif;color:#efdaad;margin-right:4px}
+.solo-metrics span.solo-active-scene{color:#d9e8d9;border-color:#5b785f;background:#233a36}
+.solo-main-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:17px;border-bottom:1px solid #35464b;padding-bottom:12px}
+.solo-main-tabs button{display:flex;align-items:center;gap:9px;padding:11px 16px;border:1px solid #3a4c53;border-radius:6px;background:#182a32;color:#b9c9c4;font-size:12px;font-weight:600}
+.solo-main-tabs button:hover,.solo-main-tabs button.selected{color:#f0dfbf;border-color:#b99e72;background:#2b3933}
+.solo-main-tabs button.selected{box-shadow:inset 0 -2px 0 #c9a873}
+.solo-play-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(330px,.8fr);gap:17px;align-items:start}
+.solo-play-primary,.solo-play-secondary{display:flex;flex-direction:column;gap:17px;min-width:0}
+.solo-session-card,.solo-mechanics,.solo-hero-card,.solo-board,.solo-board-actors{padding:22px;min-width:0}
+.solo-panel-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.solo-session-card h3,.solo-mechanics h3,.solo-hero-card h3,.solo-board h3,.solo-board-actors h3{font:20px Cinzel,serif;color:#f0e2c7;margin:7px 0 12px}
+.solo-session-card .muted,.solo-mechanics .muted,.solo-hero-card .muted,.solo-board .muted,.solo-board-actors .muted{color:#9eb4b4;font-size:11px;line-height:1.75}
+.solo-session-card>.field,.solo-mechanics>.field,.solo-board-actors>.field{display:flex;margin:12px 0}
+.solo-source-link{display:inline-flex;align-items:center;gap:6px;color:#d6bd8c;font-size:10.5px;background:transparent;border:1px solid #5b5542;border-radius:6px;padding:7px 10px;white-space:nowrap}
+.solo-source-link:hover{background:#3c3b30;color:#f5dca6}
+.solo-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 13px;align-items:end;margin:12px 0}
+.solo-form-grid .solo-wide{grid-column:1/-1}
+.solo-form-grid .field,.solo-topbar .field,.solo-board-controls .field{min-width:0}
+.solo-form-grid .field input,.solo-form-grid .field select,.solo-form-grid .field textarea,.solo-topbar .field input,.solo-topbar .field select,.solo-topbar .field textarea,.solo-session-card .field input,.solo-session-card .field select,.solo-session-card .field textarea,.solo-mechanics .field input,.solo-mechanics .field select,.solo-board-controls .field input,.solo-board-actors .field input,.solo-board-actors .field select{max-width:100%;width:100%}
+.solo-story-snippet{background:#223631;border-left:3px solid #b59c73;padding:12px 15px;margin:13px 0;border-radius:0 6px 6px 0;color:#d4ded4}
+.solo-story-snippet strong{font-size:11px;color:#e0c99e}
+.solo-story-snippet p{margin:7px 0 0;line-height:1.65;font-size:12px}
+.solo-two-fields{margin:12px 0}
+.solo-roll-readout,.solo-oracle-result{border:1px solid #54634e;background:#293831;color:#e1ddc6;padding:12px;border-radius:7px;margin:11px 0}
+.solo-roll-readout strong,.solo-big-roll{font:28px Cinzel,serif;color:#efd49e}
+.solo-roll-readout .field{margin:10px 0}
+.solo-scene-history{margin-top:25px;border-top:1px solid #394951;padding-top:16px}
+.solo-scene-history>div:not(.eyebrow){padding:9px 2px;border-bottom:1px solid #2d4146}
+.solo-scene-history strong{color:#ddd0b1;font-size:11px}
+.solo-scene-history small{float:right;color:#8ea5a5;font-size:10px}
+.solo-scene-history p{margin:5px 0;font-size:11px;color:#9db3b1}
+.solo-choice-row{display:flex;flex-wrap:wrap;gap:15px;color:#c2d0ce;font-size:11px;padding:10px 0}
+.solo-choice-row label{display:inline-flex;gap:7px;align-items:center;cursor:pointer}
+.solo-choice-row input{accent-color:#bca36a}
+.solo-event-warning{background:#48382c;border:1px solid #946c46;border-radius:6px;padding:10px;color:#f5d3a5;font-size:11px;margin-bottom:0}
+.solo-event-dice{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+.solo-event-dice strong{border:1px solid #987d4f;background:#302f2a;color:#eace96;padding:10px 15px;border-radius:6px;font-family:Cinzel,serif}
+.solo-tool-modes{display:flex;flex-wrap:wrap;gap:6px;margin:15px 0}
+.solo-tool-modes button{border:1px solid #42554e;border-radius:5px;background:#213438;color:#adbfbb;padding:8px 10px;font-size:10px}
+.solo-tool-modes button.selected{border-color:#c2a678;background:#374339;color:#efd6a5}
+.solo-mechanics .button{margin:10px 0}
+.solo-rule-result{padding:13px;border:1px solid #5f755d;background:#223c36;border-radius:6px;color:#def0dc;font-size:12px;line-height:1.7}
+.solo-mechanic-registry{margin-top:20px;padding-top:14px;border-top:1px solid #394a4b}
+.solo-mechanic-registry>button{display:flex;justify-content:space-between;gap:10px;text-align:left;width:100%;background:transparent;border:0;border-bottom:1px solid #283f44;padding:8px 0;color:#bccbc7;font-size:10.5px}
+.solo-mechanic-registry>button small{color:#c3ac7b;white-space:nowrap}
+.solo-legal-mini{color:#8da6a8;font-size:10.5px;line-height:1.7;margin:17px 0}
+.solo-hero-card>p:not(.muted){color:#cecbbc;font-size:12px;line-height:1.75}
+.solo-quick-skills{display:flex;flex-wrap:wrap;gap:7px}
+.solo-quick-skills span{border-radius:5px;background:#293e3e;color:#c7d6ce;padding:7px 9px;font-size:10px}
+.solo-quick-skills strong{color:#f1d09b;margin-left:5px}
+.solo-board-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:17px;align-items:start}
+.solo-board-setup{display:flex;flex-wrap:wrap;gap:8px;margin:13px 0}
+.solo-board-setup label{cursor:pointer}
+.solo-zone-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:380px;padding:15px;background:#102531; background-size:cover;background-position:center;border:1px solid #324950;border-radius:10px}
+.solo-zone{background:#152e34e0;border:1px solid #53716b;border-radius:9px;padding:12px;min-height:160px;display:flex;flex-direction:column}
+.solo-zone>input{color:#ebd8ad;background:transparent;border:0;border-bottom:1px solid #557065;font:14px Cinzel,serif;width:100%;min-width:0;padding:4px 0}
+.solo-zone>input:focus{outline:1px solid #d6b981}
+.solo-zone-tokens{display:flex;flex-wrap:wrap;gap:7px;margin:15px 0;align-items:start;min-height:50px}
+.solo-token{border:1px solid #79aaa6;color:#dceced;background:#294c52;border-radius:100px;padding:7px 11px;font-size:11px;cursor:grab;max-width:100%;overflow-wrap:anywhere}
+.solo-token.hero{border-color:#d4b270;background:#54472f;color:#f5e6c5}
+.solo-token.selected{box-shadow:0 0 0 2px #f7d6a1}
+.solo-token:active{cursor:grabbing}
+.solo-zone-move{margin-top:auto;background:#263c40;border:1px dashed #5e7973;color:#b7cac6;padding:7px;border-radius:5px;font-size:10px}
+.solo-zone-move:hover:not(:disabled){border-color:#d0ab77;color:#f0ddb4}
+.solo-zone-move:disabled{opacity:.4}
+.solo-board-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin-top:14px}
+.solo-board-controls .field{min-width:220px;flex:1}
+.solo-board-actors>.button{margin:10px 0}
+.solo-board-actors>.field{display:flex;margin:14px 0}
+.solo-board-actors .muted{margin-bottom:20px}
+.solo-cast-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.8fr);gap:17px;align-items:start}
+.solo-npc-list{margin-top:17px}
+.solo-npc-list article{border:1px solid #39534e;background:#1c3035;padding:14px;border-radius:8px;margin:11px 0}
+.solo-npc-list article strong{font:14px Cinzel,serif;color:#e9d8b7}
+.solo-icon-delete{border:0;background:transparent;color:#c48f84;padding:5px}
+.solo-icon-delete:hover{color:#f0b3a2}
+.solo-thread-list{margin-top:20px}
+.solo-thread-list>div{display:flex;align-items:center;justify-content:space-between;gap:9px;border-bottom:1px solid #394b4d;padding:10px 0}
+.solo-thread-list label{display:flex;align-items:center;gap:9px;font-size:12px;color:#d0d8d2;line-height:1.5}
+.solo-thread-list input{accent-color:#b59c71}
+.solo-journal-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:17px;align-items:start}
+.solo-journal-entries{margin-top:14px;max-height:750px;overflow:auto;scrollbar-width:thin}
+.solo-journal-entries article{padding:14px 0;border-bottom:1px solid #3d4d50}
+.solo-journal-entries article>div{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.solo-journal-entries strong{color:#ebd0a0;text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+.solo-journal-entries span{font-size:10px;color:#839d9f}
+.solo-journal-entries p{color:#c3d1cb;white-space:pre-wrap;line-height:1.7;font-size:12px;margin:10px 0 0;overflow-wrap:anywhere}
+.solo-tabletop>.reference-warning{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}
+.solo-tabletop>.reference-warning button{border:0;background:transparent;color:inherit}
+@media(max-width:1250px){.solo-play-layout{grid-template-columns:minmax(0,1.1fr) minmax(320px,1fr)}.solo-board-layout,.solo-journal-layout{grid-template-columns:1fr}}
+@media(max-width:980px){.solo-play-layout,.solo-cast-layout{grid-template-columns:1fr}.solo-play-secondary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.solo-mechanics{grid-column:1/-1}.solo-topbar{grid-template-columns:1fr}.solo-campaign-name,.solo-campaign-premise{grid-column:auto}.solo-top-actions{justify-content:flex-start}}
+@media(max-width:650px){.solo-top-select,.solo-form-grid,.solo-play-secondary{grid-template-columns:1fr}.solo-topbar{padding:15px}.solo-campaign-name,.solo-campaign-premise{grid-column:1/-1}.solo-main-tabs button{flex:1;justify-content:center;padding:11px 8px;font-size:10px}.solo-session-card,.solo-mechanics,.solo-hero-card,.solo-board,.solo-board-actors{padding:16px}.solo-zone-grid{grid-template-columns:1fr;padding:10px}.solo-metrics span{padding:9px 10px}.solo-top-actions{gap:5px}.solo-board-controls .field{min-width:0}}

@@ -13,6 +13,8 @@ An **independent**, browser-based character journal and rules-learning companion
 - **Personal SRD (local-only):** on-demand, art-free text view of the owner's chosen PDF, chapter/section navigation across the entire 663-page volume, reading-flow and page-column layouts, a text-position view for tables, adjustable type, source-PDF cross-checks and optional full-book search. No extracted book text is committed, uploaded, persisted.
 - **Export linked PDF:** user-initiated browser-only text PDF generation with a clickable 207-section contents list, nested viewer bookmarks, links back to contents / adjacent source pages, and recognized `Chapter N` cross-links. The PDF is downloaded to the user's device only.
 - Interactive d100 basic check lab with core-book verified automatic success/failure, critical doubles, **exact-value critical successes** and Success Levels.
+- **Solo tabletop:** multiple saved campaigns, scene lifecycle, source-linked d100 oracle and event workflows, authored NPCs, open threads, editable zone-based tabletop, draggable tokens, character-sheet integration, narrative journal, and independent JSON backup/restore.
+- **Eight structured and tested mechanics:** percentile skill checks, opposed contests, success margins, extended progress, Timer Die, supporting skill bonus, Expertise SL floor, Supply Dice. Codex entries can open corresponding live calculators in solo play.
 - Automatic browser-local save. No server, account, analytics, or AI services.
 
 ## Start
@@ -59,6 +61,28 @@ The end-to-end source audit passed on the supplied 663-page book, producing a **
 The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
 
 **Rights:** removing artwork does not license the rulebook text. The publisher's current [third-party license](https://thebrokenempiresrpg.com/pages/license) does not authorize software adaptations or wholesale rule reproduction. This feature is intended for an owner's own local PDF rather than distributing the text to others. Seek written authorization before publishing a comprehensive SRD, rules database, or public text-based adaptation.
+
+## Solo tabletop — playable first milestone
+
+Open **Solo tabletop** in the sidebar. Select your current character, name the campaign and set its premise; the campaign auto-saves in browser storage under a separate versioned key. You can export/import a standalone `wayfarers-solo-campaign.json` archive for backups (characters are stored separately). No external services or AI are required.
+
+The core workflow is:
+
+1. **Play scene:** state a title, location and expected opening, then open the scene. Roll a scene expectation d100 and use the purchased book's scene table to select the result.
+2. **Ask the Weave:** pose a yes/no question, roll percentile dice, select the result from your local source table, and record what the answer means. Matching dice are highlighted to prompt a Random Event. A separate explicitly labeled **custom probability** mode is included, but it is not a transcription of the official odds table.
+3. **Event randomizers:** roll Action and Subject d100 positions, consult your own PDF for the words, interpret them, and save the outcome to the journal.
+4. **Rules workbench:** use the eight source-referenced, deterministic mechanics. The skill calculator can select a skill from the character assigned to the campaign. Rolls and results enter the campaign journal.
+5. **Scene board:** load an optional image from disk, place tokens and move them among editable abstract combat zones using drag/drop or keyboard-friendly click controls. The image is session-only; zones and token locations persist.
+6. **NPCs & threads:** keep profiles, relationships, outstanding questions and scene cast organized. Finish scenes with a narrative outcome.
+7. **Chronicle:** add free text narration, review dice/oracle/scene logs, and export/import campaign data.
+
+Solo source viewer links use **1-based PDF viewer pages**, not printed folios. The verified chapter anchors are: Solo play principles p.486, Ask the Weave p.490, Random Events p.491, randomizers p.492, scene start p.493, and NPC guidance p.495.
+
+**What is automated:** Source-linked basic 0–100 skill checks, opposed resolution and tie-breaks, DoS, progress setbacks for extended checks, Timer Die threshold, supporting skill Score, Expertise minimum successful SL, Supply Dice step-down, d100 oracle dice, doubles event flags, state management, journals and board interactions.
+
+**What remains deliberately manual:** The commercial solo Oracle probability table, Random Events lookup, Action/Subject word tables and scene expectation table. The current code *does not* claim their exact threshold distributions, so it never invents results or reproduce copyrighted tables. The custom oracle probabilities are optional convenience logic, not a house rule falsely attributed to the book.
+
+The board is a **solo, zone-based VTT slice**, not a full multiplayer VTT. It does not yet implement scene fog of war, pixel-precise map measurements, synchronized sessions, complete combat and magic automation or an AI narrator. See [issue #5](https://github.com/sdhaight1-hash/Webgl-The-Broken-Empires/issues/5) for the distinct rule-by-rule verification effort.
 
 ## Rules integrity and important limitations
 
