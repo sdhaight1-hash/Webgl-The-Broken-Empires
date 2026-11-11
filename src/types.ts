@@ -1,3 +1,4 @@
+import type {TbeSheetData} from './tbeSheetData.ts';
 export interface Skill { id: string; name: string; rating: number; note: string; modifier?: number; expertiseLevel?: 1 | 2 | 3 | 4 }
 
 /** Core rulebook, PDF pp. 91-92. Optional for previously saved characters. */
@@ -35,6 +36,7 @@ export interface Character {
   experience: string;
   skills: Skill[];
   attributes?: SheetAttributes;
+  tbeSheet?: TbeSheetData;
   supplies?: SheetSupplies;
   talents: RecordEntry[];
   expertise: RecordEntry[];
