@@ -2,7 +2,7 @@
  * No source material is embedded: callers provide text extracted from their local PDF.
  */
 export type TextBlock = { kind: 'heading' | 'paragraph'; text: string };
-export type PositionedRun = { text: string; x: number; y: number; fontSize: number };
+export type PositionedRun = { text: string; x: number; y: number; fontSize: number; width?: number };
 export type TextPage = { left: TextBlock[]; right: TextBlock[]; plainText: string; runCount: number; width: number; height: number; positioned: PositionedRun[] };
 type Run = { str: string; x: number; y: number; width: number; height: number };
 type Line = { text: string; x: number; y: number; height: number };
@@ -92,7 +92,7 @@ export function reconstructTextPage(items:readonly unknown[],pageWidth:number,pa
     runCount:runs.length,width:pageWidth,height:pageHeight,
     // Spatial view keeps text positions for tables, while deliberately rendering
     // no PDF image, path, or embedded artwork data.
-    positioned:runs.map(r=>({text:r.str,x:r.x,y:pageHeight-r.y,fontSize:r.height}))};
+    positioned:runs.map(r=>({text:r.str,x:r.x,y:pageHeight-r.y,fontSize:r.height,width:r.width}))};
 }
 
 export function pageMatches(text:string,query:string):boolean {
