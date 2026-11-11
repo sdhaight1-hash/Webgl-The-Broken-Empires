@@ -112,12 +112,16 @@ These measurements apply **only** to that repository copy. The user subsequently
 
 Open **Solo tabletop** in the sidebar. Select your current character, name the campaign and set its premise; the campaign auto-saves in browser storage under a separate versioned key. You can export/import a standalone `wayfarers-solo-campaign.json` archive for backups (characters are stored separately). No external services or AI are required.
 
+**New integrated scene skill action:** With a scene open and a character assigned, select an existing skill inside **Play scene**. The action card displays the base rating, modifier, Expertise, Resolve Favor and resulting target. Roll once and review the result before choosing **Confirm & journal** or **Discard**. Confirmation rechecks character, skill, scene and Resolve, spends Favor once, and creates a structured action record with source PDF page, dice, SLs and modifier breakdown. The live character HUD displays Resolve, Fatigue, entered lethal WP, Initiative, Supply Dice and clickable quick skills. These confirmed action records remain valid in the existing version-1 campaign exports.
+
+**Source beside play:** Clicking a source link within Solo Tabletop opens a local-PDF drawer and preserves pending rolls, selected skill and scene. The user can select a rulebook file locally in the drawer; nothing is uploaded. **Open full reader** deliberately navigates away. To avoid partial saves on ordinary storage errors, confirmation writes the updated character and campaign snapshots before changing React state and attempts rollback if either write fails. The browser's two separate localStorage keys are not crash-atomic, however; periodic character and campaign exports remain advisable.
+
 The core workflow is:
 
 1. **Play scene:** state a title, location and expected opening, then open the scene. Roll a scene expectation d100 and use the purchased book's scene table to select the result.
 2. **Ask the Weave:** pose a yes/no question, roll percentile dice, select the result from your local source table, and record what the answer means. Matching dice are highlighted to prompt a Random Event. A separate explicitly labeled **custom probability** mode is included, but it is not a transcription of the official odds table.
 3. **Event randomizers:** roll Action and Subject d100 positions, consult your own PDF for the words, interpret them, and save the outcome to the journal.
-4. **Rules workbench:** use the eight source-referenced, deterministic mechanics. The skill calculator can select a skill from the character assigned to the campaign. Rolls and results enter the campaign journal.
+4. **In-scene skill actions:** roll an existing character skill, preview Favor and success levels, confirm expenditure and journal insertion, or discard without changing state. The existing eight-rule workbench remains available for manual/advanced calculations.
 5. **Scene board:** load an optional image from disk, place tokens and move them among editable abstract combat zones using drag/drop or keyboard-friendly click controls. The image is session-only; zones and token locations persist.
 6. **NPCs & threads:** keep profiles, relationships, outstanding questions and scene cast organized. Finish scenes with a narrative outcome.
 7. **Chronicle:** add free text narration, review dice/oracle/scene logs, and export/import campaign data.
