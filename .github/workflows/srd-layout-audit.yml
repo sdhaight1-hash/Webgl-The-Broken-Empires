@@ -1,0 +1,18 @@
+name: Audit SRD layout and source-table geometry
+on:
+  push:
+    branches: [feature/structured-srd-layout-tables]
+    paths: [scripts/audit-srd-layout.mjs,.github/workflows/srd-layout-audit.yml]
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: node --experimental-strip-types scripts/audit-srd-layout.mjs
