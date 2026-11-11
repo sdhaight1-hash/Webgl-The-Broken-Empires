@@ -207,3 +207,28 @@
   .tbe-hit-controls>button,.tbe-hit-record>button{width:100%}}
 
 .tbe-hit-tool .tbe-hit-saved{color:#b6e1ba;font-weight:750;margin:10px 0 0}
+
+/* Optional source-backed arithmetic, never applied to the character without confirmation. */
+.tbe-damage-calculator{margin:13px 0 0;background:#1d292c;border:1px solid #4f655f;
+  border-radius:6px;padding:11px 13px;color:#e5d5bf}
+.tbe-damage-calculator>summary{cursor:pointer;font-size:12px;font-weight:800;color:#ebc590}
+.tbe-hit-tool .tbe-damage-calculator>p{margin:8px 0 11px;color:#b6c8bf}
+.tbe-damage-fields{display:grid;grid-template-columns:repeat(3,minmax(110px,1fr));gap:9px;align-items:end}
+.tbe-damage-fields>label,.tbe-damage-number>label{display:flex;flex-direction:column;gap:6px;
+  color:#d5bea1;font-size:10px;font-weight:750;min-width:0}
+.tbe-damage-number{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tbe-paper .tbe-hit-tool .tbe-damage-fields select{background:#111e21;color:#f3e6d1;
+  border:1px solid #53655f;height:34px;width:100%;font-size:11px}
+.tbe-paper .tbe-hit-tool .tbe-damage-fields input[type=number]{width:100%}
+.tbe-damage-fields>label.tbe-damage-check{flex-direction:row;align-items:center;
+  padding:0 4px 7px;color:#ead4b7;font-size:10px}
+.tbe-damage-number>button,.tbe-damage-result>button{border:1px solid #b4875c;
+  border-radius:4px;background:#674239;color:#f4dbb8;padding:7px 9px;font-size:10px;font-weight:750}
+.tbe-damage-number>button:disabled,.tbe-damage-result>button:disabled{opacity:.5;cursor:not-allowed}
+.tbe-damage-number>button:hover:not(:disabled),.tbe-damage-result>button:hover:not(:disabled){background:#84503b}
+.tbe-damage-result{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin-top:12px;
+  padding:10px;background:#193b33;border:1px solid #598574;border-radius:5px;font-size:11px}
+.tbe-damage-result span{color:#c4d8c8}.tbe-damage-result strong{color:#dcf4dc;font-size:16px}
+.tbe-damage-result small{color:#f6cbb5;flex-basis:100%}
+@media(max-width:790px){.tbe-damage-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.tbe-damage-fields{grid-template-columns:1fr}}

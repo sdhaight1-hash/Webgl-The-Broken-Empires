@@ -72,7 +72,7 @@ The source file is a two-page, fillable form (477 fields on the front, 53 on the
 
 The front-page percent skill entries are actual character ratings. Entering a value creates/updates that skill in the existing character roster, and clicking its die icon runs the tested d100 engine, including its modifier, Expertise, criticals and optional pre-spent Resolve Favor. The in-place roll tray and character-matched solo-campaign logging remain active.
 
-The character sheet now includes a **source-grounded hit-location lookup** (PDF p.176): enter the attacker and defender d100 results to read their ones digits, or roll a separate d10 when the defender did not roll. The matching wound region is highlighted, and user-adjudicated Wound Points can be recorded in its next empty row. The lethal WP sum can optionally be copied to the Total Lethal WP field. **Damage calculation, armor/shield mitigation, automatic impairment and weapon ATT/PRY resolution remain manual**. Inventory ENC is also an entered-value subtotal; neither summary replaces official rules adjudication.
+The character sheet now includes a **source-grounded hit-location lookup** (PDF p.176): enter the attacker and defender d100 results to read their ones digits, or roll a separate d10 when the defender did not roll. The matching wound region is highlighted, and user-adjudicated Wound Points can be recorded in its next empty row. The lethal WP sum can optionally be copied to the Total Lethal WP field. An optional **Wound Points calculator** uses entered base damage plus Degree of Success, subtracting explicitly entered location Armor AP and Shield AP only when selected by the GM; internal damage ignores those protections (source PDF pp.175–176). Calculated WP must be copied into the wound entry explicitly. **Special damage effects, automatic impairment and weapon ATT/PRY resolution remain manual**. Inventory ENC is also an entered-value subtotal; neither summary replaces official rules adjudication.
 
 All new fields are optional on stored Character records, and old JSON character archives continue loading. Existing freeform wound/equipment/event/expertise notes are retained under **Page 2 → Existing character records** rather than discarded.
 
@@ -90,7 +90,7 @@ Open **Character sheet** to play directly from the character instead of repeated
 - **Dice tray** shows the latest result in place. Skill rolls also appear in the Dice Laboratory's history; all rolls are journaled to the current solo campaign **only if it belongs to the same character**. No campaign is created implicitly.
 - Old character archives without the new optional attributes and supplies fields remain readable. New fields are included in ordinary browser-local autosave and JSON character exports.
 
-**Not yet automated:** combat damage, armor/shield reduction and wound consequences, combat exchanges, weapons/defenses, talent prerequisites and XP legality, and entirely automatic character creation from culture/career. The hit-location lookup and manual WP recording are helpers, not a complete combat engine.
+**Not yet automated:** automatic damage application, armor/shield equipment interactions, wound consequences, combat exchanges, weapons/defenses, talent prerequisites and XP legality, and entirely automatic character creation from culture/career. The manual-entry hit-location, WP calculator and wound recorder are helpers, not a complete combat engine.
 
 ## Cohesive dark-mode UI and solo campaign worksheets
 

@@ -6,7 +6,7 @@ import {allocatePoint,deriveAttributes,derivedSkill,rollSheetSkill,sheetAttribut
 import type {RollEntry} from './characterSheetModel.ts';
 import {isSheetAttributes} from './characterSheetState.ts';
 import {useSupplyDie} from './mechanics.ts';
-import {locateHit,recordWound} from './hitLocation.ts';
+import {locateHit,recordWound,calculateWoundPoints} from './hitLocation.ts';
 import {InteractiveCharacterControls} from './InteractiveCharacterControls.tsx';
 import {TalentPicker} from './TalentPicker.tsx';
 import {PREVIOUS_CAREERS,WEAPON_NAMES} from './talentCatalog.ts';
@@ -55,6 +55,12 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
   const [quickInjury,setQuickInjury]=useState('');
   const [quickNonlethal,setQuickNonlethal]=useState(false);
   const [woundMessage,setWoundMessage]=useState('');
+  const [baseDamage,setBaseDamage]=useState('');
+  const [damageDos,setDamageDos]=useState('');
+  const [damageKind,setDamageKind]=useState<'external'|'internal'>('external');
+  const [damageArmor,setDamageArmor]=useState('');
+  const [damageShield,setDamageShield]=useState('');
+  const [applyShield,setApplyShield]=useState(false);
   const sheet=readTbeSheet(character);
   const stats=deriveAttributes(character);
   const a=sheetAttributes(character);
@@ -63,6 +69,16 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
     Number(attackerRoll)>=1&&Number(attackerRoll)<=100&&
     Number(defenderRoll)>=1&&Number(defenderRoll)<=100?
     locateHit(Number(attackerRoll),Number(defenderRoll)):null;
+  const numberEntered=(value:string)=>/^\d{1,3}$/.test(value)&&Number(value)<=999;
+  const damageReady=numberEntered(baseDamage)&&numberEntered(damageDos)&&
+    (damageKind==='internal'||numberEntered(damageArmor))&&
+    (!applyShield||damageKind==='internal'||numberEntered(damageShield));
+  const damage=damageReady?calculateWoundPoints({
+    baseDamage:Number(baseDamage),degreeOfSuccess:Number(damageDos),
+    armorAP:damageKind==='internal'?0:Number(damageArmor),
+    shieldAP:damageKind==='internal'||!applyShield?0:Number(damageShield),
+    type:damageKind,applyShield
+  }):null;
   const save=(changes:Partial<TbeSheetData>)=>onUpdate({tbeSheet:{...sheet,...changes}});
   const setError=(e:unknown)=>setNotice(e instanceof Error?e.message:'Unable to update the sheet.');
   const log=(entry:RollEntry)=>{setLastRoll(entry);setRolls(items=>[entry,...items].slice(0,12));setNotice('');onRecord(entry);};
@@ -341,6 +357,43 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
           <span>Attacker ones: {hit.attackerOnes} · Defender/detail: {hit.defenderOnes}</span>
         </div>:<p className="tbe-hit-hint">Enter both rolls to identify a location. No damage is applied automatically.</p>}
         {woundMessage&&<p className="tbe-hit-saved" role="status">{woundMessage}</p>}
+        {hit&&<details className="tbe-damage-calculator">
+          <summary>Calculate wound points from damage and protection</summary>
+          <p>Basic rule: weapon base damage + Degree of Success − applicable Armor AP − optional Shield AP.
+            Use an already-adjudicated numeric damage value. Special attacks and other effects remain manual.</p>
+          <div className="tbe-damage-fields">
+            <label>Damage type<select aria-label="Damage type" value={damageKind} onChange={e=>
+              setDamageKind(e.target.value as 'external'|'internal')}>
+              <option value="external">External</option><option value="internal">Internal (ignore armor)</option>
+            </select></label>
+            <label>Base damage<input aria-label="Base damage" type="number" min="0" max="999" step="1"
+              value={baseDamage} onChange={e=>setBaseDamage(e.target.value)}/></label>
+            <label>Degree of Success<input aria-label="Damage DoS" type="number" min="0" max="999" step="1"
+              value={damageDos} onChange={e=>setDamageDos(e.target.value)}/></label>
+            {damageKind==='external'&&<div className="tbe-damage-number">
+              <label>Location Armor AP<input aria-label="Location Armor AP"
+                type="number" min="0" max="999" step="1" value={damageArmor}
+                onChange={e=>setDamageArmor(e.target.value)}/></label>
+              <button type="button" disabled={!numberEntered(sheet.locations[hit.location].ap)}
+                onClick={()=>setDamageArmor(sheet.locations[hit.location].ap)}>Use sheet AP</button></div>}
+            {damageKind==='external'&&<label className="tbe-check tbe-damage-check">
+              <input type="checkbox" checked={applyShield} onChange={e=>setApplyShield(e.target.checked)}/>
+              Shield AP applies (GM decision)</label>}
+            {damageKind==='external'&&applyShield&&<div className="tbe-damage-number">
+              <label>Shield AP<input aria-label="Shield AP for hit"
+                type="number" min="0" max="999" step="1" value={damageShield}
+                onChange={e=>setDamageShield(e.target.value)}/></label>
+              <button type="button" disabled={!numberEntered(sheet.shield.ap)}
+                onClick={()=>setDamageShield(sheet.shield.ap)}>Use shield AP</button></div>}
+          </div>
+          {damage?<div className="tbe-damage-result" role="status">
+            <span>{damage.incoming} incoming − {damage.appliedArmor} armor − {damage.appliedShield} shield</span>
+            <strong>{damage.woundPoints} WP</strong>
+            <button type="button" disabled={damage.woundPoints<1||damage.woundPoints>999}
+              onClick={()=>setQuickWp(String(damage.woundPoints))}>Use calculated WP</button>
+            {damage.woundPoints===0&&<small>No WP remains after protection; do not record a positive wound.</small>}
+          </div>:<p className="tbe-hit-hint">Enter whole-number damage, DoS and applicable protection to calculate.</p>}
+        </details>}
         {hit&&<div className="tbe-hit-record">
           <label>Wound Points (after armor)<input aria-label="Quick wound WP" type="number" min="1" max="999"
             step="1" value={quickWp} placeholder="WP" onChange={e=>setQuickWp(e.target.value)}/></label>

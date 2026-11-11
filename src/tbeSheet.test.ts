@@ -111,7 +111,7 @@ test('strands, piety, armor penalties, shield and fraying retain independent fie
 
 // The general location comes from the attacker d100 ones die;
 // the defender determines detail, or a fallback d10 when no defense was rolled.
-import {locateHit,recordWound} from './hitLocation.ts';
+import {locateHit,recordWound,calculateWoundPoints} from './hitLocation.ts';
 
 test('attacker ones digit picks the six canonical general hit locations',()=>{
   assert.deepEqual([10,11,15,16,17,18,19,100].map(r=>locateHit(r,10).location),
@@ -175,4 +175,34 @@ test('import validation rejects malformed text fields independently',()=>{
   assert.equal(isTbeSheet({...sheet,relationshipNpcs:'x'.repeat(4001)}),false);
   assert.equal(isTbeSheet({...sheet,threads:'x'.repeat(4001)}),false);
   assert.equal(isTbeSheet(sheet),true);
+});
+
+test('external damage subtracts entered armor and only optional shield AP',()=>{
+  const base={baseDamage:8,degreeOfSuccess:3,armorAP:5,shieldAP:2,
+    type:'external' as const,applyShield:false};
+  assert.deepEqual(calculateWoundPoints(base),{
+    incoming:11,appliedArmor:5,appliedShield:0,woundPoints:6
+  });
+  assert.deepEqual(calculateWoundPoints({...base,applyShield:true}),{
+    incoming:11,appliedArmor:5,appliedShield:2,woundPoints:4
+  });
+});
+
+test('internal damage bypasses armor and shield AP, while protection never heals',()=>{
+  const input={baseDamage:3,degreeOfSuccess:1,armorAP:10,shieldAP:2,
+    type:'internal' as const,applyShield:true};
+  assert.deepEqual(calculateWoundPoints(input),{
+    incoming:4,appliedArmor:0,appliedShield:0,woundPoints:4
+  });
+  assert.equal(calculateWoundPoints({...input,type:'external',applyShield:true}).woundPoints,0);
+});
+
+test('damage inputs reject fractional, negative and impossible numbers',()=>{
+  const input={baseDamage:4,degreeOfSuccess:2,armorAP:1,shieldAP:0,
+    type:'external' as const,applyShield:false};
+  assert.throws(()=>calculateWoundPoints({...input,baseDamage:-1}),RangeError);
+  assert.throws(()=>calculateWoundPoints({...input,degreeOfSuccess:2.5}),RangeError);
+  assert.throws(()=>calculateWoundPoints({...input,armorAP:Infinity}),RangeError);
+  assert.throws(()=>calculateWoundPoints({...input,shieldAP:1000}),RangeError);
+  assert.throws(()=>calculateWoundPoints({...input,type:'unknown' as never}),RangeError);
 });
