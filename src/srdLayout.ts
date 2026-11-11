@@ -67,7 +67,15 @@ function makeLines(runs:readonly PositionedRun[]):Line[]{
 function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
   const first=lines[start];
   if(!first||first.segments.length<minColumns)return null;
-  const anchors=first.segments.map(s=>s.x);
+  // Header labels are often broken into more text fragments than the actual
+  // number of data columns. Choose the modal multi-cell row as the template.
+  const candidates=lines.slice(start,start+9).filter(l=>l.y-first.y<135&&
+    l.segments.length>=minColumns&&l.segments.length<=8);
+  const counts=new Map<number,number>();
+  candidates.forEach(l=>counts.set(l.segments.length,(counts.get(l.segments.length)||0)+1));
+  const modal=[...counts].sort((a,b)=>b[1]-a[1]||a[0]-b[0])[0]?.[0]||first.segments.length;
+  const template=candidates.find(l=>l.segments.length===modal)||first;
+  const anchors=template.segments.map(s=>s.x);
   if(anchors.length>8)return null;
   let aligned=1;
   let end=start;
@@ -80,7 +88,15 @@ function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
     const matchesMain=line.segments.some(s=>Math.abs(s.x-anchors[0])<11);
     // Single-cell continuation lines belong to the preceding table row only if
     // they align to an existing cell. Nonmatching prose terminates the table.
-    if(matched===0||(!matchesMain&&matched<2&&gap>line.size*1.8))break;
+    if(matched===0||(!matchesMain&&matched<2&&gap>line.size*1.8)){
+      // A wrapped cell can be indented away from the column anchor for several
+      // lines. Keep it only when a genuine data row resumes shortly afterward.
+      const resumes=lines.slice(i+1,i+6).some(future=>
+        future.y-line.y<90&&future.segments.filter(s=>
+          anchors.some(x=>Math.abs(x-s.x)<=Math.max(11,future.size))).length>=2&&
+        future.segments.some(s=>Math.abs(s.x-anchors[0])<18));
+      if(!resumes)break;
+    }
     if(matched>=Math.min(minColumns,anchors.length))aligned++;
     end=i;previous=line;
   }
@@ -92,10 +108,11 @@ function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
     for(const s of line.segments){
       let column=0,best=Infinity;
       anchors.forEach((x,j)=>{const distance=Math.abs(x-s.x);if(distance<best){best=distance;column=j;}});
-      if(best>Math.max(18,line.size*1.7))continue;
+      // Never discard an extracted text segment merely because a font or
+      // alignment shift made the table-column inference uncertain.
       cells[column]=(cells[column]?' '+s.text:s.text);
     }
-    const firstCell=!!cells[0]&&line.segments.some(s=>Math.abs(s.x-anchors[0])<11);
+    const firstCell=!!cells[0]&&line.segments.some(s=>Math.abs(s.x-anchors[0])<18);
     if(!rows.length||firstCell){
       rows.push(cells);
     }else{
