@@ -92,6 +92,38 @@ test('no table is fabricated from two aligned narrative columns',()=>{
   assert.ok(structureTextPage(page(input)).every(b=>b.kind!=='table'));
 });
 
+test('triple-column editorial prose cannot become a fabricated rules table',()=>{
+  const positioned:Array<PositionedRun>=[];
+  for(let i=0;i<7;i++){
+    positioned.push(run('Left narrative '+i,63,92+i*18,143));
+    positioned.push(run('Inset quotation '+i,237,92+i*18,133));
+    positioned.push(run('Right narrative '+i,413,92+i*18,136));
+  }
+  const blocks=structureTextPage(page(positioned));
+  assert.ok(blocks.every(b=>b.kind==='paragraph'));
+  assert.equal(blocks.length,3);
+  assert.ok(blockText(blocks[0]).includes('Left narrative 6'));
+  assert.ok(!blockText(blocks[0]).includes('Inset quotation'));
+  assert.ok(blockText(blocks[1]).includes('Inset quotation 6'));
+  assert.ok(blockText(blocks[2]).includes('Right narrative 6'));
+});
+
+test('named text-only reference tables remain tabular when header proves the structure',()=>{
+  const cols=[70,250,420];
+  const rows=[
+    ['Language','Native To','Description'],
+    ['Vestrian','Old Vestria','Local tongue'],
+    ['Thessian','Thessia','Regional tongue'],
+    ['Orcish','Orcs','Spoken language']
+  ];
+  const positioned=rows.flatMap((row,i)=>row.map((txt,j)=>run(txt,cols[j],110+i*19,113)));
+  const blocks=structureTextPage(page(positioned));
+  const table=blocks.find(b=>b.kind==='table');
+  assert.ok(table&&table.kind==='table');
+  assert.equal(table.rows.length,4);
+  assert.deepEqual(table.rows[1],['Vestrian','Old Vestria','Local tongue']);
+});
+
 test('invalid page dimensions reject explicitly',()=>{
   assert.throws(()=>structureTextPage(page([],0)),RangeError);
   assert.throws(()=>structureTextPage(page([],612,0)),RangeError);
