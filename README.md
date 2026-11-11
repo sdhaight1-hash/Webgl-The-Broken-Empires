@@ -10,7 +10,8 @@ An **independent**, browser-based character journal and rules-learning companion
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
 - **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
 - Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
-- **Personal SRD (local-only):** on-demand, art-free text view of the owner's chosen PDF, chapter/section navigation across the entire 663-page volume, reading-flow and page-column layouts, a text-position view for tables, adjustable type, source-PDF cross-checks and optional full-book search. No extracted book text is committed, uploaded, persisted or exported.
+- **Personal SRD (local-only):** on-demand, art-free text view of the owner's chosen PDF, chapter/section navigation across the entire 663-page volume, reading-flow and page-column layouts, a text-position view for tables, adjustable type, source-PDF cross-checks and optional full-book search. No extracted book text is committed, uploaded, persisted.
+- **Export linked PDF:** user-initiated browser-only text PDF generation with a clickable 207-section contents list, nested viewer bookmarks, links back to contents / adjacent source pages, and recognized `Chapter N` cross-links. The PDF is downloaded to the user's device only.
 - Interactive d100 basic check lab with core-book verified automatic success/failure, critical doubles, **exact-value critical successes** and Success Levels.
 - Automatic browser-local save. No server, account, analytics, or AI services.
 
@@ -42,6 +43,16 @@ The **Personal SRD** page is a locally generated reading interface, **not** a pu
 4. Toggle **Reading flow**, **Page columns**, or **Text positions**. The third mode reconstructs the position of textual PDF runs and is particularly helpful for tables without rendering artwork.
 5. Choose **Index all pages** to search the source text throughout the book; the index builds and stays only in the current browser session and can be cancelled. The app reads pages on demand otherwise.
 6. Use **Check original** whenever a chart, table, footnote or layout-sensitive rule needs confirmation.
+
+### Hyperlinked PDF export
+
+After selecting the rulebook on the **Personal SRD** page, click **Export linked PDF**. Export is independent of the optional search index; it processes all source pages, shows progress and supports cancellation. On completion, your browser downloads `The_Broken_Empires_Personal_Text_Linked.pdf`.
+
+The generated file uses one text-only page for each original PDF page, preceded by a cover and an internally linked contents section. Links and the PDF viewer bookmark sidebar target output page positions (which differ from the printed original page numbers); each content page shows its **original PDF page number**. The export creates original links for recognized `Chapter N` references, plus Previous / Next / Contents controls on each source page.
+
+The output contains neither embedded source artwork nor imported PDF page images. Its layout is based on extracted text positions so tables remain spatially recognizable where possible, but **complex tables, fonts, ligatures, symbols, footnotes and raster-only text can be imperfect**. Standard PDF fonts cannot reproduce every Unicode glyph, so uncommon symbols may be simplified or replaced. Check the original rulebook for exact adjudication. The output is a personal reading copy, **not a permission grant to redistribute the book or publish it as an open SRD**.
+
+The manual GitHub Actions workflow `Audit local hyperlinked PDF export` regenerates the entire PDF from the owner's Git LFS source on a runner and validates metadata, link annotations, bookmarks and page counts; it does not publish the generated book or print its text into logs.
 
 The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
 
