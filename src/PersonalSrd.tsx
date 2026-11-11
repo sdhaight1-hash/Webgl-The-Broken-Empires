@@ -33,7 +33,7 @@ export function PersonalSrd({
   const [current,setCurrent]=useState<{page:number;value:TextPage}|null>(null);
   const [pageLoading,setPageLoading]=useState(false);
   const [fontSize,setFontSize]=useState(16);
-  const [layout,setLayout]=useState<'flow'|'columns'>('flow');
+  const [layout,setLayout]=useState<'flow'|'columns'|'geometry'>('flow');
   const [contentsQuery,setContentsQuery]=useState('');
   const [searchQuery,setSearchQuery]=useState('');
   const [indexStatus,setIndexStatus]=useState<IndexStatus>('idle');
@@ -85,7 +85,8 @@ export function PersonalSrd({
     const sourcePage=await doc.getPage(pageNumber);
     try{
       const text=await sourcePage.getTextContent();
-      const parsed=reconstructTextPage(text.items,sourcePage.getViewport({scale:1}).width);
+      const viewport=sourcePage.getViewport({scale:1});
+      const parsed=reconstructTextPage(text.items,viewport.width,viewport.height);
       cache.current.set(pageNumber,parsed);
       return parsed;
     }finally{sourcePage.cleanup();}
@@ -215,7 +216,7 @@ export function PersonalSrd({
           <div className="personal-srd-display-tools">
             <button aria-label="Decrease text size" title="Smaller text" disabled={fontSize<=13} onClick={()=>setFontSize(s=>clamp(s-1,13,22))}><Minus size={16}/></button>
             <button aria-label="Increase text size" title="Larger text" disabled={fontSize>=22} onClick={()=>setFontSize(s=>clamp(s+1,13,22))}><Plus size={16}/></button>
-            <button title="Toggle reading layout" onClick={()=>setLayout(m=>m==='flow'?'columns':'flow')}><Columns2 size={16}/><span>{layout==='flow'?'Reading flow':'Page columns'}</span></button>
+            <button title="Toggle reading layout" onClick={()=>setLayout(m=>m==='flow'?'columns':m==='columns'?'geometry':'flow')}><Columns2 size={16}/><span>{layout==='flow'?'Reading flow':layout==='columns'?'Page columns':'Text positions'}</span></button>
             <button title="Reset reading options" aria-label="Reset reading options" onClick={()=>{setFontSize(16);setLayout('flow');}}><RotateCcw size={16}/></button>
           </div>
         </div>
@@ -225,6 +226,9 @@ export function PersonalSrd({
           {document&&document.numPages!==PDF_PAGE_COUNT&&<p className="reference-warning">This PDF has {document.numPages} pages rather than the indexed {PDF_PAGE_COUNT}. Contents links may not align.</p>}
           {pageLoading||!pageData?<div className="personal-srd-loading">Extracting page text…</div>:
           pageData.runCount===0?<div className="personal-srd-no-text"><BookOpen size={35}/><h3>No selectable text on this page</h3><p>This page may contain only artwork or non-extractable material. Use the original PDF for its contents.</p></div>:
+          layout==='geometry'?<svg className="personal-srd-spatial" viewBox={`0 0 ${pageData.width} ${pageData.height}`} role="img" aria-label="Spatial text-only view of this PDF page, without artwork">
+            {pageData.positioned.map((run,i)=><text key={i} x={run.x} y={run.y} fontSize={run.fontSize} fill="currentColor">{run.text}</text>)}
+          </svg>:
           <div className="personal-srd-text-grid">
             <div className="personal-srd-text-stream">{renderBlocks(pageData.left,'left-')}</div>
             <div className="personal-srd-text-stream">{renderBlocks(pageData.right,'right-')}</div>
@@ -236,7 +240,7 @@ export function PersonalSrd({
           <span><CheckCircle2 size={15}/> {cache.current.size} pages processed this session</span>
           <button className="button button-quiet button-small" disabled={selectedPage>=maxPage} onClick={()=>goto(selectedPage+1)}>Next <ArrowRight size={16}/></button>
         </div>
-        <p className="reference-footnote">Text extraction omits graphical art and page images, not necessarily every decorative glyph. Tables, footnotes, multi-column figures and hyphenation may read imperfectly; check the source PDF for adjudication. Extraction remains in browser memory only.</p>
+        <p className="reference-footnote">Text extraction omits graphical art and page images, not necessarily every decorative glyph. Use Text positions mode to inspect table alignment without artwork. PDF text fonts, footnotes, rotated labels and complex tables can still be imperfect; check the original PDF for adjudication. Extraction remains in browser memory only.</p>
       </section>
     </div>}
   </div>;
