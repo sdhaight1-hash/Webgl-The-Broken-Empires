@@ -2,7 +2,8 @@
  * No source material is embedded: callers provide text extracted from their local PDF.
  */
 export type TextBlock = { kind: 'heading' | 'paragraph'; text: string };
-export type TextPage = { left: TextBlock[]; right: TextBlock[]; plainText: string; runCount: number };
+export type PositionedRun = { text: string; x: number; y: number; fontSize: number };
+export type TextPage = { left: TextBlock[]; right: TextBlock[]; plainText: string; runCount: number; width: number; height: number; positioned: PositionedRun[] };
 type Run = { str: string; x: number; y: number; width: number; height: number };
 type Line = { text: string; x: number; y: number; height: number };
 
@@ -74,8 +75,9 @@ function isRun(item:unknown):item is {str:string;transform:number[];width?:numbe
 /** Two-column reading order follows the original PDF's left/right text streams.
  * Complex tables and spans may still require checking the original PDF.
  */
-export function reconstructTextPage(items:readonly unknown[],pageWidth:number):TextPage {
+export function reconstructTextPage(items:readonly unknown[],pageWidth:number,pageHeight=792):TextPage {
   if(!Number.isFinite(pageWidth)||pageWidth<=0)throw new RangeError('Invalid PDF page width');
+  if(!Number.isFinite(pageHeight)||pageHeight<=0)throw new RangeError('Invalid PDF page height');
   const runs:Run[]=[];
   for(const item of items){
     if(!isRun(item)||!item.str.trim())continue;
@@ -87,7 +89,10 @@ export function reconstructTextPage(items:readonly unknown[],pageWidth:number):T
   const left=blocksFor(runs.filter(r=>r.x<division));
   const right=blocksFor(runs.filter(r=>r.x>=division));
   return {left,right,plainText:[...left,...right].map(b=>b.text).join('\n'),
-    runCount:runs.length};
+    runCount:runs.length,width:pageWidth,height:pageHeight,
+    // Spatial view keeps text positions for tables, while deliberately rendering
+    // no PDF image, path, or embedded artwork data.
+    positioned:runs.map(r=>({text:r.str,x:r.x,y:pageHeight-r.y,fontSize:r.height}))};
 }
 
 export function pageMatches(text:string,query:string):boolean {
