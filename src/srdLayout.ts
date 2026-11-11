@@ -127,6 +127,39 @@ function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
   return {end,table:{kind:'table',rows,columnCount:anchors.length,header},bottom:lines[end].y};
 }
 
+/** Reject false grid tables made from parallel narrative columns. Source
+ * text-column alignment alone is not evidence of a data table. Prefer
+ * independent reading columns unless numeric data or a recognizable table
+ * header establishes a genuine tabular relationship. */
+function isDataTable(table:Detection['table']):boolean{
+  const rows=table.rows;
+  if(rows.length<3||table.columnCount<2)return false;
+  const header=rows.slice(0,2).flatMap(r=>r).join(' ').toLowerCase();
+  const headers=/\b(?:difficulty|modifier|example|language|native|task|skill|interval|result|weapon|armor|cost|damage|enc|supply|range|roll|d100|value|name|item|type|number|duration|description|effect)\b/;
+  if(headers.test(header))return true;
+  return Array.from({length:table.columnCount},(_,j)=>
+    rows.slice(1).filter(row=>/[+-]?\d+(?:\.\d+)?%?|\bd\d+\b/i.test(row[j]||'')).length)
+    .some(count=>count>=Math.max(2,Math.floor((rows.length-1)*.5)));
+}
+
+function proseColumnStreams(source:readonly PositionedRun[],pageWidth:number):PositionedRun[][]|null{
+  const lines=makeLines(source);
+  const triples=lines.filter(line=>line.segments.length===3);
+  if(triples.length<4)return null;
+  const anchors=triples[0].segments.map(s=>s.x);
+  if(anchors[0]>pageWidth*.4||anchors[2]<pageWidth*.56)return null;
+  const stable=triples.filter(line=>line.segments.every((s,j)=>Math.abs(s.x-anchors[j])<22));
+  if(stable.length<4||stable.length<triples.length*.6)return null;
+  const table=makeTable(lines,lines.indexOf(triples[0]),3);
+  if(table&&isDataTable(table.table))return null;
+  const breaks=[(anchors[0]+anchors[1])/2,(anchors[1]+anchors[2])/2];
+  return [
+    source.filter(r=>r.x<breaks[0]),
+    source.filter(r=>r.x>=breaks[0]&&r.x<breaks[1]),
+    source.filter(r=>r.x>=breaks[1])
+  ];
+}
+
 function appendLine(left:string,right:string):string{
   const a=left.trimEnd(),b=right.trimStart();
   if(!a)return b;
@@ -191,7 +224,7 @@ function convertLines(lines:Line[]):StructuredBlock[]{
   for(let i=0;i<lines.length;i++){
     if(i<=occupiedUntil)continue;
     const table=makeTable(lines,i,3);
-    if(!table)continue;
+    if(!table||!isDataTable(table.table))continue;
     const earlier=extendTableBackward(lines,i,table);
     const start=Math.max(occupiedUntil+1,earlier.start);
     detected.set(start,{end:table.end,table:earlier.table});
@@ -231,7 +264,7 @@ function broadTableRanges(lines:Line[],width:number):{start:number;end:number;bl
   for(let i=0;i<lines.length;i++){
     if(lines[i].segments.length<3)continue;
     const table=makeTable(lines,i,3);
-    if(!table)continue;
+    if(!table||!isDataTable(table.table))continue;
     const all=lines.slice(i,table.end+1);
     const xMin=Math.min(...all.map(l=>l.x));
     const xMax=Math.max(...all.flatMap(l=>l.segments.map(s=>s.right)));
@@ -260,9 +293,9 @@ export function structureTextPage(page:Pick<TextPage,'width'|'height'|'positione
     const subset=source.filter(r=>r.y>=top&&r.y<bottom);
     // Explicit column separation prevents text on the same baseline in
     // distinct book columns from being erroneously concatenated.
-    for(const stream of [subset.filter(r=>r.x<midpoint),subset.filter(r=>r.x>=midpoint)]){
-      output.push(...convertLines(makeLines(stream)));
-    }
+    const streams=proseColumnStreams(subset,page.width)||
+      [subset.filter(r=>r.x<midpoint),subset.filter(r=>r.x>=midpoint)];
+    for(const stream of streams)output.push(...convertLines(makeLines(stream)));
   };
   for(const item of spanning){
     addRegion(from,item.start);
