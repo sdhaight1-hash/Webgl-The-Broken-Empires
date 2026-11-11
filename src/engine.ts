@@ -8,7 +8,7 @@ export function makeCharacter(): Character {
   return { id: id(), name: '', pronouns: '', heritage: '', culture: '', career: '', description: '', goal: '', bond: '', history: '', status: '', notes: '', experience: '', skills: [], talents: [], expertise: [], wounds: [], equipment: [], events: [], createdAt: now, updatedAt: now };
 }
 
-/** Dice rules documented in 2026 independent review. Exact advanced cases require the core book. */
+/** PDF p. 23: an exact modified-target roll is critical; 99–100 always fail. Ratings above 100 are out of scope for this lab. */
 export function resolveCheck(roll: number, target: number): Check {
   if (!Number.isInteger(roll) || roll < 1 || roll > 100) throw new RangeError('Percentile roll must be 1–100');
   if (!Number.isFinite(target) || target < 0 || target > 100) throw new RangeError('This basic dice lab accepts target values 0–100');
@@ -16,7 +16,9 @@ export function resolveCheck(roll: number, target: number): Check {
   const automaticFailure = roll >= 99;
   const success = !automaticFailure && (automaticSuccess || roll <= target);
   const double = roll === 100 || roll % 11 === 0;
-  const critical = double && !automaticSuccess;
+  // An exact modified-target success is critical. An automatic failure that does
+  // not exceed the target is not critical, even when the dice show doubles.
+  const critical = success ? (double || roll === target) : (double && roll > target);
   // A natural roll of 01–09 gives at least 1 SL on success.
   const levels = success ? Math.max(1, Math.floor(roll / 10)) + (critical ? 3 : 0) : 0;
   const note = critical ? (success ? 'Critical success · +3 SL' : 'Critical failure') : automaticSuccess ? 'Automatic success' : automaticFailure ? 'Automatic failure' : success ? 'Successful check' : 'Unsuccessful check';
