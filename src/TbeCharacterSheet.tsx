@@ -328,7 +328,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
             aria-label="Attacker d100 result" placeholder="1–100" onChange={e=>{setAttackerRoll(e.target.value);setWoundMessage('');}}/></label>
           <label>Defender d100 / fallback d10<input type="number" min="1" max="100" step="1" value={defenderRoll}
             aria-label="Defender roll result" placeholder="1–100" onChange={e=>{setDefenderRoll(e.target.value);setWoundMessage('');}}/></label>
-          {lastRoll?.check&&<button type="button" onClick={()=>{
+          {lastRoll?.check&&typeof lastRoll.roll==='number'&&<button type="button" onClick={()=>{
             setAttackerRoll(String(lastRoll.roll));setWoundMessage('');
           }}><Dices size={16}/> Use last d100: {lastRoll.roll}</button>}
           <button className="tbe-hit-die" type="button" onClick={()=>{
