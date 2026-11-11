@@ -139,7 +139,7 @@ test('revalidation blocks stale skill, opponent or scene and invalid values',()=
 
 test('undo never overwrites edited hero wounds or later Resolve expenditure',()=>{
   const {hero,campaign}=setup();
-  const p=previewCombatRoll(hero,campaign,{...defend,heroFavor:1},'safe-undo');
+  const p=previewCombatRoll(hero,campaign,{...defend,heroFavor:1,heroRoll:90},'safe-undo');
   const applied=confirmCombatExchange(hero,campaign,p,damage);
   assert.equal(applied.character.attributes?.spentResolve,1);
   assert.throws(()=>undoCombatExchange({...applied.character,
