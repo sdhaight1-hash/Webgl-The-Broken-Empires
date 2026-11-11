@@ -191,7 +191,7 @@ export function InteractiveCharacterControls({
             return <tr key={skill.id}>
               <td><input aria-label="Skill name" value={skill.name} onChange={e=>onUpdateSkill(skill.id,'name',e.target.value)}/></td>
               <td><input aria-label={skill.name+' base rating'} type="number" min={0} max={100} value={skill.rating}
-                onChange={e=>onUpdateSkill(skill.id,'rating',Math.max(0,Math.min(100,Number(e.target.value)||0)))}/></td>
+                onChange={e=>onUpdateSkill(skill.id,'rating',Math.round(Math.max(0,Math.min(100,Number(e.target.value)||0))))}/></td>
               <td><input aria-label={skill.name+' modifier'} type="number" min={-100} max={100} value={d.modifier}
                 onChange={e=>onUpdateSkill(skill.id,'modifier',Math.max(-100,Math.min(100,Number(e.target.value)||0)))}/></td>
               <td><output aria-label={skill.name+' skill Score'}>{d.score}</output></td>

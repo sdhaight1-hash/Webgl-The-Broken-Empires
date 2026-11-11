@@ -36,7 +36,7 @@ export function rollPercentile(): number {
 export function isCharacter(value: unknown): value is Character {
   if (!value || typeof value !== 'object') return false;
   const c = value as Partial<Character>;
-  return ['id','name','pronouns','heritage','culture','career','description','goal','bond','history','status','notes','experience','createdAt','updatedAt'].every(k => typeof c[k as keyof Character] === 'string') && Array.isArray(c.skills) && c.skills.every(s => s && typeof s.id === 'string' && typeof s.name === 'string' && typeof s.note === 'string' && Number.isInteger(s.rating) && s.rating >= 0 && s.rating <= 100 &&
+  return ['id','name','pronouns','heritage','culture','career','description','goal','bond','history','status','notes','experience','createdAt','updatedAt'].every(k => typeof c[k as keyof Character] === 'string') && Array.isArray(c.skills) && c.skills.every(s => s && typeof s.id === 'string' && typeof s.name === 'string' && typeof s.note === 'string' && Number.isFinite(s.rating) && s.rating >= 0 && s.rating <= 100 &&
     (s.modifier===undefined||(Number.isInteger(s.modifier)&&s.modifier>=-100&&s.modifier<=100)) &&
     (s.expertiseLevel===undefined||[1,2,3,4].includes(s.expertiseLevel))) &&
     (c.attributes===undefined||isSheetAttributes(c.attributes)) &&
