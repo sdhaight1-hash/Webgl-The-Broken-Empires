@@ -1,0 +1,39 @@
+.solo-worksheets{display:flex;flex-direction:column;gap:15px}
+.solo-workbook-intro{display:flex;align-items:center;gap:13px;border:1px solid #8e6150;background:linear-gradient(100deg,#563036,#2e232d);border-radius:9px;padding:19px 21px;color:#f2d4ac}
+.solo-workbook-intro>div{flex:1;min-width:0}.solo-workbook-intro h2{font:23px Cinzel,Georgia,serif;color:#ffe7bc;margin:0 0 5px}
+.solo-workbook-intro p{font-size:11px;color:#d1b7a8;margin:0;line-height:1.6}
+.solo-workbook-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;align-items:start}
+.solo-workbook-card{padding:20px;min-width:0}
+.solo-workbook-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.solo-workbook-heading>div>span{font-size:10px;color:#c49d7b;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.solo-workbook-heading h3{font:18px Cinzel,Georgia,serif;color:#ffdfb6;margin:6px 0 0}
+.solo-workbook-heading>h3{margin:0}
+.solo-worksheet-source,.solo-workbook-open{display:inline-flex;align-items:center;gap:5px;background:#533139;border:1px solid #a47355;color:#f2d0a2;border-radius:5px;padding:7px 10px;white-space:nowrap;font-size:10px}
+.solo-worksheet-source:hover,.solo-workbook-open:hover{background:#7b4145}
+.solo-workbook-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:13px}
+.solo-workbook-wide{grid-column:1/-1}
+.solo-workbook-fields .field,.solo-workbook-card>.field{min-width:0}
+.solo-workbook-fields input,.solo-workbook-fields textarea,.solo-workbook-card input:not([type=checkbox]),.solo-workbook-card select,.solo-workbook-card textarea{background:#19151b;color:#f5e5d1;border:1px solid #78584f;border-radius:5px;width:100%;min-width:0}
+.solo-workbook-card .field{display:flex;flex-direction:column;gap:7px;color:#d4b8a5;font-size:11px}
+.solo-workbook-card .field input,.solo-workbook-card .field select,.solo-workbook-card .field textarea{padding:9px 10px}
+.solo-worksheet-empty,.solo-worksheet-meta{font-size:11px;line-height:1.65;color:#c3a99a}
+.solo-workbook-new{display:flex;gap:8px;align-items:center;margin:12px 0;min-width:0}
+.solo-workbook-new input{flex:1;padding:9px 10px}
+.solo-workbook-table-scroll{overflow-x:auto;max-width:100%;border:1px solid #79534a;border-radius:6px}
+.solo-workbook-table{width:100%;border-collapse:collapse;min-width:480px}
+.solo-workbook-table th{background:#5b3138;color:#efd4ac;letter-spacing:.06em;text-align:left;font-size:10px;text-transform:uppercase;padding:10px 9px;white-space:nowrap}
+.solo-workbook-table td{color:#e5d0bd;border-top:1px solid #6b4b47;padding:6px 8px;font-size:11px;vertical-align:middle}
+.solo-workbook-table tbody tr:nth-child(even){background:#3a272e66}
+.solo-workbook-table tbody tr:hover,.solo-workbook-table tbody tr.selected{background:#503137}
+.solo-workbook-table td>input:not([type=checkbox]){padding:7px 8px}
+.solo-workbook-table td>input[type=checkbox]{accent-color:#ba7f60;width:16px;height:16px}
+.solo-workbook-table tbody tr.resolved{opacity:.65}
+.solo-npc-dossier{margin-top:15px;border-top:1px solid #77554b;padding-top:15px}
+.solo-npc-dossier .field{margin-bottom:10px}
+.solo-workbook-count{border:1px solid #936849;color:#efcd9d;border-radius:4px;padding:5px 8px;font-size:11px}
+.solo-workbook-ledger-filters{display:grid;grid-template-columns:170px minmax(0,1fr) 160px;gap:12px;margin-bottom:14px}
+.solo-workbook-log{min-width:650px}
+.solo-workbook-log td:nth-child(1),.solo-workbook-log td:nth-child(2){white-space:nowrap;color:#bda99d}
+.solo-workbook-log td:nth-child(4){min-width:270px;white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+@media(max-width:1150px){.solo-workbook-grid{grid-template-columns:1fr}}
+@media(max-width:680px){.solo-workbook-intro{flex-wrap:wrap}.solo-workbook-ledger-filters{grid-template-columns:1fr}.solo-workbook-fields{grid-template-columns:1fr}.solo-workbook-wide{grid-column:auto}}
