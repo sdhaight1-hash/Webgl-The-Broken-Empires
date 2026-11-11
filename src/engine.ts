@@ -1,5 +1,6 @@
 import type { Character, Check } from './types.ts';
 import {DEFAULT_ATTRIBUTES,DEFAULT_SUPPLIES,isSheetAttributes,isSheetSupplies} from './characterSheetState.ts';
+import {isTbeSheet} from './tbeSheetData.ts';
 
 const id = () => typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `id-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 export const freshId = id;
@@ -40,7 +41,8 @@ export function isCharacter(value: unknown): value is Character {
     (s.modifier===undefined||(Number.isInteger(s.modifier)&&s.modifier>=-100&&s.modifier<=100)) &&
     (s.expertiseLevel===undefined||[1,2,3,4].includes(s.expertiseLevel))) &&
     (c.attributes===undefined||isSheetAttributes(c.attributes)) &&
-    (c.supplies===undefined||isSheetSupplies(c.supplies)) && ['talents','expertise','wounds','equipment','events'].every(k => Array.isArray(c[k as keyof Character]) && (c[k as keyof Character] as unknown[]).every(entry => !!entry && typeof entry === 'object' && typeof (entry as Record<string,unknown>).id === 'string' && typeof (entry as Record<string,unknown>).text === 'string'));
+    (c.supplies===undefined||isSheetSupplies(c.supplies)) &&
+    (c.tbeSheet===undefined||isTbeSheet(c.tbeSheet)) && ['talents','expertise','wounds','equipment','events'].every(k => Array.isArray(c[k as keyof Character]) && (c[k as keyof Character] as unknown[]).every(entry => !!entry && typeof entry === 'object' && typeof (entry as Record<string,unknown>).id === 'string' && typeof (entry as Record<string,unknown>).text === 'string'));
 }
 
 export function safeReadRoster(raw: string | null): Character[] {

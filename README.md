@@ -6,7 +6,7 @@ An **independent**, browser-based character journal and rules-learning companion
 
 - Responsive dark-fantasy dashboard with a lightweight WebGL landscape and graceful static fallback.
 - Five-chapter character forge: identity, heritage and background, capabilities, ambitions, review.
-- **Interactive character sheet:** source-backed derived attributes (Max Resolve, Initiative, Toughness, Death Threshold, Lethality Level), a five-point allocator, Resolve/Fatigue trackers, immediate percentile rolls from skills (with per-skill modifiers, Score and Expertise), Initiative d10 rolls, four Supply Dice trackers and an in-sheet dice tray. Existing wounds, gear, goals, notes and free-form records remain editable.
+- **Two-page interactive character sheet based on the uploaded official-style fillable PDF:** Page One preserves the five skills columns, ten Strands, Resolve/Fatigue, auto-derived attributes, six wound/armor locations, Talents, armor penalties, Shield and weapon rows. Page Two includes shared goals, three life-event categories, supply dice, money/status, NPC relationships, inventory/ENC, threads, notes and Fraying. The Advanced mechanics tab retains the previous calculators. Skill and Initiative rolls are clickable, with results recorded in the dice tray and character-matched solo campaign.
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
 - **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
 - Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
@@ -61,6 +61,22 @@ The former 671-page coordinate-only export preserved source text but failed to f
 The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
 
 **Rights:** removing artwork does not license the rulebook text. The publisher's current [third-party license](https://thebrokenempiresrpg.com/pages/license) does not authorize software adaptations or wholesale rule reproduction. This feature is intended for an owner's own local PDF rather than distributing the text to others. Seek written authorization before publishing a comprehensive SRD, rules database, or public text-based adaptation.
+
+## Character-sheet layout based on the supplied fillable PDF
+
+The source file is a two-page, fillable form (477 fields on the front, 53 on the back). It is used as a **field and layout reference**, not copied into the frontend as a large background image. The app preserves the same structural groupings in a responsive, parchment-toned interface:
+
+- **Page 1 · Combat:** identity (Name, Race, Sex, Age, Culture, Previous Career, Size, XP), Ability Score Descriptors and Personality Traits; Combat, Adventuring, Social, Lore, and Binds skill columns with both percent ratings and Expertise; Strands levels and Starting Piety; Resolve/Fatigue and source-backed derived Attributes; all six physical wound regions with five injury rows apiece; armor and Shield data, Talents, detailed-location lookup and a multi-column weapons grid.
+- **Page 2 · Chronicle:** six shared/unshared Goals, Life Events (Origin, Youth, Recent), Resources and four Supply Dice, Silver Pieces, Status, Relationship NPCs, ten initial Inventory lines with entered Encumbrance totals, Threads, Notes, and Fraying points.
+- **Advanced mechanics:** Existing verified skill checks, opposed checks, extended tasks, Supply Dice and attribute adjustment workbench remains available as a third tab.
+
+The front-page percent skill entries are actual character ratings. Entering a value creates/updates that skill in the existing character roster, and clicking its die icon runs the tested d100 engine, including its modifier, Expertise, criticals and optional pre-spent Resolve Favor. The in-place roll tray and character-matched solo-campaign logging remain active.
+
+The source-sheet wound, armor, shield and weapon fields are **structured but intentionally manual**. Their labels and rows come from the PDF, but automatic wound adjudication, hit-location damage, weapon ATT/PRY resolution and armor penalties beyond verified attribute adjustments need further rulebook verification. Entered lethal Wound Points and inventory ENC are summed as convenience totals only; they do not replace official rules adjudication.
+
+All new fields are optional on stored Character records, and old JSON character archives continue loading. Existing freeform wound/equipment/event/expertise notes are retained under **Page 2 → Existing character records** rather than discarded.
+
+**Quality note:** This is a responsive application translation of the source sheet, not a pixel-perfect copy of the PDF's ornamental artwork. User-owned data stays local. A browser comparison of wide desktop and mobile layouts is the remaining visual acceptance task.
 
 ## Interactive character sheet — phase 1
 
