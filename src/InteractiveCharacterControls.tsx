@@ -201,7 +201,7 @@ export function InteractiveCharacterControls({
               </select></td>
               <td><button type="button" className="vtt-roll-target" aria-label={'Roll '+skill.name+' at '+nextTarget}
                 title={nextTarget>100||nextTarget<0?'Modified rating outside validated 0–100 range':'Click to roll '+skill.name}
-                disabled={nextTarget<0||nextTarget>100}
+                disabled={!d.canRoll||nextTarget<0||nextTarget>100}
                 onClick={()=>rollSkill(skill)}><Dices size={16}/>{nextTarget}%</button></td>
               <td><button className="vtt-remove" type="button" aria-label={'Remove '+skill.name} onClick={()=>onRemoveSkill(skill.id)}><Trash2 size={15}/></button></td>
             </tr>;

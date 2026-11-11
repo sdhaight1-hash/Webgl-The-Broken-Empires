@@ -43,7 +43,7 @@ export function derivedSkill(skill:Skill) {
   const modifier=skill.modifier??0;
   const expertiseLevel=skill.expertiseLevel??1;
   return {score:Math.floor(skill.rating/10),modifier,expertiseLevel,
-    target:skill.rating+modifier,canRoll:skill.rating+modifier>=0&&skill.rating+modifier<=100};
+    target:skill.rating+modifier,canRoll:Number.isInteger(skill.rating)&&skill.rating+modifier>=0&&skill.rating+modifier<=100};
 }
 
 export function rollSheetSkill(skill:Skill,roll:number,favor=0):{check:AppliedCheck;entry:RollEntry}{

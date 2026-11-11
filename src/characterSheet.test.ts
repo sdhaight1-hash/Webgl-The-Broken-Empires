@@ -17,6 +17,9 @@ test('new and legacy characters share source-backed zero-allocation defaults',()
   assert.ok(isCharacter(legacy));
   assert.deepEqual(sheetAttributes(legacy),DEFAULT_ATTRIBUTES);
   assert.equal(safeReadRoster(JSON.stringify([legacy])).length,1);
+  const oldFractional={...legacy,skills:[{id:'legacy',name:'Track',rating:42.5,note:''}]};
+  assert.ok(isCharacter(oldFractional));
+  assert.equal(derivedSkill(oldFractional.skills[0]).canRoll,false);
 });
 
 test('attribute allocations recalculate the source example including two-point Toughness cost',()=>{
