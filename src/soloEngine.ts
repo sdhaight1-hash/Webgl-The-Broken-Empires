@@ -1,4 +1,5 @@
 import {freshId} from './engine.ts';
+import type {BodyLocation,WoundRow} from './tbeSheetData.ts';
 
 export type SoloLogKind='scene'|'oracle'|'event'|'check'|'opposed'|'journal'|'npc'|'board';
 /** Optional structured provenance on confirmed skill actions. Old v1 saves
@@ -8,17 +9,34 @@ export type SoloSkillLogDetail={
   rating:number;modifier:number;expertise:number;favor:number;target:number;
   success:boolean;critical:boolean;levels:number
 };
+export type SoloNpcWound={
+  id:string;location:BodyLocation;detail:string;wp:number;injury:string;nonlethal:boolean
+};
+export type SoloCombatLogDetail={
+  id:string;characterId:string;opponentId:string;
+  direction:'hero-attacks'|'hero-defends';heroSkillId:string;
+  heroRoll:number;opponentRoll:number;heroFavor:number;
+  opponentRating:number;opponentModifier:number;opponentExpertise:number;
+  attackerWon:boolean;degree:number;target:'hero'|'npc'|'none';
+  location?:BodyLocation;detail?:string;woundPoints:number;
+  heroSpentBefore:number;heroSpentAfter:number;
+  slot?:number;beforeWound?:WoundRow;appliedWound?:WoundRow;
+  npcWound?:SoloNpcWound
+};
 export type SoloLog={
   id:string; sceneId:string|null; kind:SoloLogKind; message:string;
   roll?:number; sourcePage?:number; createdAt:string;
-  skillAction?:SoloSkillLogDetail
+  skillAction?:SoloSkillLogDetail;
+  combatAction?:SoloCombatLogDetail;
+  reversalOf?:string
 };
 export type SoloScene={
   id:string;title:string;location:string;expected:string;
   status:'active'|'closed'; outcome:string;createdAt:string;closedAt:string|null
 };
 export type SoloNPC={
-  id:string;name:string;role:string;disposition:string;details:string;tags:string
+  id:string;name:string;role:string;disposition:string;details:string;tags:string;
+  combatWounds?:SoloNpcWound[]
 };
 export type SoloThread={id:string;title:string;done:boolean};
 export type SoloZone={id:string;label:string};
@@ -111,7 +129,14 @@ export function isSoloCampaign(value:unknown):value is SoloCampaign{
   if(!Array.isArray(c.scenes)||c.scenes.length>100||!c.scenes.every(s=>rec(s)&&str(s.id,150)&&str(s.title,120)&&
     str(s.location,180)&&str(s.expected,1200)&&str(s.outcome,3000)&&str(s.createdAt,50)&&
     (s.closedAt===null||str(s.closedAt,50))&&(s.status==='active'||s.status==='closed')))return false;
-  if(!Array.isArray(c.npcs)||c.npcs.length>100||!c.npcs.every(n=>rec(n)&&str(n.id,150)&&str(n.name,150)&&str(n.role,200)&&str(n.disposition,200)&&str(n.details,4000)&&str(n.tags,1000)))return false;
+  const bounded=(v:unknown,min:number,max:number)=>typeof v==='number'&&
+    Number.isInteger(v)&&v>=min&&v<=max;
+  const validLocation=(v:unknown)=>['body','head','rightArm','leftArm','rightLeg','leftLeg'].includes(String(v));
+  const validWound=(v:unknown)=>rec(v)&&str(v.id,150)&&validLocation(v.location)&&
+    str(v.detail,50)&&bounded(v.wp,1,999)&&
+    str(v.injury,1100)&&typeof v.nonlethal==='boolean';
+  if(!Array.isArray(c.npcs)||c.npcs.length>100||!c.npcs.every(n=>rec(n)&&str(n.id,150)&&str(n.name,150)&&str(n.role,200)&&str(n.disposition,200)&&str(n.details,4000)&&str(n.tags,1000)&&
+    (n.combatWounds===undefined||(Array.isArray(n.combatWounds)&&n.combatWounds.length<=100&&n.combatWounds.every(validWound)))))return false;
   if(!Array.isArray(c.threads)||c.threads.length>150||!c.threads.every(t=>rec(t)&&str(t.id,150)&&str(t.title,400)&&typeof t.done==='boolean'))return false;
   if(!Array.isArray(c.zones)||c.zones.length>20||!c.zones.every(z=>rec(z)&&str(z.id,150)&&str(z.label,150)))return false;
   if(!Array.isArray(c.tokens)||c.tokens.length>100||!c.tokens.every(t=>rec(t)&&str(t.id,150)&&str(t.sceneId,150)&&str(t.name,150)&&
@@ -125,13 +150,36 @@ export function isSoloCampaign(value:unknown):value is SoloCampaign{
       bounded('expertise',1,4)&&bounded('favor',0,3)&&bounded('target',0,100)&&
       bounded('levels',0,20)&&typeof value.success==='boolean'&&typeof value.critical==='boolean';
   };
+  const validRow=(w:unknown)=>rec(w)&&str(w.wp,20)&&typeof w.nonlethal==='boolean'&&
+    str(w.description,1200)&&typeof w.infection==='boolean'&&str(w.recoveryBonus,30);
+  const validCombat=(v:unknown)=>rec(v)&&str(v.id,150)&&str(v.characterId,150)&&str(v.opponentId,150)&&
+    (v.direction==='hero-attacks'||v.direction==='hero-defends')&&str(v.heroSkillId,150)&&
+    [v.heroRoll,v.opponentRoll].every(n=>bounded(n,1,100))&&
+    [v.heroFavor,v.opponentRating,v.opponentExpertise,v.degree,v.woundPoints,v.heroSpentBefore,v.heroSpentAfter].every(n=>
+      bounded(n,0,1998))&&
+    bounded(v.opponentModifier,-100,100)&&
+    bounded(v.heroFavor,0,3)&&bounded(v.opponentRating,0,100)&&bounded(v.opponentExpertise,1,4)&&
+    bounded(v.heroSpentBefore,0,200)&&bounded(v.heroSpentAfter,0,200)&&
+    Number(v.heroSpentAfter)-Number(v.heroSpentBefore)===Number(v.heroFavor)&&
+    typeof v.attackerWon==='boolean'&&['hero','npc','none'].includes(String(v.target))&&
+    (v.location===undefined||validLocation(v.location))&&
+    (v.detail===undefined||str(v.detail,50))&&
+    (v.slot===undefined||bounded(v.slot,0,4))&&
+    (v.beforeWound===undefined||validRow(v.beforeWound))&&
+    (v.appliedWound===undefined||validRow(v.appliedWound))&&
+    (v.npcWound===undefined||validWound(v.npcWound))&&
+    (v.target!=='hero'||(v.slot!==undefined&&v.beforeWound!==undefined&&v.appliedWound!==undefined))&&
+    (v.target!=='npc'||v.npcWound!==undefined);
   if(!Array.isArray(c.journal)||c.journal.length>1000||!c.journal.every(e=>rec(e)&&str(e.id,150)&&str(e.message,4500)&&
     (e.sceneId===null||str(e.sceneId,150))&&str(e.createdAt,50)&&
     ['scene','oracle','event','check','opposed','journal','npc','board'].includes(String(e.kind))&&
     (e.sourcePage===undefined||(Number.isInteger(e.sourcePage)&&e.sourcePage>=1&&e.sourcePage<=663))&&
     (e.roll===undefined||(Number.isInteger(e.roll)&&e.roll>=1&&e.roll<=100))&&
     (e.skillAction===undefined||(e.kind==='check'&&e.sourcePage===23&&
-      typeof e.roll==='number'&&validSkillAction(e.skillAction)))))return false;
+      typeof e.roll==='number'&&validSkillAction(e.skillAction)))&&
+    (e.combatAction===undefined||(e.kind==='opposed'&&
+      e.sourcePage===24&&typeof e.roll==='number'&&validCombat(e.combatAction)))&&
+    (e.reversalOf===undefined||(e.kind==='opposed'&&str(e.reversalOf,150)))))return false;
   return true;
 }
 export function readSoloCampaigns(raw:string|null):SoloCampaign[]{

@@ -96,6 +96,14 @@ export function SoloWorksheets({campaign,onChange,onOpenRule,onOpenSheet}:{
           <label className="field"><span>Secrets, bonds, motivation and developments</span>
             <textarea maxLength={4000} rows={4} value={npc.details} onChange={e=>
               onChange(c=>editNPCWorksheet(c,npc.id,{details:e.target.value}))}/></label>
+          {(npc.combatWounds?.length??0)>0&&<section className="solo-npc-wound-ledger" aria-label="Recorded NPC combat wounds">
+            <h4>Recorded combat wounds · {npc.combatWounds?.length}</h4>
+            {npc.combatWounds?.map(w=><div key={w.id}>
+              <strong>{w.location} / {w.detail} · {w.wp} WP</strong>
+              <span>{w.injury||'Unspecified injury'}{w.nonlethal?' · non-lethal':''}</span>
+            </div>)}
+            <p>Combat rolls are preserved in the chronicle. Use their Undo action to reverse a wound safely.</p>
+          </section>}
         </div>}
       </section>
     </div>
