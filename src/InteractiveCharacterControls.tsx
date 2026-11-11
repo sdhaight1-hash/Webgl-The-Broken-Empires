@@ -70,13 +70,6 @@ export function InteractiveCharacterControls({
       onUpdate({attributes:next});setError('');
     }catch(e){handleError(e);}
   };
-  const increment=(key:AttributeKey,min:number,max:number)=>(
-    <div className="vtt-stepper">
-      <button type="button" aria-label={'Decrease '+key} disabled={a[key]<=min} onClick={()=>updateAttr(key,a[key]-1)}><Minus size={14}/></button>
-      <output>{a[key]}</output>
-      <button type="button" aria-label={'Increase '+key} disabled={a[key]>=max} onClick={()=>updateAttr(key,a[key]+1)}><Plus size={14}/></button>
-    </div>
-  );
   const rollSkill=(skill:Skill)=>{
     try{
       if(favor>stats.availableResolve)throw new RangeError('Not enough available Resolve for Favor');
@@ -147,7 +140,7 @@ export function InteractiveCharacterControls({
         <ChevronDown size={15} className={advanced?'vtt-open':''}/> Bonuses, armor and advanced adjustments
       </button>
       {advanced&&<div className="vtt-bonuses">
-        {bonuses.map(([key,label])=><div className="vtt-bonus" key={key}><span>{label}</span>{increment(key,key==='armorInitiativePenalty'||key==='lethalityBonus'?0:-50,key==='armorInitiativePenalty'?100:key==='lethalityBonus'?30:100)}</div>)}
+        {bonuses.map(([key,label])=><label className="vtt-bonus" key={key}><span>{label}</span><input type="number" aria-label={label} min={key==='armorInitiativePenalty'||key==='lethalityBonus'?0:-50} max={key==='armorInitiativePenalty'?100:key==='lethalityBonus'?30:100} value={a[key]} onChange={e=>updateAttr(key,Number(e.target.value))}/></label>)}
         <small>Record applicable Talents, XP increases and armor penalties manually. Optional randomized starting attributes and special cases need source review.</small>
       </div>}
     </section>
