@@ -9,7 +9,7 @@ pdfjs.GlobalWorkerOptions.workerSrc=new URL('../node_modules/pdfjs-dist/legacy/b
 const input=new Uint8Array(fs.readFileSync('ref docs/Core Rulebook.pdf'));
 const task=pdfjs.getDocument({data:input,useSystemFonts:true,disableFontFace:true});
 const doc=await task.promise;
-const checks=[12,20,21,22,23,25,26,29,37,490,491,493];
+const checks=[12,20,21,22,23,25,26,29,37,490,491,493]; // source-layout acceptance fixture
 const detail=[];
 const pages=[];
 for(const sourcePage of checks){
