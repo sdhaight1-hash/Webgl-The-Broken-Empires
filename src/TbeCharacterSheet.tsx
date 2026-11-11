@@ -370,19 +370,21 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
               value={baseDamage} onChange={e=>setBaseDamage(e.target.value)}/></label>
             <label>Degree of Success<input aria-label="Damage DoS" type="number" min="0" max="999" step="1"
               value={damageDos} onChange={e=>setDamageDos(e.target.value)}/></label>
-            {damageKind==='external'&&<label>Location Armor AP<input aria-label="Location Armor AP"
-              type="number" min="0" max="999" step="1" value={damageArmor}
-              onChange={e=>setDamageArmor(e.target.value)}/>
+            {damageKind==='external'&&<div className="tbe-damage-number">
+              <label>Location Armor AP<input aria-label="Location Armor AP"
+                type="number" min="0" max="999" step="1" value={damageArmor}
+                onChange={e=>setDamageArmor(e.target.value)}/></label>
               <button type="button" disabled={!numberEntered(sheet.locations[hit.location].ap)}
-                onClick={()=>setDamageArmor(sheet.locations[hit.location].ap)}>Use sheet AP</button></label>}
+                onClick={()=>setDamageArmor(sheet.locations[hit.location].ap)}>Use sheet AP</button></div>}
             {damageKind==='external'&&<label className="tbe-check tbe-damage-check">
               <input type="checkbox" checked={applyShield} onChange={e=>setApplyShield(e.target.checked)}/>
               Shield AP applies (GM decision)</label>}
-            {damageKind==='external'&&applyShield&&<label>Shield AP<input aria-label="Shield AP for hit"
-              type="number" min="0" max="999" step="1" value={damageShield}
-              onChange={e=>setDamageShield(e.target.value)}/>
+            {damageKind==='external'&&applyShield&&<div className="tbe-damage-number">
+              <label>Shield AP<input aria-label="Shield AP for hit"
+                type="number" min="0" max="999" step="1" value={damageShield}
+                onChange={e=>setDamageShield(e.target.value)}/></label>
               <button type="button" disabled={!numberEntered(sheet.shield.ap)}
-                onClick={()=>setDamageShield(sheet.shield.ap)}>Use shield AP</button></label>}
+                onClick={()=>setDamageShield(sheet.shield.ap)}>Use shield AP</button></div>}
           </div>
           {damage?<div className="tbe-damage-result" role="status">
             <span>{damage.incoming} incoming − {damage.appliedArmor} armor − {damage.appliedShield} shield</span>
