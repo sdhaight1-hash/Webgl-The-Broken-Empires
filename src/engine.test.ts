@@ -35,6 +35,7 @@ test('character and saved roster have safe defaults', () => {
 
 import { ARTICLE_BOOK_PAGES, BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
 import { ARTICLES, CATEGORIES } from './rules.ts';
+import { SOURCE_OUTLINE, BOOK_PAGES_WITH_TEXT } from './sourceOutline.ts';
 
 test('book index uses bounded 1-based PDF pages and unique chapter positions', () => {
   assert.equal(PDF_PAGE_COUNT,663);
@@ -76,4 +77,22 @@ test('core lessons reference correct PDF creation and critical pages',()=>{
   assert.equal(ARTICLES.find(a=>a.id==='criticals')?.page,23);
   assert.equal(ARTICLES.find(a=>a.id==='aptitudes')?.page,90);
   assert.equal(ARTICLES.find(a=>a.id==='attributes')?.page,91);
+});
+
+
+test('all PDF bookmark sections have navigable page ranges',()=>{
+  assert.equal(SOURCE_OUTLINE.length,207);
+  assert.equal(BOOK_PAGES_WITH_TEXT,659);
+  assert.ok(SOURCE_OUTLINE.every(s=>s.level>=1&&s.level<=3&&s.title.trim().length>0&&s.page>=1&&s.page<=PDF_PAGE_COUNT));
+  assert.ok(SOURCE_OUTLINE.every((s,i)=>i===0||s.page>=SOURCE_OUTLINE[i-1].page));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===484 && s.title.includes('Solo Roleplaying')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===592 && s.title.includes('Mass Combat')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===600 && s.title.includes('Naval Combat')));
+  assert.ok(SOURCE_OUTLINE.some(s=>s.page===661 && s.title.includes('Table Index')));
+});
+test('lesson coverage is distinguished from complete section indexing',()=>{
+  const lessonPages=new Set(ARTICLES.map(a=>a.page));
+  const indexedPages=new Set(SOURCE_OUTLINE.map(s=>s.page));
+  assert.ok(lessonPages.size<indexedPages.size);
+  assert.ok(ARTICLES.every(a=>a.page>=1&&a.page<=PDF_PAGE_COUNT));
 });
