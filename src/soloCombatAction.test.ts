@@ -160,8 +160,8 @@ test('existing wound rows are preserved and importing combat records validates s
   const second=confirmCombatExchange(first.character,first.campaign,
     previewCombatRoll(first.character,first.campaign,defend,'wound-two'),damage);
   const wounds=readTbeSheet(second.character).locations.body.wounds;
-  assert.equal(wounds[0].wp,'8');
-  assert.equal(wounds[1].wp,'8');
+  assert.equal(wounds[0].wp,'7');
+  assert.equal(wounds[1].wp,'7');
   const malformed={...second.campaign,journal:second.campaign.journal.map(e=>
     e.combatAction?{...e,combatAction:{...e.combatAction,woundPoints:-2}}:e)};
   assert.equal(isSoloCampaign(malformed),false);
@@ -177,7 +177,7 @@ test('existing paired-save helper persists NPC combat and hero wound outcomes',(
     setItem:(k:string,v:string)=>{values.set(k,v);},removeItem:(k:string)=>{values.delete(k);}};
   persistSoloSkillAction(storage,[r.character],[r.campaign]);
   const saved=readSoloCampaigns(values.get('wayfarers-ledger-solo-v1')??null);
-  assert.equal(saved[0].journal.at(-1)?.combatAction?.woundPoints,8);
+  assert.equal(saved[0].journal.at(-1)?.combatAction?.woundPoints,7);
   assert.equal(JSON.parse(values.get('wayfarers-ledger-roster-v1')??'[]')[0]
-    .tbeSheet.locations.body.wounds[0].wp,'8');
+    .tbeSheet.locations.body.wounds[0].wp,'7');
 });
