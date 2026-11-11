@@ -10,7 +10,7 @@ const TOC_ROWS=34;
 const MARGIN=42;
 
 export type ExportProgress={completed:number;total:number};
-export type ExportResult={blob:Blob;pageCount:number;tocPages:number;links:number};
+export type ExportResult={blob:Blob;pageCount:number;tocPages:number;links:number;sourcePageStarts:number[]};
 export type ExportOptions={
   totalPages:number;
   sections:readonly SourceSection[];
@@ -42,13 +42,6 @@ export function safePdfText(text:string):string {
     .normalize('NFKD')
     .replace(/[\u0300-\u036f]/g,'')
     .replace(/[^\x20-\x7e\u00a1-\u00ff]/g,'?');
-}
-
-export function exportPageForSource(sourcePage:number,tocPages:number):number {
-  if(!Number.isInteger(sourcePage)||sourcePage<1||!Number.isInteger(tocPages)||tocPages<1)
-    throw new RangeError('Invalid PDF page');
-  // Page 1: cover, pages 2..(tocPages+1): linked contents.
-  return tocPages+sourcePage+1;
 }
 
 function fitTitle(pdf:jsPDF,title:string,maxWidth:number):string {
@@ -380,5 +373,6 @@ export async function buildHyperlinkedSrdPdf(options:ExportOptions):Promise<Expo
   // Keep the count for diagnostics without copying source text.
   void tables;
   assertNotCancelled(signal);
-  return {blob:pdf.output('blob'),pageCount:pdf.getNumberOfPages(),tocPages,links};
+  return {blob:pdf.output('blob'),pageCount:pdf.getNumberOfPages(),tocPages,links,
+    sourcePageStarts:Array.from({length:totalPages},(_,i)=>pageMap.get(i+1)??0)};
 }
