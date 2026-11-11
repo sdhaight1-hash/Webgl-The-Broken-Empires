@@ -106,7 +106,7 @@ Solo Tabletop adds a **Campaign workbook** tab: editable scene worksheets; an NP
 
 The GitHub-committed file `ref docs/The_Broken_Empires_Personal_SRD.pdf` currently has **671 pages**, comprised of 8 cover/contents pages and a 663-page text rendering of the original rulebook. A GitHub Actions audit compared it with `ref docs/Core Rulebook.pdf`. It maps all 663 source pages, with median page-level token recall 99.12%, but the source's detected tables were not reconstructed as PDF tables in the sampled SRD pages, and page 587 fell to 56.11% token recall. The median number-token recall is 100%, but source page 145 was 70.73%, so **visual and numerical rule accuracy are not established**.
 
-These measurements apply **only** to that repository copy. The user subsequently referenced a *newly uploaded replacement SRD*, but its distinct bytes were not yet accessible from conversation files or a new committed path at the time of this audit. Until the replacement is available, don't label these numbers as validation of the replacement PDF. See `docs/repository-srd-comparison.md` and the manual `Compare replacement SRD` workflow.
+These measurements apply **only** to that repository copy. The user subsequently referenced a *newly uploaded replacement SRD*, but its distinct bytes were not yet accessible from conversation files or a new committed path at the time of this audit. Until the replacement is available, don't label these numbers as validation of the replacement PDF. See `docs/repository-srd-comparison.md` and the manual `Audit current repository SRD` workflow.
 
 ## Solo tabletop — playable first milestone
 

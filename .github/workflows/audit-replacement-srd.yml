@@ -1,8 +1,5 @@
-name: Compare replacement SRD against the original core rulebook
+name: Audit current repository SRD against core rulebook
 on:
-  push:
-    branches: [feature/empire-dark-cohesive-sheets-and-srd-audit]
-    paths: [scripts/audit-replacement-srd.py,.github/workflows/audit-replacement-srd.yml]
   workflow_dispatch:
 jobs:
   compare:
