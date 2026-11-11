@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildHyperlinkedSrdPdf, exportPageForSource, safePdfText } from './srdExport.ts';
+import { buildHyperlinkedSrdPdf, safePdfText } from './srdExport.ts';
 import type { TextPage } from './pdfText.ts';
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs';
 
@@ -17,12 +17,28 @@ function samplePage(number:number):TextPage {
   };
 }
 
-test('output page mapping reserves cover and all contents pages',()=>{
-  assert.equal(exportPageForSource(1,1),3);
-  assert.equal(exportPageForSource(3,1),5);
-  assert.equal(exportPageForSource(1,7),9);
-  assert.throws(()=>exportPageForSource(0,1),RangeError);
-  assert.throws(()=>exportPageForSource(1,0),RangeError);
+test('source map follows reflow pagination, not original page numbers',async()=>{
+  const longPage={...samplePage(1),positioned:[
+    {text:('A meaningful paragraph about an original test scene. ').repeat(700),x:65,y:120,fontSize:11,width:300}
+  ]};
+  const result=await buildHyperlinkedSrdPdf({
+    totalPages:2,
+    sections:[{level:1,title:'Test start',page:1},{level:1,title:'Later section',page:2}],
+    readPage:async page=>page===1?longPage:samplePage(2)
+  });
+  assert.equal(result.sourcePageStarts[0],3);
+  assert.ok(result.sourcePageStarts[1]>4);
+  assert.equal(result.pageCount,result.sourcePageStarts[1]);
+  const task=pdfjs.getDocument({data:new Uint8Array(await result.blob.arrayBuffer())});
+  const doc=await task.promise;
+  try{
+    assert.equal(doc.numPages,result.pageCount);
+    const contents=await doc.getPage(2);
+    const links=(await contents.getAnnotations()).filter(a=>Array.isArray(a.dest));
+    const targets=await Promise.all(links.map(async link=>(await doc.getPageIndex(link.dest[0]))+1));
+    assert.ok(targets.includes(result.sourcePageStarts[0]));
+    assert.ok(targets.includes(result.sourcePageStarts[1]));
+  }finally{await task.destroy();}
 });
 
 test('safe PDF text transliterates typography unsupported by standard fonts',()=>{
@@ -44,6 +60,7 @@ test('export contains clickable contents, bookmarks, page nav and chapter links'
   });
   assert.equal(result.pageCount,5);
   assert.equal(result.tocPages,1);
+  assert.deepEqual(result.sourcePageStarts,[3,4,5]);
   assert.ok(result.links>=10);
   assert.deepEqual(progress,[3]);
   assert.ok(result.blob.size>1500);
@@ -73,6 +90,28 @@ test('export contains clickable contents, bookmarks, page nav and chapter links'
     assert.ok(bodyDestinations.includes(5)); // Chapter 2 cross-reference
     const texts=await body.getTextContent();
     assert.ok(texts.items.some(item=>'str' in item&&item.str.includes('Chapter 2')));
+  }finally{await task.destroy();}
+});
+
+test('table cells become proper aligned PDF table text, not stretched fragments',async()=>{
+  const positioned=[
+    ...['Test','Number','Result'].map((x,j)=>({text:x,x:[80,240,330][j],y:115,width:70,fontSize:11})),
+    ...['One','1','Complete'].map((x,j)=>({text:x,x:[80,240,330][j],y:133,width:70,fontSize:11})),
+    ...['Two','2','Pending'].map((x,j)=>({text:x,x:[80,240,330][j],y:151,width:70,fontSize:11})),
+    ...['Three','3','Waiting'].map((x,j)=>({text:x,x:[80,240,330][j],y:169,width:70,fontSize:11}))
+  ];
+  const source={...samplePage(1),positioned};
+  const result=await buildHyperlinkedSrdPdf({totalPages:1,sections:[],readPage:async()=>source});
+  const task=pdfjs.getDocument({data:new Uint8Array(await result.blob.arrayBuffer())});
+  const doc=await task.promise;
+  try{
+    const p=await doc.getPage(result.sourcePageStarts[0]);
+    const text=(await p.getTextContent()).items.filter(item=>'str' in item);
+    const cell=(word:string)=>text.find(item=>'str' in item&&item.str===word);
+    const one=cell('One'),num=cell('1'),last=cell('Complete');
+    assert.ok(one&&num&&last);
+    assert.ok(one.transform[4]<num.transform[4]&&num.transform[4]<last.transform[4]);
+    assert.ok(Math.abs(one.transform[5]-last.transform[5])<2);
   }finally{await task.destroy();}
 });
 
