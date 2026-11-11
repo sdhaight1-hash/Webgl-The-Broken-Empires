@@ -7,6 +7,9 @@ import type {RollEntry} from './characterSheetModel.ts';
 import {isSheetAttributes} from './characterSheetState.ts';
 import {useSupplyDie} from './mechanics.ts';
 import {InteractiveCharacterControls} from './InteractiveCharacterControls.tsx';
+import {TalentPicker} from './TalentPicker.tsx';
+import {PREVIOUS_CAREERS,WEAPON_NAMES} from './talentCatalog.ts';
+import {HERITAGES} from './rules.ts';
 import {
   BODY_LOCATIONS,LOCATION_DETAIL,SKILL_COLUMNS,STRAND_NAMES,
   blankInventory,blankWeapon,enteredInventoryEnc,enteredLethalWp,readTbeSheet
@@ -105,9 +108,9 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
     log({label:kind+' supply',message:kind+' supply: d'+faces+' → '+die+
       ' ('+(result.depleted?'depleted':result.stepped?'now d'+result.next:'unchanged')+')',sourcePage:132,roll:die});
   };
-  const field=(label:string,value:string,onChange:(value:string)=>void,opts?:{short?:boolean;placeholder?:string})=>
+  const field=(label:string,value:string,onChange:(value:string)=>void,opts?:{short?:boolean;placeholder?:string;list?:string})=>
     <label className={'tbe-field'+(opts?.short?' tbe-small-field':'')}>
-      <span>{label}</span><input aria-label={label} value={value} placeholder={opts?.placeholder} onChange={e=>onChange(e.target.value)} maxLength={opts?.short?20:300}/>
+      <span>{label}</span><input aria-label={label} value={value} placeholder={opts?.placeholder} list={opts?.list} onChange={e=>onChange(e.target.value)} maxLength={opts?.short?20:300}/>
     </label>;
   const area=(label:string,value:string,onChange:(value:string)=>void,rows=3)=>
     <label className="tbe-field tbe-area"><span>{label}</span><textarea aria-label={label} rows={rows} value={value} maxLength={4000} onChange={e=>onChange(e.target.value)}/></label>;
@@ -191,14 +194,16 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
 
       <div className="tbe-identity-grid">
         {field('Name',character.name,v=>onUpdate({name:v}))}
-        {field('Race',character.heritage,v=>onUpdate({heritage:v}))}
+        {field('Race',character.heritage,v=>onUpdate({heritage:v}),{list:'tbe-heritage-choices'})}
         {field('Sex',sheet.sex,v=>save({sex:v}),{short:true})}
         {field('Age',sheet.age,v=>save({age:v}),{short:true})}
         {field('Culture',character.culture,v=>onUpdate({culture:v}))}
-        {field('Previous career',character.career,v=>onUpdate({career:v}))}
+        {field('Previous career',character.career,v=>onUpdate({career:v}),{list:'tbe-career-choices'})}
         {field('Size',sheet.size,v=>save({size:v}),{short:true})}
         {field('XP',sheet.xp,v=>save({xp:v}),{short:true})}
       </div>
+      <datalist id="tbe-career-choices">{PREVIOUS_CAREERS.map(name=><option key={name} value={name}/>)}</datalist>
+      <datalist id="tbe-heritage-choices">{HERITAGES.map(name=><option key={name} value={name}/>)}</datalist>
       <div className="tbe-top-descriptors">
         <section className="tbe-block">{heading('Ability score descriptors')}
           {sheet.abilityDescriptors.map((value,i)=><input key={i} aria-label={'Ability descriptor '+(i+1)} value={value} maxLength={300} onChange={e=>
@@ -288,7 +293,9 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
       </div>
       <div className="tbe-front-grid">
         <div className="tbe-wound-side">
-          {editor('talents','Talents')}
+          <section className="tbe-block">{heading('Talents',42)}
+            <TalentPicker entries={character.talents} onChange={talents=>onUpdate({talents})}
+              onOpenRule={onOpenRule}/></section>
           <section className="tbe-block">{heading('Armor penalties')}
             {(['athletics','riseFromProne','stealth','dodge','perception'] as const).map(key=>
               <label className="tbe-penalty" key={key}><span>{key==='riseFromProne'?'Rise from prone':key}</span>
@@ -317,14 +324,16 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
         {heading('Weapons',152)}<div className="tbe-grid-scroll"><table className="tbe-weapons">
           <thead><tr><th>Name / type</th>{attackColumns.map(([key,label])=><th key={key}>{label}</th>)}<th>Notes</th><th/></tr></thead>
           <tbody>{sheet.weapons.map((w,i)=><tr key={w.id}>
-            <td><input maxLength={240} aria-label={'Weapon '+(i+1)+' name'} value={w.name} onChange={e=>changeWeapon(i,'name',e.target.value)}/></td>
+            <td><input list="tbe-weapon-choices" maxLength={240} aria-label={'Weapon '+(i+1)+' name'} value={w.name} onChange={e=>changeWeapon(i,'name',e.target.value)}/></td>
             {attackColumns.map(([key,label])=><td key={key}><input maxLength={240} aria-label={'Weapon '+(i+1)+' '+label} value={w[key]}
               onChange={e=>changeWeapon(i,key,e.target.value)}/></td>)}
             <td><input maxLength={1200} aria-label={'Weapon '+(i+1)+' notes'} value={w.notes} onChange={e=>changeWeapon(i,'notes',e.target.value)}/></td>
             <td><button type="button" aria-label={'Remove weapon '+(i+1)} onClick={()=>
               save({weapons:sheet.weapons.filter((_,j)=>i!==j)})}><Trash2 size={14}/></button></td>
           </tr>)}</tbody>
-        </table></div><button className="tbe-add" type="button" disabled={sheet.weapons.length>=30} onClick={()=>
+        </table></div>
+        <datalist id="tbe-weapon-choices">{WEAPON_NAMES.map(name=><option key={name} value={name}/>)}</datalist>
+        <button className="tbe-add" type="button" disabled={sheet.weapons.length>=30} onClick={()=>
           save({weapons:[...sheet.weapons,blankWeapon(freshId())]})}><Plus size={14}/> Add weapon</button>
         <p className="tbe-help">ATT, PRY, RCH and damage fields match your source sheet. They remain manual until weapon resolution is verified; skill-roll buttons above are operational.</p>
       </section>

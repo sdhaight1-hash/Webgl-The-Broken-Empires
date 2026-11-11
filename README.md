@@ -92,6 +92,22 @@ Open **Character sheet** to play directly from the character instead of repeated
 
 **Not yet automated:** full hit-location armor/wound state, combat exchanges, weapons/defenses, talent prerequisites and XP legality, and entirely automatic character creation from culture/career. These are future rule-verification tasks, not claimed functionality.
 
+## Cohesive dark-mode UI and solo campaign worksheets
+
+The application now shares a dark Broken Empires-inspired palette: oxblood section bars, charcoal ink surfaces, aged-brass accents and parchment-toned text. The dashboard, sidebar, navigation, character forms, dice tray, source links, scene board and solo workspace use a consistent visual vocabulary. This is a **CSS/UX overhaul**, not a reproduction of the rulebook's commercial artwork.
+
+On the character sheet, the **Talents** section now has a category filter, a searchable pull-down of source-indexed Talent names, a custom-entry option, a deduplicated selected-Talents table, and links to the PDF page for each indexed choice. Race/Heritage, Previous Career, and weapon name fields also offer autocomplete suggestions while accepting custom text. These selectors preserve existing character saves and **do not claim to automatically resolve Talent costs, prerequisites or effects**.
+
+Solo Tabletop adds a **Campaign workbook** tab: editable scene worksheets; an NPC overview table with disposition choices and in-depth dossiers; a live open-thread checklist; and a searchable, filterable chronological roll/action ledger with source links. These all use the existing, validated version-1 campaign archive and automatically save with the campaign. Scene, NPC and thread updates have separate deterministic regression tests.
+
+**Browser UX acceptance is still required:** verify keyboard interaction, narrow layouts, contrast and the long character-sheet grid at 1080p and mobile widths. CI compilation is not a substitute for visually checking the actual app.
+
+## Repository SRD audit — comparison identity matters
+
+The GitHub-committed file `ref docs/The_Broken_Empires_Personal_SRD.pdf` currently has **671 pages**, comprised of 8 cover/contents pages and a 663-page text rendering of the original rulebook. A GitHub Actions audit compared it with `ref docs/Core Rulebook.pdf`. It maps all 663 source pages, with median page-level token recall 99.12%, but the source's detected tables were not reconstructed as PDF tables in the sampled SRD pages, and page 587 fell to 56.11% token recall. The median number-token recall is 100%, but source page 145 was 70.73%, so **visual and numerical rule accuracy are not established**.
+
+These measurements apply **only** to that repository copy. The user subsequently referenced a *newly uploaded replacement SRD*, but its distinct bytes were not yet accessible from conversation files or a new committed path at the time of this audit. Until the replacement is available, don't label these numbers as validation of the replacement PDF. See `docs/repository-srd-comparison.md` and the manual `Audit current repository SRD` workflow.
+
 ## Solo tabletop — playable first milestone
 
 Open **Solo tabletop** in the sidebar. Select your current character, name the campaign and set its premise; the campaign auto-saves in browser storage under a separate versioned key. You can export/import a standalone `wayfarers-solo-campaign.json` archive for backups (characters are stored separately). No external services or AI are required.
