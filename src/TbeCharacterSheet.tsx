@@ -6,6 +6,7 @@ import {allocatePoint,deriveAttributes,derivedSkill,rollSheetSkill,sheetAttribut
 import type {RollEntry} from './characterSheetModel.ts';
 import {isSheetAttributes} from './characterSheetState.ts';
 import {useSupplyDie} from './mechanics.ts';
+import {locateHit,recordWound} from './hitLocation.ts';
 import {InteractiveCharacterControls} from './InteractiveCharacterControls.tsx';
 import {TalentPicker} from './TalentPicker.tsx';
 import {PREVIOUS_CAREERS,WEAPON_NAMES} from './talentCatalog.ts';
@@ -48,10 +49,19 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
   const [favor,setFavor]=useState(0);
   const [notice,setNotice]=useState('');
   const [newSkill,setNewSkill]=useState('');
+  const [attackerRoll,setAttackerRoll]=useState('');
+  const [defenderRoll,setDefenderRoll]=useState('');
+  const [quickWp,setQuickWp]=useState('');
+  const [quickInjury,setQuickInjury]=useState('');
+  const [quickNonlethal,setQuickNonlethal]=useState(false);
   const sheet=readTbeSheet(character);
   const stats=deriveAttributes(character);
   const a=sheetAttributes(character);
   const res=sheetSupplies(character);
+  const hit=/^\d{1,3}$/.test(attackerRoll)&&/^\d{1,3}$/.test(defenderRoll)&&
+    Number(attackerRoll)>=1&&Number(attackerRoll)<=100&&
+    Number(defenderRoll)>=1&&Number(defenderRoll)<=100?
+    locateHit(Number(attackerRoll),Number(defenderRoll)):null;
   const save=(changes:Partial<TbeSheetData>)=>onUpdate({tbeSheet:{...sheet,...changes}});
   const setError=(e:unknown)=>setNotice(e instanceof Error?e.message:'Unable to update the sheet.');
   const log=(entry:RollEntry)=>{setLastRoll(entry);setRolls(items=>[entry,...items].slice(0,12));setNotice('');onRecord(entry);};
@@ -68,6 +78,15 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
     save({locations:{...sheet.locations,[id]:{...sheet.locations[id],...changes}}});
   const setWound=(id:BodyLocation,index:number,changes:Partial<WoundRow>)=>
     setLocation(id,{wounds:sheet.locations[id].wounds.map((w,i)=>i===index?{...w,...changes}:w)});
+  const saveQuickWound=()=>{
+    if(!hit){setNotice('Enter a valid attacker roll and defender roll (or generated d10).');return;}
+    try{
+      const updated=recordWound(sheet,hit,Number(quickWp),quickInjury,quickNonlethal);
+      onUpdate({tbeSheet:updated});
+      setQuickWp('');setQuickInjury('');setQuickNonlethal(false);
+      setNotice('Recorded '+quickWp+' WP at '+hit.label+' — '+hit.detail+'.');
+    }catch(error){setError(error);}
+  };
   const changeWeapon=(index:number,key:keyof WeaponRow,value:string)=>
     save({weapons:sheet.weapons.map((w,i)=>i===index?{...w,[key]:value}:w)});
   const changeInventory=(index:number,key:keyof InventoryRow,value:string)=>
@@ -135,7 +154,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
   };
   const woundCard=(id:BodyLocation,display:string,die:string)=>{
     const l=sheet.locations[id];
-    return <section className="tbe-location" key={id}>
+    return <section className={"tbe-location"+(hit?.location===id?" tbe-location-selected":"")} key={id}>
       <div className="tbe-location-header"><strong>{display}</strong><span className="tbe-location-die">{die}</span>
         <label><input type="checkbox" checked={l.impaired} onChange={e=>setLocation(id,{impaired:e.target.checked})}/> IMP</label></div>
       <div className="tbe-location-armor">
@@ -282,15 +301,48 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
         </section>
       </div>
 
-      <div className="tbe-wound-heading">{heading('Wounds & armor',145)}
+      <div className="tbe-wound-heading">{heading('Wounds & armor',176)}
         <div className="tbe-wound-metrics">
           {field('Total lethal WP',sheet.totalLethalWp,v=>save({totalLethalWp:v}),{short:true})}
           {field('Base recovery',sheet.baseRecovery,v=>save({baseRecovery:v}),{short:true})}
           <label className="tbe-check"><input type="checkbox" checked={sheet.shock} onChange={e=>save({shock:e.target.checked})}/> Shock?</label>
           {field('Rounds dying',sheet.roundsDying,v=>save({roundsDying:v}),{short:true})}
         </div>
-        <span className="tbe-calculated">Entered lethal WP sum: {enteredLethalWp(sheet)??'check entries'}</span>
+        <div className="tbe-wound-sum">
+          <span className="tbe-calculated">Calculated lethal WP: {enteredLethalWp(sheet)??'check entries'}</span>
+          {enteredLethalWp(sheet)!==null&&sheet.totalLethalWp!==String(enteredLethalWp(sheet))&&
+            <button type="button" className="tbe-mini" onClick={()=>
+              save({totalLethalWp:String(enteredLethalWp(sheet))})}>Sync total WP</button>}
+        </div>
       </div>
+      <section className="tbe-hit-tool" aria-label="Hit location lookup">
+        <div className="tbe-hit-title"><strong>Hit location lookup</strong>
+          <button type="button" onClick={()=>onOpenRule(176)}><BookOpen size={14}/> PDF 176</button></div>
+        <p>Enter the attacker's d100 roll for the general location, and the defender's d100 roll for the detailed location.
+          If the defender made no roll, use the d10 button. Zero is the ones digit of 10 or 100.</p>
+        <div className="tbe-hit-controls">
+          <label>Attacker d100<input type="number" min="1" max="100" step="1" value={attackerRoll}
+            aria-label="Attacker d100 result" placeholder="1–100" onChange={e=>setAttackerRoll(e.target.value)}/></label>
+          <label>Defender d100 / fallback d10<input type="number" min="1" max="100" step="1" value={defenderRoll}
+            aria-label="Defender roll result" placeholder="1–100" onChange={e=>setDefenderRoll(e.target.value)}/></label>
+          <button className="tbe-hit-die" type="button" onClick={()=>setDefenderRoll(String(rollDie(10)))}>
+            <Dices size={16}/> No defender roll: d10</button>
+        </div>
+        {hit?<div className="tbe-hit-result" role="status">
+          <strong>{hit.label} · {hit.detail}</strong>
+          <span>Attacker ones: {hit.attackerOnes} · Defender/detail: {hit.defenderOnes}</span>
+        </div>:<p className="tbe-hit-hint">Enter both rolls to identify a location. No damage is applied automatically.</p>}
+        {hit&&<div className="tbe-hit-record">
+          <label>Wound Points (after armor)<input aria-label="Quick wound WP" type="number" min="1" max="999"
+            step="1" value={quickWp} placeholder="WP" onChange={e=>setQuickWp(e.target.value)}/></label>
+          <label>Injury type / note<input aria-label="Quick wound injury" maxLength={1100} value={quickInjury}
+            placeholder="Slash, stab, burn…" onChange={e=>setQuickInjury(e.target.value)}/></label>
+          <label className="tbe-check"><input type="checkbox" checked={quickNonlethal}
+            onChange={e=>setQuickNonlethal(e.target.checked)}/> Non-lethal</label>
+          <button className="tbe-hit-save" type="button" disabled={!quickWp.trim()}
+            onClick={saveQuickWound}><Plus size={14}/> Record wound</button>
+        </div>}
+      </section>
       <div className="tbe-front-grid">
         <div className="tbe-wound-side">
           <section className="tbe-block">{heading('Talents',42)}
