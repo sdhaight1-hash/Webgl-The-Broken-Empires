@@ -26,7 +26,7 @@ export function SourceOutlineNavigator({ onOpenPage }: { onOpenPage: (page: numb
       {expanded ? <ChevronUp size={17}/> : <ChevronDown size={17}/>}
     </button>
     {expanded && <div className="codex-book-body">
-      <p>Every bookmark is included, even when a detailed lesson has not been authored. Select any section to open your personal PDF to the exact page; the Source Library also offers on-device search across the entire book.</p>
+      <p>Every bookmark is included, even when a detailed lesson has not been authored. Select any section to read the original text in your Personal SRD, using your own locally chosen PDF. The Source Library also provides access to the original page.</p>
       <div className="codex-book-controls">
         <label className="field"><span>Filter all sections</span>
           <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search sections, appendices, page numbers..."/>
@@ -43,7 +43,7 @@ export function SourceOutlineNavigator({ onOpenPage }: { onOpenPage: (page: numb
           </button>
         )}
       </div>
-      <div className="codex-book-note"><FileSearch size={16}/>A bookmark is not a complete statement of every rule. To locate unbookmarked rules, load the PDF in Source Library and build its full-text index.</div>
+      <div className="codex-book-note"><FileSearch size={16}/>A bookmark is not a complete statement of every rule. To locate unbookmarked rules, open Personal SRD, select your PDF, then index its text.</div>
     </div>}
   </section>;
 }

@@ -36,6 +36,7 @@ test('character and saved roster have safe defaults', () => {
 import { ARTICLE_BOOK_PAGES, BOOK_LINKS, CREATION_SEQUENCE, PDF_PAGE_COUNT } from './bookIndex.ts';
 import { ARTICLES, CATEGORIES } from './rules.ts';
 import { SOURCE_OUTLINE, BOOK_PAGES_WITH_TEXT } from './sourceOutline.ts';
+import { reconstructTextPage, pageMatches, pageSnippet } from './pdfText.ts';
 
 test('book index uses bounded 1-based PDF pages and unique chapter positions', () => {
   assert.equal(PDF_PAGE_COUNT,663);
@@ -111,4 +112,44 @@ test('later rulebook procedures remain source-indexed and guided',()=>{
     assert.ok(lesson && lesson.details.length>=2);
     assert.ok(SOURCE_OUTLINE.some(section=>section.page<=page));
   }
+});
+
+
+test('text-first reader restores two-column reading order independently from PDF run order',()=>{
+  const run=(str:string,x:number,y:number,width=50,height=10)=>({
+    str, transform:[1,0,0,1,x,y], width, height
+  });
+  const extracted=reconstructTextPage([
+    run('Right lower',330,500),run('Left lower',35,500),
+    run('Right upper',330,600),run('Left upper',35,600),
+    {type:'beginMarkedContent',id:'decorative-art'}, 
+  ],612);
+  assert.equal(extracted.runCount,4);
+  assert.equal(extracted.left.map(b=>b.text).join(' | '),'Left upper | Left lower');
+  assert.equal(extracted.right.map(b=>b.text).join(' | '),'Right upper | Right lower');
+  assert.equal(extracted.plainText,'Left upper\nLeft lower\nRight upper\nRight lower');
+});
+
+test('text-only reconstruction preserves adjacent PDF fragments and ignores graphics',()=>{
+  const run=(str:string,x:number,y:number,width:number)=>({
+    str,transform:[1,0,0,1,x,y],width,height:10
+  });
+  const extracted=reconstructTextPage([
+    run('Cap',20,600,17),run('tain',37,600,22),run('moves',72,600,30)
+  ],612);
+  assert.equal(extracted.plainText,'Captain moves');
+  assert.equal(extracted.runCount,3);
+  assert.deepEqual(extracted.positioned.map(run=>run.text),['Cap','tain','moves']);
+  assert.equal(extracted.positioned[0].y,192);
+  assert.deepEqual(reconstructTextPage([],612),{left:[],right:[],plainText:'',runCount:0,width:612,height:792,positioned:[]});
+  assert.throws(()=>reconstructTextPage([],0),RangeError);
+});
+
+test('text search requires all terms, is case insensitive, and returns short local snippets',()=>{
+  const body='There is an opposed Wound Die roll before the target becomes impaired.';
+  assert.equal(pageMatches(body,'wOuNd die'),true);
+  assert.equal(pageMatches(body,'wound missing'),false);
+  assert.equal(pageMatches(body,' '),false);
+  assert.ok(pageSnippet(body,'wound').toLowerCase().includes('wound die'));
+  assert.ok(pageSnippet(body,'wound').length<=233);
 });

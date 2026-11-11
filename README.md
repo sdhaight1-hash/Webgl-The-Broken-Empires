@@ -10,6 +10,7 @@ An **independent**, browser-based character journal and rules-learning companion
 - Multiple local characters, duplication, deletion, and JSON archive import/export.
 - **75 PDF-grounded rules lessons** across core resolution, skills, character creation, advancement, equipment and combat, wounds, travel, intrigue, Weave and divine magic. Each topic links directly to its source PDF page; selected topics include worked examples and interactive knowledge checks. The latest additions cover solo play, enemy behavior, mass combat, naval combat, and appendix mechanics.
 - Source library: a local-only PDF reader with **all 207 verified bookmarks** and **on-demand full-text indexing** of the **659 text-extractable pages** of the 663-page book, plus an interactive PNG atlas with pan, zoom and local map markers. Neither the extracted page text nor the original book/map bytes are bundled into the frontend.
+- **Personal SRD (local-only):** on-demand, art-free text view of the owner's chosen PDF, chapter/section navigation across the entire 663-page volume, reading-flow and page-column layouts, a text-position view for tables, adjustable type, source-PDF cross-checks and optional full-book search. No extracted book text is committed, uploaded, persisted or exported.
 - Interactive d100 basic check lab with core-book verified automatic success/failure, critical doubles, **exact-value critical successes** and Success Levels.
 - Automatic browser-local save. No server, account, analytics, or AI services.
 
@@ -30,6 +31,21 @@ Validate:
 npm test
 npm run build
 ```
+
+## Personal SRD — text-only private reader
+
+The **Personal SRD** page is a locally generated reading interface, **not** a published, open-licensed System Reference Document. To use it:
+
+1. Open **Personal SRD** in the app.
+2. Select your own `ref docs/Core Rulebook.pdf` from disk; the app reads it with Mozilla PDF.js.
+3. Navigate all 207 indexed bookmarks or use the previous/next page controls.
+4. Toggle **Reading flow**, **Page columns**, or **Text positions**. The third mode reconstructs the position of textual PDF runs and is particularly helpful for tables without rendering artwork.
+5. Choose **Index all pages** to search the source text throughout the book; the index builds and stays only in the current browser session and can be cancelled. The app reads pages on demand otherwise.
+6. Use **Check original** whenever a chart, table, footnote or layout-sensitive rule needs confirmation.
+
+The 663-page supplied file has 659 pages with extractable text; pages 1, 2, 3 and 7 have none. A full-book PDF.js audit on GitHub Actions processed **663/663 pages** and retained **64,498 text runs**, producing approximately **1.48 million characters** of reconstructed text. To repeat this verification, dispatch the **Audit owner-supplied rulebook text** workflow manually in GitHub Actions; it prints metadata only, not copyrighted content. PDF text order and original typography are not guaranteed to be preserved exactly, and text embedded as images is not recovered. The original core PDF remains the source of truth for rules decisions. The ~198 MB source may incur meaningful RAM usage and delay. The code does **not** bake the commercial book's prose into the distributed JS bundle, issue automatic exports of its text, or claim SRD publication rights.
+
+**Rights:** removing artwork does not license the rulebook text. The publisher's current [third-party license](https://thebrokenempiresrpg.com/pages/license) does not authorize software adaptations or wholesale rule reproduction. This feature is intended for an owner's own local PDF rather than distributing the text to others. Seek written authorization before publishing a comprehensive SRD, rules database, or public text-based adaptation.
 
 ## Rules integrity and important limitations
 
