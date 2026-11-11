@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {BookOpen,Check,ChevronDown,Dices,FileText,HeartPulse,Minus,Plus,ScrollText,Shield,Swords,Trash2} from 'lucide-react';
+import {BookOpen,ChevronDown,Dices,FileText,HeartPulse,Minus,Plus,ScrollText,Swords,Trash2} from 'lucide-react';
 import type {Character,Skill,SupplyCategory,SupplyDieSize} from './types.ts';
 import {freshId,rollPercentile} from './engine.ts';
 import {allocatePoint,deriveAttributes,derivedSkill,rollSheetSkill,sheetAttributes,sheetSupplies,updateSheetSupply} from './characterSheetModel.ts';
@@ -176,6 +176,8 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
     {notice&&<div className="tbe-notice" role="alert">{notice}<button onClick={()=>setNotice('')}>Dismiss</button></div>}
     {lastRoll&&<div className="tbe-quick-roll" role="status"><Dices size={19}/><div>
       <strong>{lastRoll.label}</strong><span>{lastRoll.message}</span>
+      {rolls.length>1&&<details className="tbe-recent-rolls"><summary>Recent rolls ({rolls.length})</summary>
+        <ol>{rolls.slice(1).map((r,i)=><li key={i}>{r.message}</li>)}</ol></details>}
     </div><button type="button" onClick={()=>setLastRoll(null)} aria-label="Dismiss roll result">×</button></div>}
     {view==='mechanics'&&<InteractiveCharacterControls key={character.id} character={character}
       onUpdate={onUpdate} onUpdateSkill={(id,key,value)=>onUpdate({skills:character.skills.map(s=>s.id===id?{...s,[key]:value}:s)})}
@@ -335,7 +337,7 @@ export function TbeCharacterSheet({character,onUpdate,onRecord,onOpenRule}:Props
       <section className="tbe-block">
         {heading('Goals')}<div className="tbe-goal-grid">
           {sheet.goals.map((row,i)=><div key={i} className="tbe-goal-row">
-            <input aria-label={'Goal '+(i+1)} value={i===0&&!character.tbeSheet?character.goal:row.text}
+            <input aria-label={'Goal '+(i+1)} value={i===0&&!row.text&&character.goal?character.goal:row.text}
               onChange={e=>{
                 const rows=sheet.goals.map((g,j)=>i===j?{...g,text:e.target.value}:g);
                 onUpdate({tbeSheet:{...sheet,goals:rows},...(i===0?{goal:e.target.value}:{})});

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Activity, ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Compass, Copy, Dices, ExternalLink, Feather, FileJson, HeartPulse, Layers, Menu, Plus, ScrollText, ScanText, Search, Shield, Sparkles, Swords, Trash2, WandSparkles, X } from 'lucide-react';
+import { Activity, ArrowDownToLine, ArrowLeft, ArrowRight, BookOpen, Check, ChevronDown, CircleHelp, Compass, Copy, Dices, ExternalLink, Feather, FileJson, Layers, Menu, Plus, ScrollText, ScanText, Search, Shield, Sparkles, Swords, Trash2, WandSparkles, X } from 'lucide-react';
 import type { Character, Check as DiceCheck, Page, RecordEntry } from './types.ts';
 import { freshId, isCharacter, makeCharacter, resolveCheck, rollPercentile, safeReadRoster } from './engine.ts';
 import { ARTICLES, CATEGORIES, CHARACTER_SHEET, CORE_BOOK, HERITAGES, LICENSE, SUGGESTED_SKILLS } from './rules.ts';
