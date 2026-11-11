@@ -46,16 +46,18 @@ export function derivedSkill(skill:Skill) {
     target:skill.rating+modifier,canRoll:skill.rating+modifier>=0&&skill.rating+modifier<=100};
 }
 
-export function rollSheetSkill(skill:Skill,roll:number):{check:AppliedCheck;entry:RollEntry}{
+export function rollSheetSkill(skill:Skill,roll:number,favor=0):{check:AppliedCheck;entry:RollEntry}{
+  if(!Number.isInteger(favor)||favor<0||favor>3)throw new RangeError('Resolve Favor is limited to 0–3 per roll');
   const d=derivedSkill(skill);
-  const check=skillTest({rating:skill.rating,modifier:d.modifier,roll,expertise:d.expertiseLevel});
+  const check=skillTest({rating:skill.rating,modifier:d.modifier+10*favor,roll,expertise:d.expertiseLevel});
   const label=skill.name.trim()||'Unnamed skill';
   const message=label+' — d100 '+roll+' vs '+check.target+' ('+skill.rating+
     (d.modifier>=0?'+':'')+d.modifier+')'+
     (check.success?' · success':' · failure')+
     (check.critical?' · critical':'')+
     ' · '+check.levels+' SL'+
-    (d.expertiseLevel>1?' · Ex'+d.expertiseLevel:'');
+    (d.expertiseLevel>1?' · Ex'+d.expertiseLevel:'')+
+    (favor>0?' · '+favor+' Resolve as Favor':'');
   return {check,entry:{label,message,sourcePage:23,roll,check}};
 }
 
