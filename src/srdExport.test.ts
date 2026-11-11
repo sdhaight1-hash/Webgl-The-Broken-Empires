@@ -58,9 +58,19 @@ test('export contains clickable contents, bookmarks, page nav and chapter links'
     const contents=await pdf.getPage(2);
     const tocAnnotations=await contents.getAnnotations();
     assert.ok(tocAnnotations.filter(a=>a.subtype==='Link'&&a.dest).length>=3);
+    const destinations=await Promise.all(tocAnnotations.filter(a=>Array.isArray(a.dest)).map(async a=>
+      (await pdf.getPageIndex(a.dest[0]))+1
+    ));
+    assert.ok([3,4,5].every(p=>destinations.includes(p)));
     const body=await pdf.getPage(3);
     const bodyLinks=await body.getAnnotations();
     assert.ok(bodyLinks.filter(a=>a.subtype==='Link'&&a.dest).length>=2);
+    const bodyDestinations=await Promise.all(bodyLinks.filter(a=>Array.isArray(a.dest)).map(async a=>
+      (await pdf.getPageIndex(a.dest[0]))+1
+    ));
+    assert.ok(bodyDestinations.includes(2)); // back to contents
+    assert.ok(bodyDestinations.includes(4)); // next source page
+    assert.ok(bodyDestinations.includes(5)); // Chapter 2 cross-reference
     const texts=await body.getTextContent();
     assert.ok(texts.items.some(item=>'str' in item&&item.str.includes('Chapter 2')));
   }finally{await task.destroy();}
