@@ -99,8 +99,8 @@ const inventory=(x:unknown)=>object(x)&&txt(x.id,90)&&txt(x.item,500)&&txt(x.enc
 export function isTbeSheet(value:unknown):value is TbeSheetData{
   if(!object(value))return false;
   if(!['sex','age','size','xp','startingPiety','totalLethalWp','baseRecovery','roundsDying',
-    'silverPieces','maxEnc','fraying'].every(k=>txt(value[k]))&&
-    txt(value.relationshipNpcs,4000)&&txt(value.threads,4000))return false;
+    'silverPieces','maxEnc','fraying'].every(k=>txt(value[k]))||
+    !txt(value.relationshipNpcs,4000)||!txt(value.threads,4000))return false;
   if(!textArray(value.abilityDescriptors,3)||!textArray(value.personalityTraits,3))return false;
   if(!object(value.strands)||!STRAND_NAMES.every(k=>txt((value.strands as Record<string,unknown>)[k],25)))return false;
   if(typeof value.shock!=='boolean'||!object(value.locations)||!BODY_LOCATIONS.every(({id})=>location((value.locations as Record<string,unknown>)[id])))return false;
