@@ -1,4 +1,23 @@
-export interface Skill { id: string; name: string; rating: number; note: string }
+export interface Skill { id: string; name: string; rating: number; note: string; modifier?: number; expertiseLevel?: 1 | 2 | 3 | 4 }
+
+/** Core rulebook, PDF pp. 91-92. Optional for previously saved characters. */
+export interface SheetAttributes {
+  resolvePoints: number;
+  initiativePoints: number;
+  toughnessPoints: number;
+  deathThresholdPoints: number;
+  resolveBonus: number;
+  initiativeBonus: number;
+  toughnessBonus: number;
+  deathThresholdBonus: number;
+  lethalityBonus: number;
+  armorInitiativePenalty: number;
+  spentResolve: number;
+  fatigue: number;
+}
+export type SupplyDieSize = 0 | 6 | 8 | 10 | 12;
+export type SupplyCategory = 'gear' | 'ammo' | 'medical' | 'rations';
+export type SheetSupplies = Record<SupplyCategory, SupplyDieSize | null>;
 export interface RecordEntry { id: string; text: string }
 export interface Character {
   id: string;
@@ -15,6 +34,8 @@ export interface Character {
   notes: string;
   experience: string;
   skills: Skill[];
+  attributes?: SheetAttributes;
+  supplies?: SheetSupplies;
   talents: RecordEntry[];
   expertise: RecordEntry[];
   wounds: RecordEntry[];

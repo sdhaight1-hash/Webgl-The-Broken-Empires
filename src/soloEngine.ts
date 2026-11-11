@@ -28,6 +28,7 @@ export type OracleRoll={
   roll:number;yesChance:number;outcome:OracleOutcome;event:boolean;
   mode:'custom'|'table';
 };
+export const SOLO_STORAGE_KEY='wayfarers-ledger-solo-v1';
 export const SOLO_SOURCE={
   overview:486,oracle:490,randomizers:492,sceneStart:493,events:491,npcs:495
 } as const;
@@ -120,4 +121,26 @@ export function readSoloCampaigns(raw:string|null):SoloCampaign[]{
     const c:unknown=JSON.parse(raw);
     return Array.isArray(c)?c.filter(isSoloCampaign).slice(0,30):[];
   }catch{return []}
+}
+
+/** Sheet rolls can be logged while the solo view is unmounted. Only a campaign
+ * belonging to the selected character is eligible; the caller persists the
+ * returned JSON. No campaign is implicitly created or overwritten.
+ */
+export function appendCharacterSheetLog(
+  raw:string|null,activeCampaignId:string,characterId:string,
+  entry:{message:string;sourcePage:number;roll?:number}
+):string|null{
+  if(!entry.message.trim()||entry.message.length>4200||
+    !Number.isInteger(entry.sourcePage)||entry.sourcePage<1||entry.sourcePage>663||
+    (entry.roll!==undefined&&(!Number.isInteger(entry.roll)||entry.roll<1||entry.roll>100))){
+    throw new RangeError('Invalid sheet roll journal entry');
+  }
+  const campaigns=readSoloCampaigns(raw);
+  const chosen=campaigns.find(c=>c.id===activeCampaignId&&c.characterId===characterId)
+    ??campaigns.find(c=>c.characterId===characterId);
+  if(!chosen)return null;
+  return JSON.stringify(campaigns.map(c=>c.id===chosen.id
+    ?addSoloLog(c,makeSoloLog('check',entry.message,c.activeSceneId,entry.sourcePage,entry.roll))
+    :c));
 }
