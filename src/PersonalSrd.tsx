@@ -5,6 +5,8 @@ import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import { SOURCE_OUTLINE } from './sourceOutline.ts';
 import { PDF_PAGE_COUNT } from './bookIndex.ts';
 import { reconstructTextPage, pageMatches, pageSnippet } from './pdfText.ts';
+import { structureTextPage } from './srdLayout.ts';
+import type { StructuredBlock } from './srdLayout.ts';
 import type { TextBlock, TextPage } from './pdfText.ts';
 import './personalSrd.css';
 
@@ -33,7 +35,7 @@ export function PersonalSrd({
   const [current,setCurrent]=useState<{page:number;value:TextPage}|null>(null);
   const [pageLoading,setPageLoading]=useState(false);
   const [fontSize,setFontSize]=useState(16);
-  const [layout,setLayout]=useState<'flow'|'columns'|'geometry'>('flow');
+  const [layout,setLayout]=useState<'structured'|'flow'|'columns'|'geometry'>('structured');
   const [contentsQuery,setContentsQuery]=useState('');
   const [searchQuery,setSearchQuery]=useState('');
   const [indexStatus,setIndexStatus]=useState<IndexStatus>('idle');
@@ -211,6 +213,18 @@ export function PersonalSrd({
   const renderBlocks=(blocks:TextBlock[],prefix:string)=>blocks.map((b,i)=>b.kind==='heading'
     ? <h3 key={prefix+i} className="personal-srd-heading">{b.text}</h3>
     : <p key={prefix+i}>{b.text}</p>);
+  const renderStructured=(blocks:StructuredBlock[])=>blocks.map((block,i)=>
+    block.kind==='heading'
+      ?<h3 key={i} className="personal-srd-heading">{block.text}</h3>
+      :block.kind==='paragraph'
+        ?<p key={i}>{block.text}</p>
+        :<div key={i} className="personal-srd-table-wrap" role="region" aria-label="Extracted source PDF table" tabIndex={0}>
+          <table className="personal-srd-table">
+            {block.header&&<thead><tr>{block.rows[0].map((cell,j)=><th scope="col" key={j}>{cell}</th>)}</tr></thead>}
+            <tbody>{block.rows.slice(block.header?1:0).map((row,r)=><tr key={r}>{row.map((cell,j)=><td key={j}>{cell}</td>)}</tr>)}</tbody>
+          </table>
+        </div>
+  );
 
   const goto=(n:number)=>setPage(clamp(Math.round(n)||1,1,maxPage));
 
@@ -280,8 +294,8 @@ export function PersonalSrd({
           <div className="personal-srd-display-tools">
             <button aria-label="Decrease text size" title="Smaller text" disabled={fontSize<=13} onClick={()=>setFontSize(s=>clamp(s-1,13,22))}><Minus size={16}/></button>
             <button aria-label="Increase text size" title="Larger text" disabled={fontSize>=22} onClick={()=>setFontSize(s=>clamp(s+1,13,22))}><Plus size={16}/></button>
-            <button title="Toggle reading layout" onClick={()=>setLayout(m=>m==='flow'?'columns':m==='columns'?'geometry':'flow')}><Columns2 size={16}/><span>{layout==='flow'?'Reading flow':layout==='columns'?'Page columns':'Text positions'}</span></button>
-            <button title="Reset reading options" aria-label="Reset reading options" onClick={()=>{setFontSize(16);setLayout('flow');}}><RotateCcw size={16}/></button>
+            <button title="Toggle reading layout" onClick={()=>setLayout(m=>m==='structured'?'columns':m==='columns'?'geometry':m==='geometry'?'flow':'structured')}><Columns2 size={16}/><span>{layout==='structured'?'Structured text + tables':layout==='flow'?'Legacy flow':layout==='columns'?'Page columns':'Text positions'}</span></button>
+            <button title="Reset reading options" aria-label="Reset reading options" onClick={()=>{setFontSize(16);setLayout('structured');}}><RotateCcw size={16}/></button>
           </div>
         </div>
         {loadState==='loading'?<div className="personal-srd-loading"><FileSearch size={30}/><p>Opening and parsing your local PDF…</p></div>:
@@ -293,6 +307,7 @@ export function PersonalSrd({
           layout==='geometry'?<svg className="personal-srd-spatial" viewBox={`0 0 ${pageData.width} ${pageData.height}`} role="img" aria-label="Spatial text-only view of this PDF page, without artwork">
             {pageData.positioned.map((run,i)=><text key={i} x={run.x} y={run.y} fontSize={run.fontSize} fill="currentColor">{run.text}</text>)}
           </svg>:
+          layout==='structured'?<div className="personal-srd-structured">{renderStructured(structureTextPage(pageData))}</div>:
           <div className="personal-srd-text-grid">
             <div className="personal-srd-text-stream">{renderBlocks(pageData.left,'left-')}</div>
             <div className="personal-srd-text-stream">{renderBlocks(pageData.right,'right-')}</div>
@@ -304,7 +319,7 @@ export function PersonalSrd({
           <span><CheckCircle2 size={15}/> {cache.current.size} pages processed this session</span>
           <button className="button button-quiet button-small" disabled={selectedPage>=maxPage} onClick={()=>goto(selectedPage+1)}>Next <ArrowRight size={16}/></button>
         </div>
-        <p className="reference-footnote">Text extraction omits graphical art and page images, not necessarily every decorative glyph. The local exported PDF includes a clickable contents and chapter bookmarks but does not automatically license the material for redistribution. Use Text positions mode to inspect table alignment without artwork. PDF text fonts, footnotes, rotated labels and complex tables can still be imperfect; check the original PDF for adjudication. Extraction remains in browser memory only.</p>
+        <p className="reference-footnote">Structured mode detects headings, reading columns and tabular rows from your selected PDF. It remains heuristic, so complex merged cells and decorative text require original-PDF verification. Text extraction omits graphical art and page images, not necessarily every decorative glyph. The local exported PDF includes a clickable contents and chapter bookmarks but does not automatically license the material for redistribution. Use Text positions mode to inspect table alignment without artwork. PDF text fonts, footnotes, rotated labels and complex tables can still be imperfect; check the original PDF for adjudication. Extraction remains in browser memory only.</p>
       </section>
     </div>}
   </div>;
