@@ -23,6 +23,6 @@ export interface Character {
   createdAt: string;
   updatedAt: string;
 }
-export type Page = 'overview' | 'forge' | 'sheet' | 'codex' | 'dice';
+export type Page = 'overview' | 'forge' | 'sheet' | 'codex' | 'references' | 'dice';
 export type Check = { roll: number; target: number; success: boolean; critical: boolean; levels: number; automatic: boolean; note: string };
 export interface RuleArticle { id: string; title: string; category: string; summary: string; details: string[]; source: string; sourceTitle: string; status: 'verified-overview' | 'secondary-source' | 'pending-core-book'; }
