@@ -66,7 +66,9 @@ function makeLines(runs:readonly PositionedRun[]):Line[]{
 
 function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
   const first=lines[start];
-  if(!first||first.segments.length<minColumns)return null;
+  if(!first||first.segments.length<2)return null;
+// A leading table row can have fewer recognized cells when its explanation
+// wraps or when PDF.js merges adjacent header typography.
   // Header labels are often broken into more text fragments than the actual
   // number of data columns. Choose the modal multi-cell row as the template.
   const candidates=lines.slice(start,start+9).filter(l=>l.y-first.y<135&&
@@ -77,7 +79,7 @@ function makeTable(lines:Line[],start:number,minColumns:number):Detection|null{
   const template=candidates.find(l=>l.segments.length===modal)||first;
   const anchors=template.segments.map(s=>s.x);
   if(anchors.length>8)return null;
-  let aligned=1;
+  let aligned=first.segments.length>=minColumns?1:0;
   let end=start;
   let previous=first;
   for(let i=start+1;i<lines.length&&i<start+65;i++){
@@ -177,6 +179,7 @@ function convertLines(lines:Line[]):StructuredBlock[]{
 function broadTableRanges(lines:Line[],width:number):{start:number;end:number;block:StructuredBlock}[]{
   const found:{start:number;end:number;block:StructuredBlock}[]=[];
   for(let i=0;i<lines.length;i++){
+    if(lines[i].segments.length<3)continue;
     const table=makeTable(lines,i,3);
     if(!table)continue;
     const all=lines.slice(i,table.end+1);
