@@ -1,8 +1,5 @@
 name: Audit SRD layout and source-table geometry
 on:
-  push:
-    branches: [feature/structured-srd-layout-tables]
-    paths: [scripts/audit-srd-layout.mjs,.github/workflows/srd-layout-audit.yml]
   workflow_dispatch:
 jobs:
   audit:
