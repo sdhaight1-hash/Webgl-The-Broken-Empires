@@ -304,8 +304,7 @@ function renderStructuredSource(
 }
 
 function renderFooters(
-  pdf:jsPDF,records:readonly PageRecord[],pageMap:ReadonlyMap<number,number>,
-  totalPages:number
+  pdf:jsPDF,records:readonly PageRecord[]
 ):number{
   let links=0;
   for(const record of records){
@@ -314,14 +313,14 @@ function renderFooters(
     pdf.setFont('helvetica','normal');pdf.setFontSize(9);pdf.setTextColor(66,90,99);
     pdf.text('CONTENTS',MARGIN,PAGE_HEIGHT-28);
     pdf.link(MARGIN,PAGE_HEIGHT-42,90,24,{pageNumber:2});links++;
-    const prev=pageMap.get(record.sourcePage-1);
+    const prev=record.outputPage>records[0].outputPage?record.outputPage-1:undefined;
     if(prev){
       pdf.text('< PREVIOUS',171,PAGE_HEIGHT-28);
       pdf.link(166,PAGE_HEIGHT-42,96,24,{pageNumber:prev});links++;
     }
     pdf.text('Source '+record.sourcePage+(record.continued?' (cont.)':''),330,PAGE_HEIGHT-28);
-    const next=pageMap.get(record.sourcePage+1);
-    if(record.sourcePage<totalPages&&next){
+    const next=record.outputPage<records[records.length-1].outputPage?record.outputPage+1:undefined;
+    if(next){
       pdf.text('NEXT >',PAGE_WIDTH-MARGIN,PAGE_HEIGHT-28,{align:'right'});
       pdf.link(PAGE_WIDTH-MARGIN-100,PAGE_HEIGHT-42,100,24,{pageNumber:next});links++;
     }
@@ -361,7 +360,7 @@ export async function buildHyperlinkedSrdPdf(options:ExportOptions):Promise<Expo
   }
   assertNotCancelled(signal);
   let links=1+renderContents(pdf,sections,tocPages,totalPages,pageMap);
-  links+=renderFooters(pdf,records,pageMap,totalPages);
+  links+=renderFooters(pdf,records);
   const chapterMap=chapterTargets(sections,pageMap);
   for(const spot of spots){
     const target=chapterMap.get(spot.sourceChapter);
