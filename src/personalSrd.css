@@ -60,3 +60,7 @@
 .personal-srd-reader>.reference-footnote{padding:0 24px 18px;font-size:10.5px;line-height:1.7}
 @media(max-width:1100px){.personal-srd-layout{grid-template-columns:1fr}.personal-srd-sidebar{max-height:none}.personal-srd-toc{max-height:245px}.personal-srd-paper{min-height:500px}}
 @media(max-width:650px){.personal-srd-banner{flex-direction:column;align-items:stretch}.personal-srd-banner label{align-self:flex-start}.personal-srd-reader-bar{padding:17px 16px;flex-wrap:wrap}.personal-srd-tools{padding:10px 12px}.personal-srd-paper{padding:23px 18px}.personal-srd-paper.show-columns .personal-srd-text-grid{grid-template-columns:1fr;gap:0}.personal-srd-display-tools span{display:none}.personal-srd-bottom-nav>span{order:3;width:100%;justify-content:center}.personal-srd-placeholder{padding:30px 20px}}
+
+/* Preserve PDF text geometry for tables without copying art or rendering page images. */
+.personal-srd-spatial{display:block;width:100%;height:auto;max-width:900px;margin:0 auto;color:#242b2a;overflow:visible;background:#ede7d9}
+.personal-srd-spatial text{font-family:Georgia,"Times New Roman",serif;white-space:pre;pointer-events:auto}
